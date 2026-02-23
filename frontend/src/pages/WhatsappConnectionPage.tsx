@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../api";
+import { api, getQrStreamUrl } from "../api";
 import {
   joinSessionRoom,
   leaveSessionRoom,
@@ -95,7 +95,7 @@ export default function WhatsappConnectionPage() {
 
     joinSessionRoom(sid).then((ok) => {
       if (!ok || cancelled) return;
-      api.get(`/whatsapp/sessions/${sid}/status`).catch(() => {}); // dispara getOrCreateClient
+      api.get(`/whatsapp/sessions/${sid}/status`).catch(() => {});
     });
 
     const unQr = onQr((sessionId, dataUrl) => {
@@ -120,34 +120,61 @@ export default function WhatsappConnectionPage() {
     });
     unsubRef.current = [unQr, unReady, unDisc];
 
-    let hadQr = false;
-    const poll = async () => {
-      try {
-        const r = await api.get<{ qr: string | null; alreadyConnected?: boolean }>(`/whatsapp/sessions/${sid}/qr`);
+    const streamUrl = getQrStreamUrl(sid);
+    let eventSource: EventSource | null = null;
+    if (streamUrl) {
+      eventSource = new EventSource(streamUrl);
+      eventSource.onmessage = (ev) => {
         if (cancelled) return;
-        if (r.data.alreadyConnected) {
-          toast.push({ type: "success", title: "Conexões", message: "Sessão já conectada." });
-          setQrModal(null);
-          void load();
-          return;
+        try {
+          const data = JSON.parse(ev.data) as { qr?: string; status?: string };
+          if (data.qr) setQr(data.qr);
+          if (data.status === "connected") handleConnected();
+        } catch (_) {}
+      };
+      eventSource.addEventListener("qr", (ev: MessageEvent) => {
+        if (cancelled) return;
+        try {
+          const data = JSON.parse(ev.data) as { qr?: string };
+          if (data.qr) setQr(data.qr);
+        } catch (_) {}
+      });
+      eventSource.addEventListener("status", (ev: MessageEvent) => {
+        if (cancelled) return;
+        try {
+          const data = JSON.parse(ev.data) as { status?: string };
+          if (data.status === "connected") handleConnected();
+        } catch (_) {}
+      });
+      eventSource.onerror = () => {
+        eventSource?.close();
+        eventSource = null;
+      };
+    } else {
+      const poll = async () => {
+        if (cancelled) return;
+        try {
+          const r = await api.get<{ qr: string | null; alreadyConnected?: boolean }>(`/whatsapp/sessions/${sid}/qr`);
+          if (cancelled) return;
+          if (r.data.alreadyConnected) {
+            toast.push({ type: "success", title: "Conexões", message: "Sessão já conectada." });
+            setQrModal(null);
+            void load();
+            return;
+          }
+          if (r.data.qr) setQr(r.data.qr);
+        } catch {
+          if (!cancelled) setQr(null);
         }
-        if (r.data.qr) {
-          hadQr = true;
-          setQr(r.data.qr);
-        } else if (hadQr) {
-          const statusRes = await api.get<{ status: string }>(`/whatsapp/sessions/${sid}/status`);
-          if (!cancelled && statusRes.data?.status === "connected") handleConnected();
-        }
-      } catch {
-        if (!cancelled) setQr(null);
-      }
-    };
-    void poll();
-    const id = setInterval(poll, 500);
+      };
+      void poll();
+      const id = setInterval(poll, 2000);
+      unsubRef.current.push(() => clearInterval(id));
+    }
 
     return () => {
       cancelled = true;
-      clearInterval(id);
+      eventSource?.close();
       leaveSessionRoom(sid);
       unsubRef.current.forEach((u) => u());
       if (!connectedHandledRef.current) {

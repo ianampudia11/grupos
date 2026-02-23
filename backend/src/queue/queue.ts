@@ -125,7 +125,10 @@ export function startQueue() {
     generateMonthlyInvoices,
     markOverdueInvoices,
   });
+  logger.info("QUEUE", "Workers BullMQ iniciados");
+}
 
+export function startCronScheduler() {
   cron.schedule(
     "5 0 1 * *",
     () =>
@@ -153,6 +156,5 @@ export function startQueue() {
         "campanhas agendadas"
       )
   );
-
-  logger.info("QUEUE", "Scheduler iniciado (BullMQ ou fallback em processo)");
+  logger.info("QUEUE", "Cron scheduler iniciado (processo separado)");
 }

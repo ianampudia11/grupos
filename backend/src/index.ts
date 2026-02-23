@@ -202,13 +202,21 @@ app.use(
 const httpServer = createServer(app);
 setupSocket(httpServer);
 
+const apiOnly = process.env.PROCESS_TYPE === "api";
+
 httpServer.listen(env.port, () => {
-  logger.success("SERVER", `Backend rodando na porta ${env.port}`);
-  startQueue();
-  startWhatsAppQueueWorkers({
-    restart: (sessionId, companyId) => restart(sessionId, companyId),
-    disconnect: (sessionId, companyId) => disconnect(sessionId, companyId),
-    release: (sessionId, companyId) => releasePairing(sessionId, companyId),
-  });
+  logger.success("SERVER", `Backend rodando na porta ${env.port}${apiOnly ? " (API only)" : ""}`);
+  if (!apiOnly) {
+    startQueue();
+    startWhatsAppQueueWorkers({
+      restart: (sessionId, companyId) => restart(sessionId, companyId),
+      ensure: async (sessionId) => {
+        const { getOrCreateClient } = await import("./services/whatsappClientManager");
+        await getOrCreateClient(sessionId);
+      },
+      disconnect: (sessionId, companyId) => disconnect(sessionId, companyId),
+      release: (sessionId, companyId) => releasePairing(sessionId, companyId),
+    });
+  }
 });
 
