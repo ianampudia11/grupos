@@ -12,7 +12,7 @@ WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm install
 COPY backend/ ./
-RUN npm run db:generate
+RUN chmod +x node_modules/.bin/* && npm run db:generate
 RUN npm run build
 
 # Etapa 3: Imagen Final
@@ -28,7 +28,7 @@ RUN npm install --omit=dev
 COPY --from=backend-builder /app/backend/dist ./dist
 COPY --from=backend-builder /app/backend/prisma ./prisma
 # Generar cliente prisma en la imagen final
-RUN npm run db:generate
+RUN chmod +x node_modules/.bin/* && npm run db:generate
 
 # Copiar compilación del frontend
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
