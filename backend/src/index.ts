@@ -203,6 +203,21 @@ app.use("/api/settings", settingsRoutes);
 app.use("/api/webhooks", sensitiveApiLimiter, webhooksRoutes);
 app.use("/api/link-preview", linkPreviewRoutes);
 
+// --- Servir Frontend en Producción ---
+if (env.nodeEnv === "production") {
+  const frontendPath = path.resolve(process.cwd(), "../frontend/dist");
+  if (fs.existsSync(frontendPath)) {
+    app.use(express.static(frontendPath));
+    app.get("*", (req, res) => {
+      // Evitar redirigir rutas de la API que no existen
+      if (req.path.startsWith("/api")) {
+        return res.status(404).json({ message: "API route not found" });
+      }
+      res.sendFile(path.join(frontendPath, "index.html"));
+    });
+  }
+}
+
 app.use(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

@@ -12,7 +12,7 @@ WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm install
 COPY backend/ ./
-RUN npx prisma generate
+RUN npm run db:generate
 RUN npm run build
 
 # Etapa 3: Imagen Final
@@ -27,8 +27,8 @@ RUN npm install --omit=dev
 # Copiar compilación del backend y prisma
 COPY --from=backend-builder /app/backend/dist ./dist
 COPY --from=backend-builder /app/backend/prisma ./prisma
-# Generar cliente prisma en la imagen final para asegurar compatibilidad de arquitectura
-RUN npx prisma generate
+# Generar cliente prisma en la imagen final
+RUN npm run db:generate
 
 # Copiar compilación del frontend
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
@@ -43,4 +43,4 @@ ENV PORT=4250
 
 EXPOSE 4250
 
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
+CMD ["sh", "-c", "npm run db:migrate:deploy && npm run start"]
