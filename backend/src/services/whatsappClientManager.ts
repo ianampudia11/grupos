@@ -1,9 +1,56 @@
-import makeWASocket, { type WASocket, DisconnectReason } from "libzapitu-rf";
+import makeWASocket, {
+  type WASocket,
+  type WAVersion,
+  DisconnectReason,
+  fetchLatestWaWebVersion,
+  fetchLatestBaileysVersion,
+  isJidBroadcast,
+} from "libzapitu-rf";
 import * as QRCode from "qrcode";
 import { logger } from "../utils/logger";
 import { sessionStore } from "../redis";
 import { prisma } from "../prismaClient";
 import { usePrismaAuthState, clearPrismaAuthState } from "./whatsappPrismaAuthState";
+
+/** Fallback WA version quando a busca dinâmica falha (ex.: 405 por versão desatualizada). */
+const FALLBACK_WA_VERSION: WAVersion = [2, 3000, 1015901307];
+
+const WA_VERSION_CACHE_MS = 1000 * 60 * 60; // 1 hora
+let cachedWaVersion: { version: WAVersion; at: number } | null = null;
+
+/**
+ * Obtém a versão do WhatsApp para a conexão. Tenta buscar dinamicamente (web.whatsapp.com
+ * ou Baileys) para evitar erro 405; usa fallback fixo em caso de falha.
+ */
+export async function getWaVersion(): Promise<WAVersion> {
+  const now = Date.now();
+  if (cachedWaVersion && now - cachedWaVersion.at < WA_VERSION_CACHE_MS) {
+    return cachedWaVersion.version;
+  }
+  try {
+    const result = await fetchLatestWaWebVersion({ timeout: 10000 });
+    if (result.version && Array.isArray(result.version) && result.version.length >= 3) {
+      cachedWaVersion = { version: result.version as WAVersion, at: now };
+      logger.info("WHATSAPP", `Versão WA obtida (web): [${result.version.join(", ")}]`);
+      return cachedWaVersion.version;
+    }
+  } catch (e) {
+    logger.warn("WHATSAPP", "Falha ao buscar versão WA (web), tentando Baileys", { e });
+  }
+  try {
+    const result = await fetchLatestBaileysVersion({ timeout: 10000 });
+    if (result.version && Array.isArray(result.version) && result.version.length >= 3) {
+      cachedWaVersion = { version: result.version as WAVersion, at: now };
+      logger.info("WHATSAPP", `Versão WA obtida (baileys): [${result.version.join(", ")}]`);
+      return cachedWaVersion.version;
+    }
+  } catch (e) {
+    logger.warn("WHATSAPP", "Falha ao buscar versão WA (baileys), usando fallback", { e });
+  }
+  cachedWaVersion = { version: FALLBACK_WA_VERSION, at: now };
+  logger.info("WHATSAPP", `Versão WA fallback: [${FALLBACK_WA_VERSION.join(", ")}]`);
+  return FALLBACK_WA_VERSION;
+}
 
 type WhatsappEventCallback = (
   event: string,
@@ -60,10 +107,12 @@ const pendingCreate = new Map<string, Promise<ClientState>>();
 
 const MAX_CONCURRENT_INITS = 1;
 const INIT_SLOT_RELEASE_DELAY_MS = 8000;
-/** Backoff entre tentativas de reconexão (evita bloqueio do servidor): 5s, 15s, 30s. */
+/** Backoff progressivo estilo Ticketz: espera crescente antes de reconectar (5s, 15s, 30s, 60s, …). */
 function getBackoffDelayMs(attempt: number): number {
-  const delays = [5000, 15000, 30000];
-  return delays[Math.min(attempt - 1, delays.length - 1)] ?? 30000;
+  const baseMs = 5000;
+  const maxMs = 120000;
+  const delay = Math.min(baseMs * Math.pow(2, attempt - 1), maxMs);
+  return Math.min(delay, maxMs);
 }
 /** Delay genérico após destroy antes de recriar (ex.: restartClient). */
 const RESTART_DELAY_MS = 2500;
@@ -154,13 +203,21 @@ async function refreshSelfAvatar(sessionId: string): Promise<void> {
 async function createClientForSession(sessionId: string): Promise<ClientState> {
   const { state: authState, saveCreds } = await usePrismaAuthState(sessionId);
 
-  // Sistema focado em disparo em massa: credenciais no Postgres (WhatsappAuthState).
+  const version = await getWaVersion();
+
   const sock = makeWASocket({
     auth: authState as Parameters<typeof makeWASocket>[0]["auth"],
     logger: makeBaileysLogger(sessionId),
+    printQRInTerminal: false,
+    emitOwnEvents: false,
+    markOnlineOnConnect: false,
+    browser: ["WAGrupos", "Desktop", "1.0.0"],
+    version,
+    defaultQueryTimeoutMs: 60000,
     getMessage: async () => undefined,
     syncFullHistory: false,
     shouldSyncHistoryMessage: () => false,
+    shouldIgnoreJid: (jid) => isJidBroadcast(jid) || (jid?.endsWith?.("@newsletter") === true),
   });
 
   const clientState: ClientState = {
@@ -181,15 +238,17 @@ async function createClientForSession(sessionId: string): Promise<ClientState> {
     if (qr) {
       const now = Date.now();
       const lastQr = lastQrAtBySession.get(sessionId) ?? 0;
-      if (now - lastQr >= QR_MIN_INTERVAL_MS) {
+      const isFirstQr = lastQr === 0;
+      const throttleOk = isFirstQr || now - lastQr >= QR_MIN_INTERVAL_MS;
+      if (throttleOk) {
         lastQrAtBySession.set(sessionId, now);
         try {
           const dataUrl = await QRCode.toDataURL(qr, { width: 320 });
           const s = clients.get(sessionId);
           if (s) s.qrDataUrl = dataUrl;
+          eventEmitter?.("qr", sessionId, { qr: dataUrl });
           await sessionStore.setStatus(sessionId, "qr");
           await sessionStore.setQr(sessionId, dataUrl);
-          eventEmitter?.("qr", sessionId, { qr: dataUrl });
           logger.info("WHATSAPP", `QR gerado: ${formatSession(sessionId)}`);
         } catch (err) {
           logger.error("WHATSAPP", `Erro ao gerar QR: ${formatSession(sessionId)}`, err);
@@ -290,29 +349,13 @@ async function createClientForSession(sessionId: string): Promise<ClientState> {
           return;
         }
 
-        const is405 = statusCode === 405;
         const delayMs = getBackoffDelayMs(failures);
-
-        const scheduleReconnect = (): void => {
-          logger.info("WHATSAPP", `Reconectando (tentativa ${failures}/${MAX_RECONNECT_ATTEMPTS}) em ${delayMs}ms: ${formatSession(sid)}`);
-          setTimeout(() => {
-            getOrCreateClient(sid).catch((e) =>
-              logger.error("WHATSAPP", `Falha ao reconectar: ${formatSession(sid)}`, e)
-            );
-          }, delayMs);
-        };
-
-        if (is405) {
-          logger.warn("WHATSAPP", `Limpeza do auth state (405) antes de reconectar: ${formatSession(sid)}`);
-          clearPrismaAuthState(sid)
-            .then(scheduleReconnect)
-            .catch((e) => {
-              logger.warn("WHATSAPP", `Falha ao limpar auth: ${formatSession(sid)}`, e);
-              scheduleReconnect();
-            });
-        } else {
-          scheduleReconnect();
-        }
+        logger.info("WHATSAPP", `Reconectando (tentativa ${failures}/${MAX_RECONNECT_ATTEMPTS}) em ${delayMs}ms: ${formatSession(sid)}`);
+        setTimeout(() => {
+          getOrCreateClient(sid).catch((e) =>
+            logger.error("WHATSAPP", `Falha ao reconectar: ${formatSession(sid)}`, e)
+          );
+        }, delayMs);
       }
     }
   });
