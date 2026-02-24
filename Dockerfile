@@ -4,20 +4,20 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm install
 COPY frontend/ ./
-RUN npm run build
+RUN chmod +x node_modules/.bin/* && npm run build
 
 # Etapa 2: Construcción del Backend
 FROM node:20-slim AS backend-builder
+RUN apt-get update && apt-get install -y openssl libssl-dev && rm -rf /var/lib/apt/lists/*
 WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm install
 COPY backend/ ./
-RUN npm run db:generate
+RUN chmod +x node_modules/.bin/* && npx prisma generate
 RUN npm run build
 
 # Etapa 3: Imagen Final
 FROM node:20-slim
-# Instalar OpenSSL necesario para Prisma
 RUN apt-get update && apt-get install -y openssl libssl-dev && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
@@ -29,8 +29,8 @@ RUN npm install --omit=dev
 # Copiar compilación del backend y prisma
 COPY --from=backend-builder /app/backend/dist ./dist
 COPY --from=backend-builder /app/backend/prisma ./prisma
-# Generar cliente prisma en la imagen final
-RUN npm run db:generate
+# Generar cliente prisma en la imagen final (necesario para el motor)
+RUN chmod +x node_modules/.bin/* && npx prisma generate
 
 # Copiar compilación del frontend
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
@@ -45,4 +45,4 @@ ENV PORT=4250
 
 EXPOSE 4250
 
-CMD ["sh", "-c", "npm run db:migrate:deploy && npm run start"]
+CMD ["sh", "-c", "chmod +x node_modules/.bin/* && npx prisma migrate deploy && npm run start"]
