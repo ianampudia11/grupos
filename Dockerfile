@@ -1,24 +1,24 @@
 # Etapa 1: Construcción del Frontend
-FROM node:20-alpine AS frontend-builder
+FROM node:20-slim AS frontend-builder
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm install
 COPY frontend/ ./
-RUN chmod +x node_modules/.bin/* && npm run build
+RUN npm run build
 
 # Etapa 2: Construcción del Backend
-FROM node:20-alpine AS backend-builder
-RUN apk add --no-cache openssl libc6-compat
+FROM node:20-slim AS backend-builder
 WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm install
 COPY backend/ ./
-RUN chmod +x node_modules/.bin/* && npm run db:generate
+RUN npm run db:generate
 RUN npm run build
 
 # Etapa 3: Imagen Final
-FROM node:20-alpine
-RUN apk add --no-cache openssl libc6-compat
+FROM node:20-slim
+# Instalar OpenSSL necesario para Prisma
+RUN apt-get update && apt-get install -y openssl libssl-dev && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 # Instalar dependencias de producción para el backend
@@ -30,7 +30,7 @@ RUN npm install --omit=dev
 COPY --from=backend-builder /app/backend/dist ./dist
 COPY --from=backend-builder /app/backend/prisma ./prisma
 # Generar cliente prisma en la imagen final
-RUN chmod +x node_modules/.bin/* && npm run db:generate
+RUN npm run db:generate
 
 # Copiar compilación del frontend
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
