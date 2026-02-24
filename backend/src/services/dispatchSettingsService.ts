@@ -13,6 +13,8 @@ export interface DispatchSettingsResolved {
   pauseBetweenBatchesSec: number;
   preset: DispatchPreset;
   estimatedPerHour: number;
+  /** Data em que a empresa aceitou o termo de uso de API terceira (disparos). */
+  apiTermsAcceptedAt: string | null;
 }
 
 export interface DispatchSettingsInput {
@@ -21,6 +23,8 @@ export interface DispatchSettingsInput {
   delayMaxSec?: number;
   batchSize?: number;
   pauseBetweenBatchesSec?: number;
+  /** Se true, marca que a empresa aceitou o termo de uso de API terceira. */
+  acceptApiTerms?: boolean;
 }
 
 const PRESETS: Record<DispatchPreset, DispatchSettingsResolved> = {
@@ -31,6 +35,7 @@ const PRESETS: Record<DispatchPreset, DispatchSettingsResolved> = {
     pauseBetweenBatchesSec: 120,
     preset: "seguro",
     estimatedPerHour: 120,
+    apiTermsAcceptedAt: null,
   },
   equilibrado: {
     delayMinSec: 8,
@@ -39,6 +44,7 @@ const PRESETS: Record<DispatchPreset, DispatchSettingsResolved> = {
     pauseBetweenBatchesSec: 90,
     preset: "equilibrado",
     estimatedPerHour: 180,
+    apiTermsAcceptedAt: null,
   },
   rapido: {
     delayMinSec: 5,
@@ -47,15 +53,17 @@ const PRESETS: Record<DispatchPreset, DispatchSettingsResolved> = {
     pauseBetweenBatchesSec: 60,
     preset: "rapido",
     estimatedPerHour: 240,
+    apiTermsAcceptedAt: null,
   },
 };
 
 const DEFAULT_PRESET: DispatchPreset = "seguro";
 
-function parseStored(raw: unknown): DispatchSettingsInput | null {
+function parseStored(raw: unknown): (DispatchSettingsInput & { apiTermsAcceptedAt?: string | null }) | null {
   if (!raw || typeof raw !== "object") return null;
   const o = raw as Record<string, unknown>;
   const preset = o.preset as DispatchPreset | undefined;
+  const apiTermsAcceptedAt = typeof o.apiTermsAcceptedAt === "string" ? o.apiTermsAcceptedAt : null;
   if (preset && (preset === "seguro" || preset === "equilibrado" || preset === "rapido")) {
     return {
       preset,
@@ -63,9 +71,10 @@ function parseStored(raw: unknown): DispatchSettingsInput | null {
       delayMaxSec: typeof o.delayMaxSec === "number" ? o.delayMaxSec : undefined,
       batchSize: typeof o.batchSize === "number" ? o.batchSize : undefined,
       pauseBetweenBatchesSec: typeof o.pauseBetweenBatchesSec === "number" ? o.pauseBetweenBatchesSec : undefined,
+      apiTermsAcceptedAt: apiTermsAcceptedAt || undefined,
     };
   }
-  return null;
+  return { apiTermsAcceptedAt: apiTermsAcceptedAt || undefined };
 }
 
 /** Retorna configuração resolvida para uso no envio (delay entre mensagens, lote, pausa). */
@@ -81,11 +90,12 @@ export function getResolvedDispatchSettings(companyId: string): Promise<Dispatch
       pauseBetweenBatchesSec: stored?.pauseBetweenBatchesSec ?? base.pauseBetweenBatchesSec,
       preset: base.preset,
       estimatedPerHour: base.estimatedPerHour,
+      apiTermsAcceptedAt: stored?.apiTermsAcceptedAt ?? null,
     };
   });
 }
 
-/** Retorna configuração para exibição no painel (preset atual + valores). */
+/** Retorna configuração para exibição no painel (preset atual + valores + apiTermsAcceptedAt). */
 export async function getDispatchSettings(companyId: string): Promise<DispatchSettingsResolved & { preset: DispatchPreset }> {
   const resolved = await getResolvedDispatchSettings(companyId);
   const company = await prisma.company.findUnique({ where: { id: companyId }, select: { dispatchSettings: true } });
@@ -96,19 +106,24 @@ export async function getDispatchSettings(companyId: string): Promise<DispatchSe
     ...resolved,
     preset,
     estimatedPerHour: base.estimatedPerHour,
+    apiTermsAcceptedAt: resolved.apiTermsAcceptedAt ?? null,
   };
 }
 
-/** Salva configuração (preset ou valores custom). */
+/** Salva configuração (preset ou valores custom). Se acceptApiTerms for true, grava a data de aceite. */
 export async function setDispatchSettings(companyId: string, data: DispatchSettingsInput): Promise<DispatchSettingsResolved> {
-  const preset = data.preset ?? DEFAULT_PRESET;
+  const company = await prisma.company.findUnique({ where: { id: companyId }, select: { dispatchSettings: true } });
+  const stored = parseStored(company?.dispatchSettings ?? null);
+  const preset = data.preset ?? (stored?.preset as DispatchPreset | undefined) ?? DEFAULT_PRESET;
   const base = PRESETS[preset];
+  const apiTermsAcceptedAt = data.acceptApiTerms === true ? new Date().toISOString() : (stored?.apiTermsAcceptedAt ?? null);
   const payload = {
     preset,
-    delayMinSec: data.delayMinSec ?? base.delayMinSec,
-    delayMaxSec: data.delayMaxSec ?? base.delayMaxSec,
-    batchSize: data.batchSize ?? base.batchSize,
-    pauseBetweenBatchesSec: data.pauseBetweenBatchesSec ?? base.pauseBetweenBatchesSec,
+    delayMinSec: data.delayMinSec ?? stored?.delayMinSec ?? base.delayMinSec,
+    delayMaxSec: data.delayMaxSec ?? stored?.delayMaxSec ?? base.delayMaxSec,
+    batchSize: data.batchSize ?? stored?.batchSize ?? base.batchSize,
+    pauseBetweenBatchesSec: data.pauseBetweenBatchesSec ?? stored?.pauseBetweenBatchesSec ?? base.pauseBetweenBatchesSec,
+    apiTermsAcceptedAt: apiTermsAcceptedAt ?? undefined,
   };
   await prisma.company.update({
     where: { id: companyId },

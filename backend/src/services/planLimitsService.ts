@@ -141,9 +141,11 @@ export async function assertCampaignsPerDay(companyId: string): Promise<void> {
   if (!allowed) throw new Error(message);
 }
 
-export async function assertGroupSendsPerDay(companyId: string): Promise<void> {
-  const { allowed, message } = await checkGroupSendsPerDay(companyId);
-  if (!allowed) throw new Error(message);
+/** @param extraSends Número de envios que serão feitos nesta requisição (ex.: vários grupos). */
+export async function assertGroupSendsPerDay(companyId: string, extraSends: number = 1): Promise<void> {
+  const { usedToday, limit, message } = await checkGroupSendsPerDay(companyId);
+  const allowed = usedToday + extraSends <= limit;
+  if (!allowed) throw new Error(message ?? `Limite diário atingido: ${usedToday}/${limit} envios para grupos hoje.`);
 }
 
 /** Limite de grupos por campanha. Bloqueia se groupCount > limite do plano. */

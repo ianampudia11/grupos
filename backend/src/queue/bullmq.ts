@@ -122,10 +122,9 @@ export function startBullMQWorkers(handlers: {
   }
 }
 
-/** Workers para restart/ensure/disconnect/release de sessões WhatsApp (filas wa-initSession e wa-cleanup). */
+/** Workers para restart/disconnect/release de sessões WhatsApp (filas wa-initSession e wa-cleanup). */
 export function startWhatsAppQueueWorkers(handlers: {
   restart: (sessionId: string, companyId: string) => Promise<unknown>;
-  ensure?: (sessionId: string) => Promise<unknown>;
   disconnect: (sessionId: string, companyId: string) => Promise<unknown>;
   release: (sessionId: string, companyId: string) => Promise<unknown>;
 }): void {
@@ -136,9 +135,7 @@ export function startWhatsAppQueueWorkers(handlers: {
       QUEUE_NAMES.WA_INIT,
       async (job) => {
         const { sessionId, companyId } = job.data as { sessionId: string; companyId: string };
-        if (!sessionId) return;
-        if (job.name === "restart" && companyId) await handlers.restart(sessionId, companyId);
-        else if (job.name === "ensure" && handlers.ensure) await handlers.ensure(sessionId);
+        if (job.name === "restart" && sessionId && companyId) await handlers.restart(sessionId, companyId);
       },
       { connection: conn, concurrency: 2 }
     );

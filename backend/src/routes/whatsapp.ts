@@ -5,6 +5,7 @@ import { prisma } from "../prismaClient";
 import {
   fetchGroupsFromRemote,
   listGroups,
+  listGroupsFull,
   sendMessageToGroup,
 } from "../services/whatsappService";
 import {
@@ -14,30 +15,7 @@ import {
   restart,
   releasePairing,
 } from "../services/whatsappConnectionService";
-import {
-  addWhatsappQrStreamListener,
-  removeWhatsappQrStreamListener,
-  isClientReady,
-  getOrCreateClient,
-} from "../services/whatsappClientManager";
-import { addQrBridgeListener, removeQrBridgeListener } from "../whatsapp/qrStreamBridge";
 import { addJobSafe, QUEUE_NAMES } from "../queue/bullmq";
-
-const PROCESS_TYPE = process.env.PROCESS_TYPE || "";
-const API_ONLY = PROCESS_TYPE === "api";
-
-const QR_CACHE_TTL_MS = 90000;
-const QR_RATE_LIMIT_MS = 2000;
-const qrCache = new Map<string, { qr: string; ts: number }>();
-const qrRateLimit = new Map<string, number>();
-
-function getQrCacheKey(sessionId: string): string {
-  return `qr:${sessionId}`;
-}
-
-function getRateLimitKey(ip: string, sessionId: string): string {
-  return `rl:${ip}:${sessionId}`;
-}
 
 const router = Router();
 router.use(authMiddleware);
@@ -59,11 +37,11 @@ router.get("/sessions", async (req: AuthRequest, res) => {
     const sessions = await prisma.whatsappSession.findMany({
       where: { companyId },
       orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }],
-      include: { _count: { select: { groups: true } } },
+      include: { _count: { select: { groups: true } }, company: { select: { name: true } } },
     });
-    const { isClientReady, getOrCreateClient } = await import("../services/whatsappClientManager");
-    // Sessão "connected" no DB mas client não em memória (ex.: após restart) → inicia restauração em background
+    const { isClientReady, getOrCreateClient, setSessionLabel } = await import("../services/whatsappClientManager");
     for (const s of sessions) {
+      setSessionLabel(s.id, { sessionName: s.name, companyName: s.company.name });
       if (s.status === "connected" && !isClientReady(s.id)) {
         void getOrCreateClient(s.id);
       }
@@ -205,88 +183,11 @@ router.get("/sessions/:sessionId/status", async (req: AuthRequest, res) => {
   }
 });
 
-/** SSE: stream de QR para a sessão (evita polling). Token em query para EventSource. */
-router.get("/sessions/:sessionId/qr/stream", async (req: AuthRequest, res) => {
-  try {
-    const companyId = requireCompany(req);
-    const sessionId = req.params.sessionId;
-    const session = await prisma.whatsappSession.findFirst({
-      where: { id: sessionId, companyId },
-    });
-    if (!session) {
-      res.status(404).json({ message: "Sessão não encontrada" });
-      return;
-    }
-    const alreadyConnected = API_ONLY ? session.status === "connected" : isClientReady(sessionId);
-    if (alreadyConnected) {
-      res.writeHead(200, {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-      });
-      res.write(`event: status\ndata: ${JSON.stringify({ status: "connected" })}\n\n`);
-      res.end();
-      return;
-    }
-    res.writeHead(200, {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      Connection: "keep-alive",
-    });
-    const send = (data: { qr?: string; status?: string }) => {
-      if (res.writableEnded) return;
-      const payload = JSON.stringify(data);
-      res.write(`event: ${data.status === "connected" ? "status" : "qr"}\ndata: ${payload}\n\n`);
-      if (data.status === "connected") res.end();
-    };
-    if (API_ONLY) {
-      void addJobSafe(QUEUE_NAMES.WA_INIT, "ensure", { sessionId, companyId });
-      addQrBridgeListener(sessionId, send);
-      req.on("close", () => removeQrBridgeListener(sessionId, send));
-    } else {
-      void getOrCreateClient(sessionId);
-      addWhatsappQrStreamListener(sessionId, send);
-      req.on("close", () => removeWhatsappQrStreamListener(sessionId, send));
-    }
-  } catch (err: any) {
-    if (!res.headersSent) res.status(400).json({ message: err.message || "Erro ao abrir stream" });
-  }
-});
-
-/** QR Code de uma sessão (cache + rate limit; preferir /qr/stream). */
+/** QR Code de uma sessão */
 router.get("/sessions/:sessionId/qr", async (req: AuthRequest, res) => {
   try {
     const companyId = requireCompany(req);
-    const sessionId = req.params.sessionId;
-    const ip = (req.ip ?? req.socket?.remoteAddress ?? "unknown").toString();
-    const rlKey = getRateLimitKey(ip, sessionId);
-    const now = Date.now();
-    const last = qrRateLimit.get(rlKey) ?? 0;
-    if (now - last < QR_RATE_LIMIT_MS) {
-      const cached = qrCache.get(getQrCacheKey(sessionId));
-      if (cached && now - cached.ts < QR_CACHE_TTL_MS) {
-        res.status(200).json({ qr: cached.qr });
-        return;
-      }
-      res.status(204).end();
-      return;
-    }
-    qrRateLimit.set(rlKey, now);
-    const qr = await getQrCode(sessionId, companyId);
-    if (qr.alreadyConnected) {
-      res.json(qr);
-      return;
-    }
-    if (qr.qr) {
-      qrCache.set(getQrCacheKey(sessionId), { qr: qr.qr, ts: now });
-      res.json({ qr: qr.qr });
-      return;
-    }
-    const cached = qrCache.get(getQrCacheKey(sessionId));
-    if (cached && now - cached.ts < QR_CACHE_TTL_MS) {
-      res.json({ qr: cached.qr });
-      return;
-    }
+    const qr = await getQrCode(req.params.sessionId, companyId);
     res.json(qr);
   } catch (err: any) {
     res.status(400).json({ message: err.message || "Erro ao obter QR code" });
@@ -451,16 +352,30 @@ router.post(
   async (req: AuthRequest, res): Promise<void> => {
     try {
       const schema = z.object({
-        groupId: z.string(),
+        groupId: z.string().optional(),
+        groupIds: z.union([z.string().array(), z.string().transform((s) => [s])]).optional(),
         message: z.string().min(1),
         mentionAll: z.preprocess((v) => v === true || v === "true", z.boolean().optional()).optional(),
       });
-      const { groupId, message, mentionAll } = schema.parse(req.body);
+      const parsed = schema.parse(req.body);
       const companyId = requireCompany(req);
       const userId = req.userId!;
+      const message = parsed.message;
+      const mentionAll = parsed.mentionAll === true;
+      const groupIds: string[] = Array.isArray(parsed.groupIds)
+        ? parsed.groupIds
+        : parsed.groupId
+          ? [parsed.groupId]
+          : [];
+      if (groupIds.length === 0) {
+        res.status(400).json({ message: "Informe ao menos um grupo (groupId ou groupIds)." });
+        return;
+      }
       const { assertGroupSendsPerDay } = await import("../services/planLimitsService");
-      await assertGroupSendsPerDay(companyId);
-      await sendMessageToGroup(companyId, groupId, message, undefined, { userId, mentionAll: mentionAll === true });
+      await assertGroupSendsPerDay(companyId, groupIds.length);
+      for (const groupId of groupIds) {
+        await sendMessageToGroup(companyId, groupId, message, undefined, { userId, mentionAll });
+      }
       res.json({ ok: true });
     } catch (err: any) {
       res.status(400).json({ message: err.message || "Erro ao enviar mensagem" });

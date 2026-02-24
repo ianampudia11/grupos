@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState, useCallback } from "react";
+import { FormEvent, useEffect, useState, useCallback, useRef } from "react";
 import { api } from "../api";
 import { useToast } from "../toast/ToastContext";
 import { PageContainer } from "../components/PageContainer";
@@ -35,6 +35,7 @@ import AudioFileIcon from "@mui/icons-material/AudioFile";
 import DescriptionIcon from "@mui/icons-material/Description";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
+import { ApiTermsDialog } from "../components/ApiTermsDialog";
 
 const ACCEPT_MEDIA =
   "image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,audio/ogg,audio/opus";
@@ -86,8 +87,17 @@ export default function CampaignsPage() {
     campaignsPerDay: { usedToday: number; limit: number };
     groupsPerCampaign: number;
   } | null>(null);
+  const [groupSearch, setGroupSearch] = useState("");
+  const [dispatchSettings, setDispatchSettings] = useState<{ apiTermsAcceptedAt: string | null } | null>(null);
+  const [showTermsDialog, setShowTermsDialog] = useState(false);
+  const [acceptingTerms, setAcceptingTerms] = useState(false);
+  const pendingCreateRef = useRef<(() => Promise<void>) | null>(null);
 
   const selectedGroups = groups.filter((g) => selectedGroupIds.includes(g.id));
+  const groupSearchLower = groupSearch.trim().toLowerCase();
+  const filteredGroups = groupSearchLower
+    ? groups.filter((g) => g.name.toLowerCase().includes(groupSearchLower))
+    : groups;
   const maxGroups = limits?.groupsPerCampaign ?? 999;
   const canSelectMoreGroups = selectedGroupIds.length < maxGroups;
   const campaignsToday = limits?.campaignsPerDay ?? { usedToday: 0, limit: 50 };
@@ -131,10 +141,19 @@ export default function CampaignsPage() {
     }
   }
 
+  async function loadDispatchSettings() {
+    try {
+      const res = await api.get<{ apiTermsAcceptedAt: string | null }>("/settings/dispatch");
+      setDispatchSettings(res.data);
+    } catch {
+      setDispatchSettings(null);
+    }
+  }
+
   async function loadAll() {
     setLoading(true);
     try {
-      await Promise.all([loadGroups(), loadCampaigns(), loadLimits()]);
+      await Promise.all([loadGroups(), loadCampaigns(), loadLimits(), loadDispatchSettings()]);
     } catch (e: any) {
       toast.push({
         type: "danger",
@@ -156,6 +175,48 @@ export default function CampaignsPage() {
       if (prev.length >= maxGroups) return prev;
       return [...prev, id];
     });
+  }
+
+  async function doCreateCampaign() {
+    const fd = new FormData();
+    fd.append("title", title);
+    fd.append("messageText", messageText);
+    if (linkUrl) fd.append("linkUrl", linkUrl);
+    fd.append("groupIds", selectedGroupIds.join(","));
+    if (sendNow) fd.append("sendNow", "true");
+    if (mentionAll) fd.append("mentionAll", "true");
+    if (selectedProductId) fd.append("productId", selectedProductId);
+    if (templateIdForCampaign) fd.append("templateId", templateIdForCampaign);
+    if (scheduleEnabled && scheduleDate && scheduleTime) {
+      const dt = new Date(`${scheduleDate}T${scheduleTime}`);
+      if (dt > new Date()) fd.append("scheduledAt", dt.toISOString());
+      fd.append("repeatRule", repeatRule);
+    }
+    if (mediaFile) fd.append("image", mediaFile.file);
+
+    const res = await api.post<Campaign>("/campaigns", fd, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    setCampaigns((prev) => [res.data, ...prev]);
+    setTitle("");
+    setMessageText("");
+    setLinkUrl("");
+    setSelectedGroupIds([]);
+    setMediaFile(null);
+    setSendNow(false);
+    setMentionAll(false);
+    setScheduleEnabled(false);
+    setScheduleDate("");
+    setScheduleTime("");
+    setRepeatRule("none");
+
+    toast.push({
+      type: "success",
+      title: "Campanhas",
+      message: scheduleEnabled ? "Campanha agendada." : "Campanha criada.",
+    });
+    if (sendNow) await loadLimits();
   }
 
   async function handleCreate(e: FormEvent) {
@@ -181,52 +242,35 @@ export default function CampaignsPage() {
       return;
     }
 
+    if (!dispatchSettings?.apiTermsAcceptedAt) {
+      pendingCreateRef.current = async () => {
+        setLoading(true);
+        try {
+          await doCreateCampaign();
+        } catch (e: any) {
+          toast.push({ type: "danger", title: "Campanhas", message: e?.response?.data?.message ?? "Erro ao criar campanha." });
+        } finally {
+          setLoading(false);
+        }
+      };
+      setShowTermsDialog(true);
+      return;
+    }
+
     setLoading(true);
     try {
-      const fd = new FormData();
-      fd.append("title", title);
-      fd.append("messageText", messageText);
-      if (linkUrl) fd.append("linkUrl", linkUrl);
-      fd.append("groupIds", selectedGroupIds.join(","));
-      if (sendNow) fd.append("sendNow", "true");
-      if (mentionAll) fd.append("mentionAll", "true");
-      if (selectedProductId) fd.append("productId", selectedProductId);
-      if (templateIdForCampaign) fd.append("templateId", templateIdForCampaign);
-      if (scheduleEnabled && scheduleDate && scheduleTime) {
-        const dt = new Date(`${scheduleDate}T${scheduleTime}`);
-        if (dt > new Date()) fd.append("scheduledAt", dt.toISOString());
-        fd.append("repeatRule", repeatRule);
-      }
-      if (mediaFile) fd.append("image", mediaFile.file);
-
-      const res = await api.post<Campaign>("/campaigns", fd, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      setCampaigns((prev) => [res.data, ...prev]);
-      setTitle("");
-      setMessageText("");
-      setLinkUrl("");
-      setSelectedGroupIds([]);
-      setMediaFile(null);
-      setSendNow(false);
-      setMentionAll(false);
-      setScheduleEnabled(false);
-      setScheduleDate("");
-      setScheduleTime("");
-      setRepeatRule("none");
-
-      toast.push({
-        type: "success",
-        title: "Campanhas",
-        message: scheduleEnabled ? "Campanha agendada." : "Campanha criada.",
-      });
-      if (sendNow) await loadLimits();
+      await doCreateCampaign();
     } catch (e: any) {
       toast.push({ type: "danger", title: "Campanhas", message: e?.response?.data?.message ?? "Erro ao criar campanha." });
     } finally {
       setLoading(false);
     }
+  }
+
+  async function doSendCampaign(c: Campaign) {
+    await api.post(`/campaigns/${c.id}/send`);
+    toast.push({ type: "success", title: "Campanhas", message: "Campanha enviada." });
+    await Promise.all([loadCampaigns(), loadLimits()]);
   }
 
   async function sendCampaign(c: Campaign) {
@@ -238,11 +282,23 @@ export default function CampaignsPage() {
       });
       return;
     }
+    if (!dispatchSettings?.apiTermsAcceptedAt) {
+      pendingCreateRef.current = async () => {
+        setLoading(true);
+        try {
+          await doSendCampaign(c);
+        } catch (e: any) {
+          toast.push({ type: "danger", title: "Campanhas", message: e?.response?.data?.message ?? "Erro ao enviar." });
+        } finally {
+          setLoading(false);
+        }
+      };
+      setShowTermsDialog(true);
+      return;
+    }
     setLoading(true);
     try {
-      await api.post(`/campaigns/${c.id}/send`);
-      toast.push({ type: "success", title: "Campanhas", message: "Campanha enviada." });
-      await Promise.all([loadCampaigns(), loadLimits()]);
+      await doSendCampaign(c);
     } catch (e: any) {
       toast.push({ type: "danger", title: "Campanhas", message: e?.response?.data?.message ?? "Erro ao enviar." });
     } finally {
@@ -459,6 +515,16 @@ export default function CampaignsPage() {
                       color={selectedGroupIds.length > 0 ? "primary" : "default"}
                     />
                   </Box>
+                  {groups.length > 0 && (
+                    <TextField
+                      size="small"
+                      placeholder="Pesquisar grupo..."
+                      value={groupSearch}
+                      onChange={(e) => setGroupSearch(e.target.value)}
+                      sx={{ mb: 1.5, "& .MuiInputBase-root": { bgcolor: "background.paper" } }}
+                      fullWidth
+                    />
+                  )}
                   {!canSelectMoreGroups && (
                     <Typography variant="caption" color="warning.main" sx={{ display: "block", mb: 1 }}>
                       Limite do plano: máximo {maxGroups} grupo(s) por campanha.
@@ -468,9 +534,13 @@ export default function CampaignsPage() {
                     <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: "center" }}>
                       Nenhum grupo. Sincronize em Grupos.
                     </Typography>
+                  ) : !filteredGroups.length ? (
+                    <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: "center" }}>
+                      Nenhum grupo encontrado para &quot;{groupSearch}&quot;.
+                    </Typography>
                   ) : (
                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, maxHeight: 160, overflowY: "auto" }}>
-                      {groups.map((g) => (
+                      {filteredGroups.map((g) => (
                         <Box
                           key={g.id}
                           component="label"
@@ -687,6 +757,25 @@ export default function CampaignsPage() {
           )}
         </Box>
       </Stack>
+      <ApiTermsDialog
+        open={showTermsDialog}
+        onClose={() => {
+          setShowTermsDialog(false);
+          pendingCreateRef.current = null;
+        }}
+        accepting={acceptingTerms}
+        onAccept={async () => {
+          setAcceptingTerms(true);
+          try {
+            await api.put("/settings/dispatch", { acceptApiTerms: true });
+            await loadDispatchSettings();
+            await pendingCreateRef.current?.();
+            pendingCreateRef.current = null;
+          } finally {
+            setAcceptingTerms(false);
+          }
+        }}
+      />
     </PageContainer>
   );
 }

@@ -7,8 +7,28 @@ const COLORS = {
 } as const;
 const RESET = "\x1b[0m";
 
+type LogLevel = keyof typeof COLORS;
+
 const now = () => new Date().toISOString();
 const isProduction = process.env.NODE_ENV === "production";
+
+/** Níveis habilitados (carregado uma vez; use LOG_LEVEL no .env). */
+function enabledLevels(): Set<LogLevel> {
+  const raw = process.env.LOG_LEVEL?.trim();
+  if (!raw) {
+    return new Set(
+      isProduction ? (["WARN", "SUCCESS", "ERROR"] as LogLevel[]) : (["INFO", "WARN", "ERROR", "SUCCESS"] as LogLevel[])
+    );
+  }
+  const list = raw.split(",").map((s) => s.trim().toUpperCase());
+  return new Set(list as LogLevel[]);
+}
+
+let _cachedLevels: Set<LogLevel> | null = null;
+function isLevelEnabled(level: LogLevel): boolean {
+  if (!_cachedLevels) _cachedLevels = enabledLevels();
+  return _cachedLevels.has(level);
+}
 
 /** Evita vazamento de stack e dados sensíveis em logs (produção) */
 function safeMeta(meta: unknown): unknown {
@@ -20,11 +40,12 @@ function safeMeta(meta: unknown): unknown {
 }
 
 function write(
-  level: keyof typeof COLORS,
+  level: LogLevel,
   scope: string,
   message: string,
   meta?: unknown
 ): void {
+  if (!isLevelEnabled(level)) return;
   const color = COLORS[level];
   const prefix = `${color}[${now()}] [${level}] [${scope}]${RESET}`;
   const safe = safeMeta(meta);

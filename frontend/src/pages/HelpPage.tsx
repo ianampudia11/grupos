@@ -32,7 +32,7 @@ export default function HelpPage() {
           </li>
           <li>
             <b>Não aparece QR</b>: aguarde alguns segundos após clicar em "Gerar QR" para o
-            whatsapp-web.js inicializar o navegador e gerar o código.
+            o backend gerar o código QR (conexão via Baileys).
           </li>
           <li>
             <b>QR expirou</b>: clique em <b>Reiniciar</b> e depois em <b>Gerar QR</b> novamente.

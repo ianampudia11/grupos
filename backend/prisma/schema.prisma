@@ -132,6 +132,17 @@ model WhatsappSession {
   campaigns Campaign[]
 }
 
+/// Estado de autenticação WhatsApp (Baileys/libzapitu) por sessão — substitui pasta baileys_auth.
+model WhatsappAuthState {
+  id        String   @id @default(cuid())
+  sessionId String   // ID da sessão (WhatsappSession.id)
+  key       String   // chave do estado: creds.json, session-xxx.json, app-state-sync-key-xxx.json, etc.
+  value     Json     // valor em JSON (creds, chaves Signal, etc.)
+
+  @@unique([sessionId, key])
+  @@index([sessionId])
+}
+
 model WhatsappGroup {
   id              String   @id @default(cuid())
   waId            String   // WhatsApp group JID / ID

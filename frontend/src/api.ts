@@ -14,14 +14,6 @@ export function getBackendBaseUrl(): string {
   return u || (typeof window !== "undefined" ? window.location.origin : "");
 }
 
-/** URL do stream SSE de QR para uma sessão (EventSource). Inclui token na query. */
-export function getQrStreamUrl(sessionId: string): string | null {
-  const token = typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
-  if (!token) return null;
-  const base = API_BASE_URL.replace(/\/$/, "");
-  return `${base}/whatsapp/sessions/${encodeURIComponent(sessionId)}/qr/stream?token=${encodeURIComponent(token)}`;
-}
-
 /** Monta URL para mídia (imagens de produtos, campanhas, etc.) */
 export function getMediaUrl(filePath: string | null | undefined): string {
   if (!filePath) return "";

@@ -15,13 +15,11 @@ export function authMiddleware(
   res: Response,
   next: NextFunction
 ) {
-  let authHeader = req.headers.authorization;
-  if (!authHeader && req.method === "GET" && typeof (req as any).query?.token === "string") {
-    authHeader = `Bearer ${(req as any).query.token.trim()}`;
-  }
+  const authHeader = req.headers.authorization;
   if (!authHeader) {
     return res.status(401).json({ message: "Token não enviado" });
   }
+
   const [, token] = authHeader.split(" ");
 
   try {

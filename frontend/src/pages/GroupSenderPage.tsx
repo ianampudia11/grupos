@@ -1,10 +1,8 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { PageContainer } from "../components/PageContainer";
 import { GroupCard, type GroupWithAvatar } from "../components/GroupCard";
-import Avatar from "@mui/material/Avatar";
-import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
@@ -13,10 +11,11 @@ import Autocomplete from "@mui/material/Autocomplete";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import GroupsIcon from "@mui/icons-material/Groups";
+import { ApiTermsDialog } from "../components/ApiTermsDialog";
 
 export default function GroupSenderPage() {
   const [groups, setGroups] = useState<GroupWithAvatar[]>([]);
-  const [selectedGroup, setSelectedGroup] = useState<GroupWithAvatar | null>(null);
+  const [selectedGroups, setSelectedGroups] = useState<GroupWithAvatar[]>([]);
   const [message, setMessage] = useState("");
   const [mentionAll, setMentionAll] = useState(false);
   const [loadingGroups, setLoadingGroups] = useState(false);
@@ -26,6 +25,10 @@ export default function GroupSenderPage() {
     type: "success" | "error" | "warning";
     message: string;
   } | null>(null);
+  const [dispatchSettings, setDispatchSettings] = useState<{ apiTermsAcceptedAt: string | null } | null>(null);
+  const [showTermsDialog, setShowTermsDialog] = useState(false);
+  const [acceptingTerms, setAcceptingTerms] = useState(false);
+  const pendingSendRef = useRef<(() => Promise<void>) | null>(null);
   const navigate = useNavigate();
 
   const atDailyLimit = limits ? limits.usedToday >= limits.limit : false;
@@ -39,6 +42,13 @@ export default function GroupSenderPage() {
       .get<{ campaignsPerDay: { usedToday: number; limit: number } }>("/campaigns/limits")
       .then((res) => setLimits(res.data.campaignsPerDay))
       .catch(() => setLimits(null));
+  }, []);
+
+  useEffect(() => {
+    api
+      .get<{ apiTermsAcceptedAt: string | null }>("/settings/dispatch")
+      .then((res) => setDispatchSettings(res.data))
+      .catch(() => setDispatchSettings(null));
   }, []);
 
   async function loadGroups() {
@@ -71,6 +81,20 @@ export default function GroupSenderPage() {
     }
   }
 
+  async function doSend() {
+    if (selectedGroups.length === 0) return;
+    await api.post("/whatsapp/send", {
+      groupIds: selectedGroups.map((g) => g.id),
+      message,
+      mentionAll,
+    });
+    setMessage("");
+    setSelectedGroups([]);
+    setFeedback({ type: "success", message: "Mensagem enviada com sucesso!" });
+    const limitsRes = await api.get<{ campaignsPerDay: { usedToday: number; limit: number } }>("/campaigns/limits");
+    setLimits(limitsRes.data.campaignsPerDay);
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (atDailyLimit) {
@@ -80,19 +104,32 @@ export default function GroupSenderPage() {
       });
       return;
     }
-    if (!selectedGroup || !message.trim()) {
-      setFeedback({ type: "warning", message: "Selecione um grupo e escreva a mensagem." });
+    if (!selectedGroups.length || !message.trim()) {
+      setFeedback({ type: "warning", message: "Selecione ao menos um grupo e escreva a mensagem." });
+      return;
+    }
+    if (!dispatchSettings?.apiTermsAcceptedAt) {
+      pendingSendRef.current = async () => {
+        setSending(true);
+        setFeedback(null);
+        try {
+          await doSend();
+        } catch (err: any) {
+          setFeedback({
+            type: "error",
+            message: err?.response?.data?.message ?? "Erro ao enviar mensagem.",
+          });
+        } finally {
+          setSending(false);
+        }
+      };
+      setShowTermsDialog(true);
       return;
     }
     setSending(true);
     setFeedback(null);
     try {
-      await api.post("/whatsapp/send", { groupId: selectedGroup.id, message, mentionAll });
-      setMessage("");
-      setSelectedGroup(null);
-      setFeedback({ type: "success", message: "Mensagem enviada com sucesso!" });
-      const limitsRes = await api.get<{ campaignsPerDay: { usedToday: number; limit: number } }>("/campaigns/limits");
-      setLimits(limitsRes.data.campaignsPerDay);
+      await doSend();
     } catch (err: any) {
       setFeedback({
         type: "error",
@@ -121,35 +158,19 @@ export default function GroupSenderPage() {
 
       <Paper component="form" onSubmit={handleSubmit} sx={{ p: 2 }}>
         <Autocomplete
-          value={selectedGroup}
-          onChange={(_, v) => setSelectedGroup(v)}
+          multiple
+          value={selectedGroups}
+          onChange={(_, v) => setSelectedGroups(v)}
           options={groups}
           getOptionLabel={(g) => g.name}
           loading={loadingGroups}
           isOptionEqualToValue={(a, b) => a.id === b.id}
+          filterSelectedOptions
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Grupo"
-              placeholder="Selecione um grupo..."
-              InputProps={{
-                ...params.InputProps,
-                startAdornment: (
-                  <>
-                    {selectedGroup && (
-                      <InputAdornment position="start" sx={{ mr: 0 }}>
-                        <Avatar
-                          src={selectedGroup.avatarUrl ?? undefined}
-                          sx={{ width: 28, height: 28, bgcolor: "#25D366" }}
-                        >
-                          <GroupsIcon sx={{ fontSize: 18 }} />
-                        </Avatar>
-                      </InputAdornment>
-                    )}
-                    {params.InputProps.startAdornment}
-                  </>
-                ),
-              }}
+              label="Grupos"
+              placeholder="Pesquise e selecione um ou mais grupos..."
             />
           )}
           renderOption={(props, g) => (
@@ -173,7 +194,11 @@ export default function GroupSenderPage() {
           placeholder="Texto da promoção, link da Shopee, etc..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          helperText="Essa mensagem será enviada apenas para o grupo selecionado."
+          helperText={
+            selectedGroups.length === 0
+              ? "Selecione um ou mais grupos."
+              : `A mensagem será enviada para ${selectedGroups.length} grupo(s).`
+          }
           sx={{ mb: 2 }}
         />
 
@@ -199,6 +224,27 @@ export default function GroupSenderPage() {
           {sending ? "Enviando..." : atDailyLimit ? "Limite diário atingido" : "Disparar mensagem"}
         </Button>
       </Paper>
+
+      <ApiTermsDialog
+        open={showTermsDialog}
+        onClose={() => {
+          setShowTermsDialog(false);
+          pendingSendRef.current = null;
+        }}
+        accepting={acceptingTerms}
+        onAccept={async () => {
+          setAcceptingTerms(true);
+          try {
+            await api.put("/settings/dispatch", { acceptApiTerms: true });
+            const res = await api.get<{ apiTermsAcceptedAt: string | null }>("/settings/dispatch");
+            setDispatchSettings(res.data);
+            await pendingSendRef.current?.();
+            pendingSendRef.current = null;
+          } finally {
+            setAcceptingTerms(false);
+          }
+        }}
+      />
     </PageContainer>
   );
 }

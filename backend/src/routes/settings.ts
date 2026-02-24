@@ -122,8 +122,9 @@ router.put("/dispatch", async (req: AuthRequest, res) => {
       delayMaxSec: z.number().min(1).max(120).optional(),
       batchSize: z.number().min(1).max(100).optional(),
       pauseBetweenBatchesSec: z.number().min(0).max(600).optional(),
+      acceptApiTerms: z.boolean().optional(),
     });
-    const data = schema.parse(req.body) as DispatchSettingsInput & { preset?: DispatchPreset };
+    const data = schema.parse(req.body) as DispatchSettingsInput & { preset?: DispatchPreset; acceptApiTerms?: boolean };
     const result = await setDispatchSettings(companyId, data);
     res.json(result);
   } catch (e: any) {

@@ -100,22 +100,25 @@ export async function markOverdueInvoices(): Promise<void> {
   }
 }
 
+/**
+ * Agenda o job sem bloquear o event loop. Evita "node-cron missed execution" por IO/CPU bloqueante.
+ * Se Redis estiver ok, enfileira no BullMQ. Se fallback, dispara runInProcess em background (não aguarda).
+ */
 function runWithFallback(
   enqueue: () => Promise<{ ok: boolean; luaError?: boolean }>,
   runInProcess: () => Promise<void>,
   logLabel: string
 ) {
-  setImmediate(async () => {
-    try {
-      const result = await enqueue();
-      if (result.ok) return;
-      if (result.luaError) {
-        logger.warn("QUEUE", `BullMQ requer Redis 6.2+. Executando ${logLabel} em processo (fallback).`);
-        await runInProcess();
-      }
-    } catch (err: any) {
-      logger.error("QUEUE", `Erro em ${logLabel}`, err);
-    }
+  setImmediate(() => {
+    enqueue()
+      .then((result) => {
+        if (result.ok) return;
+        if (result.luaError) {
+          logger.warn("QUEUE", `BullMQ requer Redis 6.2+. Executando ${logLabel} em processo (fallback).`);
+          void runInProcess().catch((err: any) => logger.error("QUEUE", `Erro em ${logLabel}`, err));
+        }
+      })
+      .catch((err: any) => logger.error("QUEUE", `Erro ao enfileirar ${logLabel}`, err));
   });
 }
 
@@ -125,10 +128,7 @@ export function startQueue() {
     generateMonthlyInvoices,
     markOverdueInvoices,
   });
-  logger.info("QUEUE", "Workers BullMQ iniciados");
-}
 
-export function startCronScheduler() {
   cron.schedule(
     "5 0 1 * *",
     () =>
@@ -156,5 +156,6 @@ export function startCronScheduler() {
         "campanhas agendadas"
       )
   );
-  logger.info("QUEUE", "Cron scheduler iniciado (processo separado)");
+
+  logger.info("QUEUE", "Scheduler iniciado (BullMQ ou fallback em processo)");
 }

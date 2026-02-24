@@ -271,6 +271,7 @@ type DispatchSettings = {
   batchSize: number;
   pauseBetweenBatchesSec: number;
   estimatedPerHour: number;
+  apiTermsAcceptedAt: string | null;
 };
 
 const DISPAROS_PRESETS: Array<{
@@ -378,9 +379,24 @@ function DisparosSection() {
           ))}
         </Box>
         {settings && (
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: "block" }}>
-            Configuração atual: delay {settings.delayMinSec}–{settings.delayMaxSec} s, lote {settings.batchSize}, pausa {settings.pauseBetweenBatchesSec} s.
-          </Typography>
+          <>
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: "block" }}>
+              Configuração atual: delay {settings.delayMinSec}–{settings.delayMaxSec} s, lote {settings.batchSize}, pausa {settings.pauseBetweenBatchesSec} s.
+            </Typography>
+            {settings.apiTermsAcceptedAt && (
+              <Typography variant="caption" color="primary" sx={{ mt: 1, display: "block" }}>
+                Termo de uso de API terceira: você concordou em{" "}
+                {new Date(settings.apiTermsAcceptedAt).toLocaleDateString("pt-BR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+                .
+              </Typography>
+            )}
+          </>
         )}
       </CardContent>
     </Card>

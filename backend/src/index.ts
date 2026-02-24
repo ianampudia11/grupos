@@ -44,6 +44,8 @@ import { isScanRequest, recordScanAttempt } from "./security/scanProtection";
 import { startQueue } from "./queue/queue";
 import { startWhatsAppQueueWorkers } from "./queue/bullmq";
 import { restart, disconnect, releasePairing } from "./services/whatsappConnectionService";
+import { onDestroySession } from "./services/whatsappClientManager";
+import { clearGroupsStoreForSession } from "./services/whatsappService";
 
 const app = express();
 
@@ -116,6 +118,18 @@ function getHttpLogLabel(method: string, path: string): string {
   return `${method} ${p}`;
 }
 
+/** Captura o body enviado em res.json() para incluir no log de 4xx/5xx. */
+app.use((_req, res, next) => {
+  const originalJson = res.json.bind(res);
+  res.json = function (body: unknown) {
+    if (res.statusCode >= 400 && body && typeof body === "object" && "message" in body && typeof (body as { message?: unknown }).message === "string") {
+      res.locals._responseMessage = (body as { message: string }).message;
+    }
+    return originalJson(body);
+  };
+  next();
+});
+
 app.use((req, res, next) => {
   const startedAt = Date.now();
 
@@ -136,7 +150,9 @@ app.use((req, res, next) => {
 
     const scope = "HTTP";
     const label = getHttpLogLabel(req.method, req.originalUrl || req.path);
-    const msg = `${label} ${res.statusCode} ${elapsed}ms`;
+    const responseMsg = res.locals._responseMessage as string | undefined;
+    const detail = responseMsg ? ` — ${responseMsg}` : "";
+    const msg = `${label} ${res.statusCode} ${elapsed}ms${detail}`;
     if (res.statusCode >= 500) {
       logger.error(scope, msg);
       return;
@@ -201,22 +217,15 @@ app.use(
 
 const httpServer = createServer(app);
 setupSocket(httpServer);
-
-const apiOnly = process.env.PROCESS_TYPE === "api";
+onDestroySession(clearGroupsStoreForSession);
 
 httpServer.listen(env.port, () => {
-  logger.success("SERVER", `Backend rodando na porta ${env.port}${apiOnly ? " (API only)" : ""}`);
-  if (!apiOnly) {
-    startQueue();
-    startWhatsAppQueueWorkers({
-      restart: (sessionId, companyId) => restart(sessionId, companyId),
-      ensure: async (sessionId) => {
-        const { getOrCreateClient } = await import("./services/whatsappClientManager");
-        await getOrCreateClient(sessionId);
-      },
-      disconnect: (sessionId, companyId) => disconnect(sessionId, companyId),
-      release: (sessionId, companyId) => releasePairing(sessionId, companyId),
-    });
-  }
+  logger.success("SERVER", `Backend rodando na porta ${env.port}`);
+  startQueue();
+  startWhatsAppQueueWorkers({
+    restart: (sessionId, companyId) => restart(sessionId, companyId),
+    disconnect: (sessionId, companyId) => disconnect(sessionId, companyId),
+    release: (sessionId, companyId) => releasePairing(sessionId, companyId),
+  });
 });
 

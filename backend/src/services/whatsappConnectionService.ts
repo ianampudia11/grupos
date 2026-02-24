@@ -6,8 +6,10 @@ import {
   getQrDataUrl,
   getClientState,
   destroyClient,
+  logoutSession,
   restartClient,
   releasePairingClient,
+  setSessionLabel,
 } from "./whatsappClientManager";
 
 const CONNECTED_GRACE_MS = 5 * 60 * 1000;
@@ -21,8 +23,10 @@ const CONNECTED_GRACE_MS = 5 * 60 * 1000;
 export async function getConnectionStatus(sessionId: string, companyId: string) {
   const session = await prisma.whatsappSession.findFirst({
     where: { id: sessionId, companyId },
+    include: { company: { select: { name: true } } },
   });
   if (!session) throw new Error("Sessão não encontrada");
+  setSessionLabel(sessionId, { sessionName: session.name, companyName: session.company.name });
 
   const state = getClientState(sessionId);
   const ready = isClientReady(sessionId);
@@ -84,8 +88,10 @@ export async function getConnectionStatus(sessionId: string, companyId: string) 
 export async function getQrCode(sessionId: string, companyId: string) {
   const session = await prisma.whatsappSession.findFirst({
     where: { id: sessionId, companyId },
+    include: { company: { select: { name: true } } },
   });
   if (!session) throw new Error("Sessão não encontrada");
+  setSessionLabel(sessionId, { sessionName: session.name, companyName: session.company.name });
 
   if (isClientReady(sessionId)) {
     return { qr: null, message: "Sessão já conectada.", alreadyConnected: true };
@@ -106,6 +112,7 @@ export async function disconnect(sessionId: string, companyId: string) {
   });
   if (!session) throw new Error("Sessão não encontrada");
 
+  await logoutSession(sessionId);
   await destroyClient(sessionId);
   await prisma.whatsappSession.update({
     where: { id: sessionId },

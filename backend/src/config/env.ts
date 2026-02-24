@@ -53,19 +53,19 @@ export const env = {
   })(),
   redisLimiterMax: Number(process.env.REDIS_OPT_LIMITER_MAX || 1),
   redisLimiterDuration: Number(process.env.REDIS_OPT_LIMITER_DURATION || 3000),
-  /** Chrome/Puppeteer: caminho do executável (opcional). */
-  chromeBin: process.env.CHROME_BIN?.trim() || undefined,
-  /** Chrome/Puppeteer: WebSocket de um Chrome já aberto para reutilizar instância. */
-  chromeWs: process.env.CHROME_WS?.trim() || undefined,
-  /** Chrome/Puppeteer: argumentos (ex.: --no-sandbox --disable-setuid-sandbox). */
-  chromeArgs: (process.env.CHROME_ARGS?.trim() || "--no-sandbox --disable-setuid-sandbox").split(/\s+/).filter(Boolean),
-  /** Timeout (ms) para operações CDP/Puppeteer (ex.: sync de grupos). Default 180000 (3 min). */
-  chromeProtocolTimeout: Number(process.env.CHROME_PROTOCOL_TIMEOUT || 180000),
+  /** Concorrência do worker de sync de grupos (1 = um sync por vez, menos CPU). */
+  syncConcurrency: Math.max(1, Math.min(5, Number(process.env.SYNC_CONCURRENCY || 1))),
+  /** Concorrência do worker de init de sessões WhatsApp (1–2 recomendado). */
+  initConcurrency: Math.max(1, Math.min(4, Number(process.env.INIT_CONCURRENCY || 1))),
   userLimit: Number(process.env.USER_LIMIT || 10000),
   connectionsLimit: Number(process.env.CONNECTIONS_LIMIT || 100000),
   closedSendByMe: process.env.CLOSED_SEND_BY_ME === "true",
   corsOrigin:
     process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "http://localhost:5173",
+  /** Níveis de log exibidos (separados por vírgula). Ex: WARN,SUCCESS,ERROR ou INFO,WARN,ERROR,SUCCESS */
+  logLevel:
+    process.env.LOG_LEVEL?.trim() ||
+    (process.env.NODE_ENV === "production" ? "WARN,SUCCESS,ERROR" : "INFO,WARN,ERROR,SUCCESS"),
   security: {
     rateLimitGeneral: Number(process.env.RATE_LIMIT_GENERAL || 100),
     rateLimitAuth: Number(process.env.RATE_LIMIT_AUTH || 10),
