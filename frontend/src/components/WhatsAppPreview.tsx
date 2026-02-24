@@ -67,7 +67,7 @@ export function WhatsAppPreview({ message }: WhatsAppPreviewProps) {
           setPreview(res.data);
         }
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
@@ -133,15 +133,15 @@ export function WhatsAppPreview({ message }: WhatsAppPreviewProps) {
         )}
         {loading && firstUrl && (
           <Box sx={{ px: 1.5, py: 1, fontSize: 11, color: "#8696a0", fontStyle: "italic" }}>
-            Carregando preview…
+            Cargando vista previa…
           </Box>
         )}
         <Box sx={{ px: 1.5, py: 1 }}>
           <Box sx={{ fontFamily: "system-ui,sans-serif", fontSize: 13, lineHeight: 1.45, color: "#000", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
-            {hasContent ? formatWhatsAppText(message) : "Sua mensagem aparecerá aqui"}
+            {hasContent ? formatWhatsAppText(message) : "Su mensaje aparecerá aquí"}
           </Box>
           <Box sx={{ fontSize: 10, color: "#667781", textAlign: "right", mt: 0.5 }}>
-            {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+            {new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}
           </Box>
         </Box>
       </Box>

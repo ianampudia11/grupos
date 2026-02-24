@@ -49,9 +49,9 @@ interface DashboardData {
 
 const SESSION_LABELS: Record<SessionStatus, string> = {
   connected: "Conectado",
-  qr_pending: "QR pendente",
+  qr_pending: "QR pendiente",
   disconnected: "Desconectado",
-  ban_risk: "Ban em risco",
+  ban_risk: "Riesgo de baneo",
 };
 
 const SESSION_COLORS: Record<SessionStatus, "success" | "warning" | "error" | "default"> = {
@@ -115,17 +115,17 @@ export default function DashboardPage() {
   if (!data) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert severity="error">Erro ao carregar dashboard.</Alert>
+        <Alert severity="error">Error al cargar el panel.</Alert>
       </Box>
     );
   }
 
   return (
-    <PageContainer title="Visão geral" subtitle="Status da sessão, contadores e fila de campanhas">
-      {/* Status da sessão */}
+    <PageContainer title="Vista General" subtitle="Status de la sesión, contadores y fila de campañas">
+      {/* Estado de la sesión */}
       <Paper sx={{ p: 2, mb: 3 }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-          Status da sessão
+          Estado de la sesión
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
           <Chip
@@ -158,9 +158,9 @@ export default function DashboardPage() {
         </Box>
       </Paper>
 
-      {/* Contadores do dia */}
+      {/* Contadores del día */}
       <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-        Contadores do dia
+        Contadores del día
       </Typography>
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid size={{ xs: 6, sm: 3 }}>
@@ -169,7 +169,7 @@ export default function DashboardPage() {
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                 <MessageIcon color="primary" fontSize="small" />
                 <Typography variant="overline" color="text.secondary">
-                  Mensagens enviadas
+                  Mensajes enviados
                 </Typography>
               </Box>
               <Typography variant="h4">{data.dailyStats.messagesSent}</Typography>
@@ -182,7 +182,7 @@ export default function DashboardPage() {
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                 <ErrorIcon color="error" fontSize="small" />
                 <Typography variant="overline" color="text.secondary">
-                  Falhas
+                  Fallos
                 </Typography>
               </Box>
               <Typography variant="h4" color={data.dailyStats.failures > 0 ? "error.main" : undefined}>
@@ -197,7 +197,7 @@ export default function DashboardPage() {
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                 <GroupsIcon color="primary" fontSize="small" />
                 <Typography variant="overline" color="text.secondary">
-                  Grupos alcançados
+                  Grupos alcanzados
                 </Typography>
               </Box>
               <Typography variant="h4">{data.dailyStats.groupsReached}</Typography>
@@ -210,7 +210,7 @@ export default function DashboardPage() {
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                 <TouchAppIcon color="primary" fontSize="small" />
                 <Typography variant="overline" color="text.secondary">
-                  Cliques (links)
+                  Clics (links)
                 </Typography>
               </Box>
               <Typography variant="h4">{data.dailyStats.linkClicks}</Typography>
@@ -219,27 +219,27 @@ export default function DashboardPage() {
         </Grid>
       </Grid>
 
-      {/* Fila atual */}
+      {/* Fila actual */}
       <Paper sx={{ p: 2, mb: 3 }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-          Fila atual
+          Fila actual
         </Typography>
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 4 }}>
             <Box>
               <Typography variant="overline" color="text.secondary">
-                Em execução ({data.queue.running.length})
+                En ejecución ({data.queue.running.length})
               </Typography>
               <Box sx={{ mt: 1 }}>
                 {data.queue.running.length === 0 ? (
                   <Typography variant="body2" color="text.secondary">
-                    Nenhuma campanha rodando
+                    Ninguna campaña en ejecución
                   </Typography>
                 ) : (
                   data.queue.running.map((c) => (
                     <Box key={c.id} sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
                       <PlayArrowIcon color="success" fontSize="small" />
-                      <Typography variant="body2">{c.title || "Sem título"}</Typography>
+                      <Typography variant="body2">{c.title || "Sin título"}</Typography>
                       <Button size="small" onClick={() => handlePause(c.id)} disabled={actionLoading === c.id}>
                         Pausar
                       </Button>
@@ -252,20 +252,20 @@ export default function DashboardPage() {
           <Grid size={{ xs: 12, md: 4 }}>
             <Box>
               <Typography variant="overline" color="text.secondary">
-                Próximas da fila ({data.queue.upcoming.length})
+                Próximas en la fila ({data.queue.upcoming.length})
               </Typography>
               <Box sx={{ mt: 1 }}>
                 {data.queue.upcoming.length === 0 ? (
                   <Typography variant="body2" color="text.secondary">
-                    Nenhuma agendada
+                    Ninguna programada
                   </Typography>
                 ) : (
                   data.queue.upcoming.map((c) => (
                     <Box key={c.id} sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
                       <ScheduleIcon color="info" fontSize="small" />
-                      <Typography variant="body2">{c.title || "Sem título"}</Typography>
+                      <Typography variant="body2">{c.title || "Sin título"}</Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {new Date(c.scheduledAt).toLocaleString("pt-BR")}
+                        {new Date(c.scheduledAt).toLocaleString("es-ES")}
                       </Typography>
                     </Box>
                   ))
@@ -281,13 +281,13 @@ export default function DashboardPage() {
               <Box sx={{ mt: 1 }}>
                 {data.queue.paused.length === 0 ? (
                   <Typography variant="body2" color="text.secondary">
-                    Nenhuma pausada
+                    Ninguna pausada
                   </Typography>
                 ) : (
                   data.queue.paused.map((c) => (
                     <Box key={c.id} sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
                       <PauseIcon color="disabled" fontSize="small" />
-                      <Typography variant="body2">{c.title || "Sem título"}</Typography>
+                      <Typography variant="body2">{c.title || "Sin título"}</Typography>
                       <Button
                         size="small"
                         onClick={() => handleResume(c.id)}
@@ -322,7 +322,7 @@ export default function DashboardPage() {
 
       <Box sx={{ mt: 3 }}>
         <Button component={Link} to="/campaigns" variant="contained" color="primary">
-          Nova campanha / Agendar disparo
+          Nueva campaña / Programar envío
         </Button>
       </Box>
     </PageContainer>

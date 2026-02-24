@@ -69,8 +69,8 @@ export default function WhatsappConnectionPage() {
     } catch (e: any) {
       toast.push({
         type: "danger",
-        title: "Conexões",
-        message: e?.response?.data?.message ?? "Erro ao carregar.",
+        title: "Conexiones",
+        message: e?.response?.data?.message ?? "Error al cargar.",
       });
     } finally {
       setLoading(false);
@@ -95,7 +95,7 @@ export default function WhatsappConnectionPage() {
 
     joinSessionRoom(sid).then((ok) => {
       if (!ok || cancelled) return;
-      api.get(`/whatsapp/sessions/${sid}/status`).catch(() => {}); // dispara getOrCreateClient
+      api.get(`/whatsapp/sessions/${sid}/status`).catch(() => { }); // dispara getOrCreateClient
     });
 
     const unQr = onQr((sessionId, dataUrl) => {
@@ -105,7 +105,7 @@ export default function WhatsappConnectionPage() {
       if (cancelled || connectedHandledRef.current) return;
       connectedHandledRef.current = true;
       setQr(null);
-      toast.push({ type: "success", title: "Conexões", message: "Sessão conectada com sucesso." });
+      toast.push({ type: "success", title: "Conexiones", message: "Sesión conectada con éxito." });
       api.get(`/whatsapp/sessions/${sid}/status`).finally(() => {
         void load();
       });
@@ -126,7 +126,7 @@ export default function WhatsappConnectionPage() {
         const r = await api.get<{ qr: string | null; alreadyConnected?: boolean }>(`/whatsapp/sessions/${sid}/qr`);
         if (cancelled) return;
         if (r.data.alreadyConnected) {
-          toast.push({ type: "success", title: "Conexões", message: "Sessão já conectada." });
+          toast.push({ type: "success", title: "Conexiones", message: "Sesión ya conectada." });
           setQrModal(null);
           void load();
           return;
@@ -151,7 +151,7 @@ export default function WhatsappConnectionPage() {
       leaveSessionRoom(sid);
       unsubRef.current.forEach((u) => u());
       if (!connectedHandledRef.current) {
-        api.post(`/whatsapp/sessions/${sid}/release`).catch(() => {});
+        api.post(`/whatsapp/sessions/${sid}/release`).catch(() => { });
       }
     };
   }, [qrModal]);
@@ -166,9 +166,9 @@ export default function WhatsappConnectionPage() {
       setNewName("");
       setQrModal({ sessionId: r.data.id, sessionName: r.data.name });
       setQr(null);
-      toast.push({ type: "success", title: "Conexões", message: "Conexão criada. Escaneie o QR." });
+      toast.push({ type: "success", title: "Conexiones", message: "Conexión creada. Escanee el código QR." });
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Conexões", message: e?.response?.data?.message ?? "Erro." });
+      toast.push({ type: "danger", title: "Conexiones", message: e?.response?.data?.message ?? "Error." });
     } finally {
       setCreating(false);
     }
@@ -177,14 +177,14 @@ export default function WhatsappConnectionPage() {
   async function handleRestart(sessionId: string) {
     try {
       await api.post(`/whatsapp/sessions/${sessionId}/restart`);
-      toast.push({ type: "info", title: "Conexões", message: "Reiniciando…" });
+      toast.push({ type: "info", title: "Conexiones", message: "Reiniciando..." });
       setQr(null);
       if (qrModal?.sessionId === sessionId) {
         setTimeout(() => setQr(null), 500);
       }
       await load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Conexões", message: e?.response?.data?.message ?? "Erro." });
+      toast.push({ type: "danger", title: "Conexiones", message: e?.response?.data?.message ?? "Error." });
     }
   }
 
@@ -196,21 +196,21 @@ export default function WhatsappConnectionPage() {
   async function handleDisconnect(sessionId: string) {
     try {
       await api.post(`/whatsapp/sessions/${sessionId}/disconnect`);
-      toast.push({ type: "success", title: "Conexões", message: "Desconectado." });
+      toast.push({ type: "success", title: "Conexiones", message: "Desconectado." });
       if (qrModal?.sessionId === sessionId) setQrModal(null);
       await load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Conexões", message: e?.response?.data?.message ?? "Erro." });
+      toast.push({ type: "danger", title: "Conexiones", message: e?.response?.data?.message ?? "Error." });
     }
   }
 
   async function handleSetDefault(sessionId: string) {
     try {
       await api.put(`/whatsapp/sessions/${sessionId}/default`);
-      toast.push({ type: "success", title: "Conexões", message: "Definido como padrão." });
+      toast.push({ type: "success", title: "Conexiones", message: "Establecido como predeterminado." });
       await load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Conexões", message: e?.response?.data?.message ?? "Erro." });
+      toast.push({ type: "danger", title: "Conexiones", message: e?.response?.data?.message ?? "Error." });
     }
   }
 
@@ -227,10 +227,10 @@ export default function WhatsappConnectionPage() {
       await api.delete(`/whatsapp/sessions/${sessionId}`);
       setDeleteConfirmModal(null);
       if (qrModal?.sessionId === sessionId) setQrModal(null);
-      toast.push({ type: "success", title: "Conexões", message: "Conexão excluída." });
+      toast.push({ type: "success", title: "Conexiones", message: "Conexión eliminada." });
       await load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Conexões", message: e?.response?.data?.message ?? "Erro." });
+      toast.push({ type: "danger", title: "Conexiones", message: e?.response?.data?.message ?? "Error." });
     } finally {
       setDeleting(false);
     }
@@ -242,16 +242,16 @@ export default function WhatsappConnectionPage() {
       await api.put(`/whatsapp/sessions/${editModal.id}`, { name: editModal.name.trim() });
       setSessions((prev) => prev.map((s) => (s.id === editModal.id ? { ...s, name: editModal.name.trim() } : s)));
       setEditModal(null);
-      toast.push({ type: "success", title: "Conexões", message: "Nome atualizado." });
+      toast.push({ type: "success", title: "Conexiones", message: "Nombre actualizado." });
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Conexões", message: e?.response?.data?.message ?? "Erro." });
+      toast.push({ type: "danger", title: "Conexiones", message: e?.response?.data?.message ?? "Error." });
     }
   }
 
   return (
     <PageContainer
-      title="Conexões"
-      subtitle={`Todos os WhatsApp's · ${sessions.length} conexão(ões)`}
+      title="Conexiones"
+      subtitle={`Varios WhatsApp's · ${sessions.length} conexión(es)`}
       actions={
         <>
           <Button
@@ -260,9 +260,9 @@ export default function WhatsappConnectionPage() {
             onClick={() => setAddModal(true)}
             sx={{ bgcolor: "#25D366", "&:hover": { bgcolor: "#128C7E" } }}
           >
-            Adicionar WhatsApp
+            Añadir WhatsApp
           </Button>
-          <IconButton component={Link} to="/settings" title="Configurações">
+          <IconButton component={Link} to="/settings" title="Configuraciones">
             <SettingsIcon />
           </IconButton>
         </>
@@ -285,7 +285,7 @@ export default function WhatsappConnectionPage() {
                       {s.name}
                     </Typography>
                     {s.isDefault && (
-                      <Chip label="Padrão" size="small" color="success" icon={<CheckCircleIcon />} />
+                      <Chip label="Predeterminado" size="small" color="success" icon={<CheckCircleIcon />} />
                     )}
                   </Box>
                   <Typography variant="caption" color="text.secondary">ID: {idx + 1}</Typography>
@@ -306,14 +306,14 @@ export default function WhatsappConnectionPage() {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <PhoneIcon fontSize="small" color="action" />
                   <Typography variant="body2" color="text.secondary">
-                    {s.waPhone ? `+${s.waPhone}` : "Número não definido"}
+                    {s.waPhone ? `+${s.waPhone}` : "Número no definido"}
                   </Typography>
                 </Box>
                 {s.lastConnectedAt && (
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <ScheduleIcon fontSize="small" color="action" />
                     <Typography variant="body2" color="text.secondary">
-                      {new Date(s.lastConnectedAt).toLocaleString("pt-BR")}
+                      {new Date(s.lastConnectedAt).toLocaleString("es-ES")}
                     </Typography>
                   </Box>
                 )}
@@ -337,7 +337,7 @@ export default function WhatsappConnectionPage() {
                   startIcon={<SyncIcon />}
                   onClick={() => handleRestart(s.id)}
                 >
-                  Tentar novamente
+                  Intentar de nuevo
                 </Button>
                 <Button
                   size="small"
@@ -346,7 +346,7 @@ export default function WhatsappConnectionPage() {
                   onClick={() => handleNewQr(s.id)}
                   sx={{ bgcolor: "#25D366", "&:hover": { bgcolor: "#128C7E" } }}
                 >
-                  Novo QR Code
+                  Nuevo código QR
                 </Button>
               </Box>
               <Box sx={{ display: "flex", gap: 1 }}>
@@ -354,10 +354,10 @@ export default function WhatsappConnectionPage() {
                   Editar
                 </Button>
                 <Button size="small" color="error" startIcon={<DeleteIcon />} onClick={() => openDeleteConfirm(s.id)}>
-                  Excluir
+                  Eliminar
                 </Button>
                 {!s.isDefault && (
-                  <Button size="small" onClick={() => handleSetDefault(s.id)}>Definir padrão</Button>
+                  <Button size="small" onClick={() => handleSetDefault(s.id)}>Definir como predeterminado</Button>
                 )}
               </Box>
             </CardContent>
@@ -368,7 +368,7 @@ export default function WhatsappConnectionPage() {
           <Card sx={{ minWidth: 320, flex: 1 }}>
             <CardContent sx={{ textAlign: "center", py: 4 }}>
               <Typography color="text.secondary" gutterBottom>
-                Nenhuma conexão ainda.
+                Ninguna conexión aún.
               </Typography>
               <Button
                 variant="contained"
@@ -376,7 +376,7 @@ export default function WhatsappConnectionPage() {
                 onClick={() => setAddModal(true)}
                 sx={{ bgcolor: "#25D366", "&:hover": { bgcolor: "#128C7E" } }}
               >
-                Adicionar WhatsApp
+                Añadir WhatsApp
               </Button>
             </CardContent>
           </Card>
@@ -385,45 +385,45 @@ export default function WhatsappConnectionPage() {
 
       {/* Modal Adicionar */}
       <Dialog open={addModal} onClose={() => !creating && setAddModal(false)}>
-        <DialogTitle>Nova conexão WhatsApp</DialogTitle>
+        <DialogTitle>Nueva conexión de WhatsApp</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             fullWidth
-            label="Nome da conexão"
+            label="Nombre de la conexión"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            placeholder="Ex: SP1, Atendimento..."
+            placeholder="Ej: SP1, Atención..."
             sx={{ mt: 1 }}
           />
         </DialogContent>
         <Box sx={{ px: 3, pb: 2, display: "flex", gap: 2, justifyContent: "flex-end" }}>
           <Button onClick={() => setAddModal(false)} disabled={creating}>Cancelar</Button>
           <Button variant="contained" onClick={handleAdd} disabled={creating || !newName.trim()}>
-            {creating ? "Criando..." : "Criar"}
+            {creating ? "Creando..." : "Crear"}
           </Button>
         </Box>
       </Dialog>
 
-      {/* Modal confirmar exclusão */}
+      {/* Modal confirmar eliminación */}
       <Dialog open={!!deleteConfirmModal} onClose={() => !deleting && setDeleteConfirmModal(null)} maxWidth="sm" fullWidth>
-        <DialogTitle>Excluir conexão</DialogTitle>
+        <DialogTitle>Eliminar conexión</DialogTitle>
         <DialogContent>
           <DialogContentText component="div" sx={{ color: "text.primary" }}>
-            Ao excluir a conexão, serão removidos permanentemente:
+            Al eliminar la conexión, se eliminarán permanentemente:
           </DialogContentText>
           <Box component="ul" sx={{ mt: 1, mb: 2, pl: 2.5, color: "text.secondary" }}>
-            <li>A conexão WhatsApp</li>
-            <li>Todos os grupos sincronizados desta conexão</li>
-            <li>Todas as campanhas que usam esta conexão (rascunhos, agendadas e histórico)</li>
-            <li>Envios e estatísticas relacionados</li>
+            <li>La conexión de WhatsApp</li>
+            <li>Todos los grupos sincronizados de esta conexión</li>
+            <li>Todas las campañas que usan esta conexión (borradores, programadas e historial)</li>
+            <li>Envíos y estadísticas relacionados</li>
           </Box>
           <DialogContentText sx={{ color: "text.secondary" }}>
-            Esta ação não pode ser desfeita.
+            Esta acción no se puede deshacer.
           </DialogContentText>
           {deleteConfirmModal && (
             <DialogContentText sx={{ mt: 2, fontWeight: 600 }}>
-              Confirma a exclusão de &quot;{deleteConfirmModal.name}&quot;?
+              ¿Confirma la eliminación de &quot;{deleteConfirmModal.name}&quot;?
             </DialogContentText>
           )}
         </DialogContent>
@@ -432,20 +432,20 @@ export default function WhatsappConnectionPage() {
             Cancelar
           </Button>
           <Button variant="contained" color="error" onClick={handleDeleteConfirm} disabled={deleting}>
-            {deleting ? "Excluindo..." : "Excluir"}
+            {deleting ? "Eliminando..." : "Eliminar"}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Modal Editar */}
       <Dialog open={!!editModal} onClose={() => setEditModal(null)}>
-        <DialogTitle>Editar conexão</DialogTitle>
+        <DialogTitle>Editar conexión</DialogTitle>
         <DialogContent>
           {editModal && (
             <TextField
               autoFocus
               fullWidth
-              label="Nome"
+              label="Nombre"
               value={editModal.name}
               onChange={(e) => setEditModal({ ...editModal, name: e.target.value })}
               sx={{ mt: 1 }}
@@ -454,25 +454,25 @@ export default function WhatsappConnectionPage() {
         </DialogContent>
         <Box sx={{ px: 3, pb: 2, display: "flex", gap: 2, justifyContent: "flex-end" }}>
           <Button onClick={() => setEditModal(null)}>Cancelar</Button>
-          <Button variant="contained" onClick={handleEditSave}>Salvar</Button>
+          <Button variant="contained" onClick={handleEditSave}>Guardar</Button>
         </Box>
       </Dialog>
 
       {/* Modal QR Code */}
       <Dialog open={!!qrModal} onClose={() => setQrModal(null)} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          Conectar ao WhatsApp Web — {qrModal?.sessionName}
+          Conectar a WhatsApp Web — {qrModal?.sessionName}
           <IconButton onClick={() => setQrModal(null)} size="small">×</IconButton>
         </DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
             <Box sx={{ flex: "1 1 200px" }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Conectar ao WhatsApp Web</Typography>
+              <Typography variant="h6" sx={{ mb: 2 }}>Conectar a WhatsApp Web</Typography>
               <Box component="ol" sx={{ pl: 2, color: "text.secondary", "& li": { mb: 1 } }}>
-                <li>Abra o WhatsApp no celular</li>
-                <li>Vá em Menu ou Configurações</li>
-                <li>Selecione Dispositivos conectados</li>
-                <li>Aponte a câmera para o QR Code</li>
+                <li>Abra WhatsApp en su teléfono</li>
+                <li>Vaya a Menú o Configuraciones</li>
+                <li>Seleccione Dispositivos vinculados</li>
+                <li>Apunte la cámara hacia el código QR</li>
               </Box>
             </Box>
             <Box sx={{ flex: "1 1 200px", textAlign: "center" }}>
@@ -480,12 +480,12 @@ export default function WhatsappConnectionPage() {
                 <>
                   <img key={qr} src={qr} alt="QR Code" style={{ maxWidth: 280, width: "100%" }} />
                   <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 1 }}>
-                    O QR Code expira em ~60 segundos. Um novo é gerado automaticamente; a imagem acima atualiza sozinha.
+                    El código QR expira en ~60 segundos. Se genera uno nuevo automáticamente; la imagen de arriba se actualiza sola.
                   </Typography>
                 </>
               ) : (
                 <Box sx={{ py: 4 }}>
-                  <Typography color="text.secondary">Aguardando QR...</Typography>
+                  <Typography color="text.secondary">Esperando QR...</Typography>
                   <Button
                     size="small"
                     sx={{ mt: 1 }}

@@ -12,14 +12,14 @@ export type Branding = {
 type BrandingContextValue = Branding & { refresh: () => void };
 
 const defaultBranding: Branding = {
-  systemTitle: "Painel de disparos WhatsApp",
+  systemTitle: "Grupos",
   logoUrl: null,
   logoDarkUrl: null,
   faviconUrl: null,
   iconUrl: null,
 };
 
-const BrandingContext = createContext<BrandingContextValue>({ ...defaultBranding, refresh: () => {} });
+const BrandingContext = createContext<BrandingContextValue>({ ...defaultBranding, refresh: () => { } });
 
 export function BrandingProvider({ children }: { children: React.ReactNode }) {
   const [branding, setBranding] = useState<Branding>(defaultBranding);
@@ -47,7 +47,7 @@ export function BrandingProvider({ children }: { children: React.ReactNode }) {
           iconUrl: iconPath ? `${iconPath}?v=${ts}` : null,
         });
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   useEffect(() => {

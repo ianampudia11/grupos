@@ -95,8 +95,8 @@ export default function AdminUsersPage() {
     } catch (e: any) {
       toast.push({
         type: "danger",
-        title: "Usuários",
-        message: e?.response?.data?.message ?? "Erro ao carregar usuários.",
+        title: "Usuarios",
+        message: e?.response?.data?.message ?? "Error al cargar los usuarios.",
       });
     } finally {
       setLoading(false);
@@ -121,10 +121,12 @@ export default function AdminUsersPage() {
 
   function toggleEditMenuKey(key: string, checked: boolean) {
     if (!editForm) return;
-    setEditForm((f) => ({
-      ...f,
-      menuPermissions: checked ? [...f.menuPermissions, key] : f.menuPermissions.filter((k) => k !== key),
-    }));
+    setEditForm({
+      ...editForm,
+      menuPermissions: checked
+        ? [...editForm.menuPermissions, key]
+        : editForm.menuPermissions.filter((k) => k !== key),
+    });
   }
 
   async function handleCreate(e: FormEvent) {
@@ -137,12 +139,12 @@ export default function AdminUsersPage() {
       });
       setUsers((prev) => [res.data, ...prev]);
       setForm({ name: "", email: "", password: "", role: "USER", menuPermissions: [] });
-      toast.push({ type: "success", title: "Usuários", message: "Usuário criado." });
+      toast.push({ type: "success", title: "Usuarios", message: "Usuario creado." });
     } catch (e: any) {
       toast.push({
         type: "danger",
-        title: "Usuários",
-        message: e?.response?.data?.message ?? "Erro ao criar usuário.",
+        title: "Usuarios",
+        message: e?.response?.data?.message ?? "Error al crear el usuario.",
       });
     }
   }
@@ -168,28 +170,28 @@ export default function AdminUsersPage() {
         menuPermissions: editForm.menuPermissions.length ? editForm.menuPermissions : null,
       });
       setUsers((prev) => prev.map((x) => (x.id === editDialog.id ? res.data : x)));
-      toast.push({ type: "success", title: "Usuários", message: "Usuário atualizado." });
+      toast.push({ type: "success", title: "Usuarios", message: "Usuario actualizado." });
       closeEdit();
     } catch (e: any) {
       toast.push({
         type: "danger",
-        title: "Usuários",
-        message: e?.response?.data?.message ?? "Erro ao atualizar usuário.",
+        title: "Usuarios",
+        message: e?.response?.data?.message ?? "Error al actualizar el usuario.",
       });
     }
   }
 
   async function removeUser(u: User) {
-    if (!confirm(`Remover usuário ${u.email}?`)) return;
+    if (!confirm(`¿Eliminar usuario ${u.email}?`)) return;
     try {
       await api.delete(`/admin/users/${u.id}`);
       setUsers((prev) => prev.filter((x) => x.id !== u.id));
-      toast.push({ type: "success", title: "Usuários", message: "Usuário removido." });
+      toast.push({ type: "success", title: "Usuarios", message: "Usuario eliminado." });
     } catch (e: any) {
       toast.push({
         type: "danger",
-        title: "Usuários",
-        message: e?.response?.data?.message ?? "Erro ao remover usuário.",
+        title: "Usuarios",
+        message: e?.response?.data?.message ?? "Error al eliminar el usuario.",
       });
     }
   }
@@ -197,20 +199,20 @@ export default function AdminUsersPage() {
   if (!canRender) {
     return (
       <Box sx={{ p: 2 }}>
-        <Alert severity="warning">Esta página é restrita para administradores.</Alert>
+        <Alert severity="warning">Esta página está restringida para administradores.</Alert>
       </Box>
     );
   }
 
   return (
     <PageContainer
-      title="Usuários"
+      title="Usuarios"
       subtitle={
         isSuperAdmin
-          ? "Gerencie usuários de todas as empresas. Selecione uma empresa nas abas."
-          : "Crie e gerencie usuários da empresa. Defina o cargo e os menus que cada um poderá acessar."
+          ? "Gestione usuarios de todas las empresas. Seleccione una empresa en las pestañas."
+          : "Cree y gestione usuarios de la empresa. Defina el cargo y los menús a los que cada uno podrá acceder."
       }
-      actions={<Button variant="outlined" onClick={load} disabled={loading}>Atualizar</Button>}
+      actions={<Button variant="outlined" onClick={load} disabled={loading}>Actualizar</Button>}
     >
       {isSuperAdmin && companies.length > 0 && (
         <Tabs
@@ -227,22 +229,22 @@ export default function AdminUsersPage() {
 
       {isSuperAdmin && !effectiveCompanyId && companies.length > 0 && (
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Exibindo usuários de todas as empresas
+          Mostrando usuarios de todas las empresas
         </Typography>
       )}
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
         <Paper sx={{ p: 2, flex: "1 1 360px", maxWidth: 440 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>Novo usuário</Typography>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>Nuevo usuario</Typography>
           {isSuperAdmin && !effectiveCompanyId && (
             <Alert severity="info" sx={{ mb: 2 }}>
-              Selecione uma empresa na aba acima para criar um novo usuário.
+              Seleccione una empresa en la pestaña de arriba para crear un nuevo usuario.
             </Alert>
           )}
           <form onSubmit={handleCreate}>
             <TextField
               fullWidth
-              label="Nome"
+              label="Nombre"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               sx={{ mb: 2 }}
@@ -258,7 +260,7 @@ export default function AdminUsersPage() {
             />
             <TextField
               fullWidth
-              label="Senha"
+              label="Contraseña"
               type="password"
               required
               value={form.password}
@@ -274,13 +276,13 @@ export default function AdminUsersPage() {
               >
                 {availableRoles.map((r) => (
                   <MenuItem key={r} value={r}>
-                    {r}
+                    {r === "ADMIN" ? "Administrador" : r === "SUPERVISOR" ? "Supervisor" : "Usuario"}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
             <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
-              Menus que terá acesso (deixe em branco para padrão do cargo):
+              Menús a los que tendrá acceso (deje en blanco para el predeterminado del cargo):
             </Typography>
             <FormGroup sx={{ mb: 2, flexDirection: "row", flexWrap: "wrap" }}>
               {menuKeys.map((m) => (
@@ -305,7 +307,7 @@ export default function AdminUsersPage() {
               color="primary"
               disabled={isSuperAdmin && !effectiveCompanyId}
             >
-              Criar usuário
+              Crear usuario
             </Button>
           </form>
         </Paper>
@@ -317,7 +319,7 @@ export default function AdminUsersPage() {
               <TableHead>
                 <TableRow>
                   <TableCell>E-mail</TableCell>
-                  <TableCell>Nome</TableCell>
+                  <TableCell>Nombre</TableCell>
                   <TableCell>Cargo</TableCell>
                   <TableCell align="right" sx={{ width: 200 }}></TableCell>
                 </TableRow>
@@ -333,10 +335,10 @@ export default function AdminUsersPage() {
                     <TableCell align="right">
                       <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end", flexWrap: "wrap" }}>
                         <Button size="small" variant="outlined" onClick={() => openEdit(u)}>
-                          Permissões
+                          Permisos
                         </Button>
                         <Button size="small" variant="outlined" color="error" onClick={() => removeUser(u)}>
-                          Remover
+                          Eliminar
                         </Button>
                       </Box>
                     </TableCell>
@@ -345,7 +347,7 @@ export default function AdminUsersPage() {
                 {!users.length && (
                   <TableRow>
                     <TableCell colSpan={4} sx={{ color: "#6b7280" }}>
-                      Nenhum usuário encontrado.
+                      Ningún usuario encontrado.
                     </TableCell>
                   </TableRow>
                 )}
@@ -356,7 +358,7 @@ export default function AdminUsersPage() {
       </Box>
 
       <Dialog open={!!editDialog} onClose={closeEdit} maxWidth="sm" fullWidth>
-        <DialogTitle>Permissões — {editDialog?.email}</DialogTitle>
+        <DialogTitle>Permisos — {editDialog?.email}</DialogTitle>
         <DialogContent dividers>
           {editForm && (
             <Box sx={{ pt: 1 }}>
@@ -370,13 +372,13 @@ export default function AdminUsersPage() {
                 >
                   {availableRoles.map((r) => (
                     <MenuItem key={r} value={r}>
-                      {r}
+                      {r === "ADMIN" ? "Administrador" : r === "SUPERVISOR" ? "Supervisor" : "Usuario"}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
               <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
-                Menus permitidos (em branco = padrão do cargo):
+                Menús permitidos (en blanco = predeterminado del cargo):
               </Typography>
               <FormGroup sx={{ flexDirection: "row", flexWrap: "wrap" }}>
                 {menuKeys.map((m) => (
@@ -400,7 +402,7 @@ export default function AdminUsersPage() {
         <DialogActions>
           <Button onClick={closeEdit}>Cancelar</Button>
           <Button variant="contained" onClick={handleEditSave}>
-            Salvar
+            Guardar
           </Button>
         </DialogActions>
       </Dialog>

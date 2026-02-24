@@ -48,7 +48,7 @@ router.post("/generate", async (req: AuthRequest, res) => {
     const message = generateMessage(templateBody, product, seed);
     res.json({ message });
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao gerar mensagem" });
+    res.status(400).json({ message: err.message || "Error al generar el mensaje" });
   }
 });
 
@@ -67,7 +67,7 @@ router.post("/", async (req: AuthRequest, res) => {
     });
     res.status(201).json(template);
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao criar template" });
+    res.status(400).json({ message: err.message || "Error al crear la plantilla" });
   }
 });
 
@@ -84,14 +84,14 @@ router.put("/:id", async (req: AuthRequest, res) => {
     const existing = await prisma.messageTemplate.findFirst({
       where: { id: req.params.id, userId },
     });
-    if (!existing) return res.status(404).json({ message: "Template não encontrado" });
+    if (!existing) return res.status(404).json({ message: "Plantilla no encontrada" });
     const template = await prisma.messageTemplate.update({
       where: { id: req.params.id },
       data: body,
     });
     res.json(template);
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao atualizar template" });
+    res.status(400).json({ message: err.message || "Error al actualizar la plantilla" });
   }
 });
 
@@ -105,7 +105,7 @@ router.delete("/:id", async (req: AuthRequest, res) => {
     await prisma.messageTemplate.delete({ where: { id: req.params.id } });
     res.json({ ok: true });
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao remover template" });
+    res.status(400).json({ message: err.message || "Error al eliminar la plantilla" });
   }
 });
 

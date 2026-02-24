@@ -26,7 +26,7 @@ router.use(async (req, _res, next) => {
 
 function requireCompany(req: AuthRequest) {
   const companyId = req.companyId;
-  if (!companyId) throw new Error("Você precisa estar vinculado a uma empresa para acessar conexões.");
+  if (!companyId) throw new Error("Debe estar vinculado a una empresa para acceder a las conexiones.");
   return companyId;
 }
 
@@ -59,7 +59,7 @@ router.get("/sessions", async (req: AuthRequest, res) => {
     }));
     res.json(result);
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao listar sessões" });
+    res.status(400).json({ message: err.message || "Error al listar las sesiones" });
   }
 });
 
@@ -81,7 +81,7 @@ router.post("/sessions", async (req: AuthRequest, res) => {
     });
     res.status(201).json(session);
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao criar sessão" });
+    res.status(400).json({ message: err.message || "Error al crear la sesión" });
   }
 });
 
@@ -94,14 +94,14 @@ router.put("/sessions/:sessionId", async (req: AuthRequest, res) => {
     const session = await prisma.whatsappSession.findFirst({
       where: { id: req.params.sessionId, companyId },
     });
-    if (!session) return res.status(404).json({ message: "Sessão não encontrada" });
+    if (!session) return res.status(404).json({ message: "Sesión no encontrada" });
     const updated = await prisma.whatsappSession.update({
       where: { id: session.id },
       data: { name: name.trim() },
     });
     res.json(updated);
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao atualizar" });
+    res.status(400).json({ message: err.message || "Error al actualizar" });
   }
 });
 
@@ -112,7 +112,7 @@ router.put("/sessions/:sessionId/default", async (req: AuthRequest, res) => {
     const session = await prisma.whatsappSession.findFirst({
       where: { id: req.params.sessionId, companyId },
     });
-    if (!session) return res.status(404).json({ message: "Sessão não encontrada" });
+    if (!session) return res.status(404).json({ message: "Sesión no encontrada" });
     await prisma.$transaction([
       prisma.whatsappSession.updateMany({
         where: { companyId },
@@ -136,7 +136,7 @@ router.delete("/sessions/:sessionId", async (req: AuthRequest, res) => {
     const session = await prisma.whatsappSession.findFirst({
       where: { id: req.params.sessionId, companyId },
     });
-    if (!session) return res.status(404).json({ message: "Sessão não encontrada" });
+    if (!session) return res.status(404).json({ message: "Sesión no encontrada" });
     const { destroyClient } = await import("../services/whatsappClientManager");
     await destroyClient(session.id);
 
@@ -168,7 +168,7 @@ router.delete("/sessions/:sessionId", async (req: AuthRequest, res) => {
     }
     res.json({ ok: true });
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao excluir" });
+    res.status(400).json({ message: err.message || "Error al eliminar" });
   }
 });
 
@@ -190,7 +190,7 @@ router.get("/sessions/:sessionId/qr", async (req: AuthRequest, res) => {
     const qr = await getQrCode(req.params.sessionId, companyId);
     res.json(qr);
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao obter QR code" });
+    res.status(400).json({ message: err.message || "Error al obtener el código QR" });
   }
 });
 
@@ -203,7 +203,7 @@ router.post("/sessions/:sessionId/disconnect", async (req: AuthRequest, res) => 
     if (!result.ok) await disconnect(sessionId, companyId);
     res.json({ ok: true });
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao desconectar" });
+    res.status(400).json({ message: err.message || "Error al desconectar" });
   }
 });
 
@@ -216,7 +216,7 @@ router.post("/sessions/:sessionId/restart", async (req: AuthRequest, res) => {
     if (!result.ok) await restart(sessionId, companyId);
     res.json({ ok: true });
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao reiniciar" });
+    res.status(400).json({ message: err.message || "Error al reiniciar" });
   }
 });
 
@@ -287,7 +287,7 @@ router.get("/connection/qr", async (req: AuthRequest, res) => {
     const qr = await getQrCode(session.id, companyId);
     res.json(qr);
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao obter QR code" });
+    res.status(400).json({ message: err.message || "Error al obtener el código QR" });
   }
 });
 
@@ -313,7 +313,7 @@ router.post("/connection/restart", async (req: AuthRequest, res) => {
     const session = await prisma.whatsappSession.findFirst({
       where: { companyId },
     });
-    if (!session) return res.status(404).json({ message: "Nenhuma sessão" });
+    if (!session) return res.status(404).json({ message: "Ninguna sesión" });
     await restart(session.id, companyId);
     res.json({ ok: true });
   } catch (err: any) {
@@ -329,7 +329,7 @@ router.post(
       const groups = await fetchGroupsFromRemote(companyId);
       res.json(groups);
     } catch (err: any) {
-      res.status(400).json({ message: err.message || "Erro ao sincronizar grupos" });
+      res.status(400).json({ message: "Error al sincronizar los grupos" });
     }
   }
 );
@@ -342,7 +342,7 @@ router.get(
       const groups = await listGroups(companyId);
       res.json(groups);
     } catch (err: any) {
-      res.status(400).json({ message: err.message || "Erro ao listar grupos" });
+      res.status(400).json({ message: "Error al listar los grupos" });
     }
   }
 );
@@ -368,7 +368,7 @@ router.post(
           ? [parsed.groupId]
           : [];
       if (groupIds.length === 0) {
-        res.status(400).json({ message: "Informe ao menos um grupo (groupId ou groupIds)." });
+        res.status(400).json({ message: "Informe al menos un grupo (groupId o groupIds)." });
         return;
       }
       const { assertGroupSendsPerDay } = await import("../services/planLimitsService");
@@ -378,7 +378,7 @@ router.post(
       }
       res.json({ ok: true });
     } catch (err: any) {
-      res.status(400).json({ message: err.message || "Erro ao enviar mensagem" });
+      res.status(400).json({ message: "Error al enviar el mensaje" });
     }
   }
 );

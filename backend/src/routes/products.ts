@@ -27,7 +27,7 @@ router.get("/:id", async (req: AuthRequest, res) => {
     where: { id: req.params.id, userId },
     include: { images: { orderBy: { sortOrder: "asc" } } },
   });
-  if (!item) return res.status(404).json({ message: "Produto não encontrado" });
+  if (!item) return res.status(404).json({ message: "Producto no encontrado" });
   res.json(item);
 });
 
@@ -86,7 +86,7 @@ router.post("/", productImageUpload.array("images", 10), async (req: AuthRequest
     });
     res.status(201).json(created);
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao criar produto" });
+    res.status(400).json({ message: err.message || "Error al crear el producto" });
   }
 });
 
@@ -155,7 +155,7 @@ router.put("/:id", productImageUpload.array("images", 10), async (req: AuthReque
     });
     res.json(updated);
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao atualizar produto" });
+    res.status(400).json({ message: err.message || "Error al actualizar el producto" });
   }
 });
 
@@ -169,7 +169,7 @@ router.delete("/:id", async (req: AuthRequest, res) => {
     await prisma.product.delete({ where: { id: req.params.id } });
     res.json({ ok: true });
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao remover produto" });
+    res.status(400).json({ message: err.message || "Error al eliminar el producto" });
   }
 });
 

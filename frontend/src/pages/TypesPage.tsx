@@ -39,7 +39,7 @@ export default function TypesPage() {
       const res = await api.get<TemplateType[]>("/template-types");
       setTypes(res.data);
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Tipos", message: e?.response?.data?.message ?? "Erro ao carregar." });
+      toast.push({ type: "danger", title: "Tipos", message: e?.response?.data?.message ?? "Error al cargar." });
     } finally {
       setLoading(false);
     }
@@ -74,58 +74,58 @@ export default function TypesPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!slug.trim() || !label.trim()) {
-      toast.push({ type: "warning", title: "Tipos", message: "Preencha slug e nome." });
+      toast.push({ type: "warning", title: "Tipos", message: "Complete slug y nombre." });
       return;
     }
     setLoading(true);
     try {
       if (editingId) {
         await api.put(`/template-types/${editingId}`, { slug: slug.trim(), label: label.trim() });
-        toast.push({ type: "success", title: "Tipos", message: "Tipo atualizado." });
+        toast.push({ type: "success", title: "Tipos", message: "Tipo actualizado." });
       } else {
         await api.post("/template-types", { slug: slug.trim(), label: label.trim() });
-        toast.push({ type: "success", title: "Tipos", message: "Tipo criado." });
+        toast.push({ type: "success", title: "Tipos", message: "Tipo creado." });
       }
       await load();
       resetForm();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Tipos", message: e?.response?.data?.message ?? "Erro ao salvar." });
+      toast.push({ type: "danger", title: "Tipos", message: e?.response?.data?.message ?? "Error al guardar." });
     } finally {
       setLoading(false);
     }
   }
 
   async function removeType(t: TemplateType) {
-    if (!confirm(`Remover tipo "${t.label}"? Templates que usam este tipo passarão para Personalizado.`)) return;
+    if (!confirm(`¿Eliminar tipo "${t.label}"? Las plantillas que usan este tipo pasarán a Personalizado.`)) return;
     try {
       await api.delete(`/template-types/${t.id}`);
       setTypes((prev) => prev.filter((x) => x.id !== t.id));
-      toast.push({ type: "success", title: "Tipos", message: "Tipo removido." });
+      toast.push({ type: "success", title: "Tipos", message: "Tipo eliminado." });
       if (editingId === t.id) resetForm();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Tipos", message: e?.response?.data?.message ?? "Erro ao remover." });
+      toast.push({ type: "danger", title: "Tipos", message: e?.response?.data?.message ?? "Error al eliminar." });
     }
   }
 
   return (
     <PageContainer
-      title="Tipos de template"
-      subtitle="Categorize seus templates: Oferta Relâmpago, Cupom, Frete Grátis, Personalizado, etc."
-      actions={<Button variant="outlined" onClick={load} disabled={loading}>Atualizar</Button>}
+      title="Tipos de plantilla"
+      subtitle="Categorice sus plantillas: Oferta Relámpago, Cupón, Envío Gratis, Personalizado, etc."
+      actions={<Button variant="outlined" onClick={load} disabled={loading}>Actualizar</Button>}
     >
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
         <Paper sx={{ p: 2, flex: "1 1 360px", maxWidth: 420 }}>
           <Typography variant="subtitle1" sx={{ mb: 2 }}>
-            {editingId ? "Editar tipo" : "Novo tipo"}
+            {editingId ? "Editar tipo" : "Nuevo tipo"}
           </Typography>
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Nome exibido"
+              label="Nombre mostrado"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
               onBlur={() => !editingId && slugFromLabel()}
-              placeholder="Ex: Oferta Relâmpago"
+              placeholder="Ej: Oferta Relámpago"
               required
               sx={{ mb: 2 }}
             />
@@ -134,8 +134,8 @@ export default function TypesPage() {
               label="Slug (identificador)"
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
-              placeholder="Ex: oferta_relampago"
-              helperText="Apenas letras minúsculas, números e _"
+              placeholder="Ej: oferta_relampago"
+              helperText="Solo letras minúsculas, números y _"
               required
               sx={{ mb: 2 }}
             />
@@ -146,7 +146,7 @@ export default function TypesPage() {
                 disabled={loading}
                 color="primary"
               >
-                {loading ? "Salvando..." : editingId ? "Atualizar" : "Criar tipo"}
+                {loading ? "Guardando..." : editingId ? "Actualizar" : "Crear tipo"}
               </Button>
               {editingId && (
                 <Button variant="outlined" onClick={resetForm}>
@@ -159,13 +159,13 @@ export default function TypesPage() {
 
         <Paper sx={{ p: 2, flex: "1 1 360px" }}>
           <Typography variant="subtitle1" sx={{ mb: 2 }}>
-            Meus tipos
+            Mis tipos
           </Typography>
           <TableContainer sx={{ maxHeight: 400 }}>
             <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow>
-                  <TableCell>Nome</TableCell>
+                  <TableCell>Nombre</TableCell>
                   <TableCell>Slug</TableCell>
                   <TableCell align="right" sx={{ width: 100 }}></TableCell>
                 </TableRow>
@@ -179,7 +179,7 @@ export default function TypesPage() {
                       <IconButton size="small" onClick={() => startEdit(t)} title="Editar">
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton size="small" color="error" onClick={() => removeType(t)} title="Remover">
+                      <IconButton size="small" color="error" onClick={() => removeType(t)} title="Eliminar">
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
@@ -188,7 +188,7 @@ export default function TypesPage() {
                 {!types.length && (
                   <TableRow>
                     <TableCell colSpan={3} sx={{ color: "#6b7280" }}>
-                      Nenhum tipo. Serão criados os padrão ao acessar.
+                      Ningún tipo. Se crearán los predeterminados al acceder.
                     </TableCell>
                   </TableRow>
                 )}

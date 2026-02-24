@@ -30,7 +30,7 @@ export default function UserProfilePage() {
       toast.push({
         type: "danger",
         title: "Perfil",
-        message: e?.response?.data?.message ?? "Erro ao carregar dados do perfil.",
+        message: e?.response?.data?.message ?? "Error al cargar los datos del perfil.",
       });
     } finally {
       setLoading(false);
@@ -48,7 +48,7 @@ export default function UserProfilePage() {
       toast.push({
         type: "warning",
         title: "Perfil",
-        message: "A confirmaçao da senha não confere.",
+        message: "La confirmación de la contraseña no coincide.",
       });
       return;
     }
@@ -63,12 +63,12 @@ export default function UserProfilePage() {
       setPassword("");
       setConfirmPassword("");
       await refreshMe();
-      toast.push({ type: "success", title: "Perfil", message: "Dados atualizados com sucesso." });
+      toast.push({ type: "success", title: "Perfil", message: "Datos actualizados con éxito." });
     } catch (e: any) {
       toast.push({
         type: "danger",
         title: "Perfil",
-        message: e?.response?.data?.message ?? "Erro ao salvar perfil.",
+        message: e?.response?.data?.message ?? "Error al guardar el perfil.",
       });
     } finally {
       setSaving(false);
@@ -76,12 +76,12 @@ export default function UserProfilePage() {
   }
 
   return (
-    <PageContainer title="Minha conta" subtitle="Atualize seu perfil e altere sua senha.">
+    <PageContainer title="Mi cuenta" subtitle="Actualice su perfil y cambie su contraseña.">
       <Paper sx={{ p: 2, maxWidth: 600 }}>
         <form onSubmit={handleSubmit}>
           <TextField
             fullWidth
-            label="Nome"
+            label="Nombre"
             value={name}
             onChange={(e) => setName(e.target.value)}
             disabled={loading || saving}
@@ -89,7 +89,7 @@ export default function UserProfilePage() {
           />
           <TextField
             fullWidth
-            label="E-mail"
+            label="Correo electrónico"
             type="email"
             required
             value={email}
@@ -98,21 +98,21 @@ export default function UserProfilePage() {
             sx={{ mb: 2 }}
           />
           <Box sx={{ my: 2, borderTop: 1, borderColor: "divider" }} />
-          <h6 style={{ marginBottom: 16 }}>Trocar senha</h6>
+          <h6 style={{ marginBottom: 16 }}>Cambiar contraseña</h6>
           <TextField
             fullWidth
-            label="Nova senha"
+            label="Nueva contraseña"
             type="password"
             inputProps={{ minLength: 6 }}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading || saving}
-            placeholder="Deixe em branco para manter a atual"
+            placeholder="Deje en blanco para mantener la actual"
             sx={{ mb: 2 }}
           />
           <TextField
             fullWidth
-            label="Confirmar nova senha"
+            label="Confirmar nueva contraseña"
             type="password"
             inputProps={{ minLength: 6 }}
             value={confirmPassword}
@@ -126,7 +126,7 @@ export default function UserProfilePage() {
             disabled={loading || saving}
             color="primary"
           >
-            {saving ? "Salvando..." : "Salvar alterações"}
+            {saving ? "Guardando..." : "Guardar cambios"}
           </Button>
         </form>
       </Paper>

@@ -50,11 +50,11 @@ export default function RegisterPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!companyName.trim()) {
-      setError("Nome da empresa é obrigatório");
+      setError("El nombre de la empresa es obligatorio");
       return;
     }
     if (!planId || plans.length === 0) {
-      setError(plans.length === 0 ? "Nenhum plano disponível. Contate o administrador." : "Selecione um plano");
+      setError(plans.length === 0 ? "Ningún plan disponible. Contacte al administrador." : "Seleccione un plan");
       return;
     }
     let recaptchaToken: string | null = null;
@@ -65,7 +65,7 @@ export default function RegisterPage() {
         recaptchaToken = getRecaptchaTokenV2();
       }
       if (!recaptchaToken) {
-        setError(recaptchaConfig.version === "v2" ? "Marque a verificação \"Não sou um robô\"." : "Verificação de segurança falhou. Tente novamente.");
+        setError(recaptchaConfig.version === "v2" ? "Marque la verificación \"No soy un robot\"." : "La verificación de seguridad falló. Intente nuevamente.");
         return;
       }
     }
@@ -88,10 +88,10 @@ export default function RegisterPage() {
       };
       if (recaptchaToken) payload.recaptchaToken = recaptchaToken;
       await api.post("/auth/register", payload);
-      toast.push({ type: "success", title: "Cadastro", message: "Conta criada! Faça login." });
+      toast.push({ type: "success", title: "Registro", message: "¡Cuenta creada! Inicie sesión." });
       navigate("/login", { replace: true });
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? "Erro ao cadastrar");
+      setError(err?.response?.data?.message ?? "Error al registrarse");
     } finally {
       setLoading(false);
     }
@@ -99,7 +99,7 @@ export default function RegisterPage() {
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default", display: "flex", alignItems: "center", justifyContent: "center", p: 2, position: "relative" }}>
-      <Tooltip title={mode === "dark" ? "Modo claro" : "Modo escuro"}>
+      <Tooltip title={mode === "dark" ? "Modo claro" : "Modo oscuro"}>
         <IconButton onClick={toggleMode} sx={{ position: "absolute", top: 16, right: 16 }}>
           {mode === "dark" ? <LightModeOutlined /> : <DarkModeOutlined />}
         </IconButton>
@@ -128,7 +128,7 @@ export default function RegisterPage() {
           </Typography>
         )}
         <Typography variant="body2" sx={{ color: "#666", mb: 2 }}>
-          Criar conta e empresa
+          Crear cuenta y empresa
         </Typography>
 
         {error && (
@@ -138,40 +138,40 @@ export default function RegisterPage() {
         )}
 
         <FormControl fullWidth sx={{ mb: 2 }} required>
-          <InputLabel>Plano</InputLabel>
+          <InputLabel>Plan</InputLabel>
           <Select
             value={planId}
-            label="Plano"
+            label="Plan"
             onChange={(e) => setPlanId(e.target.value)}
           >
             {plans.map((p) => (
               <MenuItem key={p.id} value={p.id}>
-                {p.name} — R$ {p.price.toFixed(2)}/mês
+                {p.name} — S/. {p.price.toFixed(2)}/mes
               </MenuItem>
             ))}
             {plans.length === 0 && (
-              <MenuItem value="" disabled>Nenhum plano disponível</MenuItem>
+              <MenuItem value="" disabled>Ningún plan disponible</MenuItem>
             )}
           </Select>
           {plans.length === 0 && (
             <Typography variant="caption" sx={{ mt: 0.5, color: "text.secondary" }}>
-              Contate o administrador para criar planos.
+              Contacte al administrador para crear planes.
             </Typography>
           )}
         </FormControl>
 
         <TextField
           fullWidth
-          label="Nome da empresa"
+          label="Nombre de la empresa"
           value={companyName}
           onChange={(e) => setCompanyName(e.target.value)}
           required
-          placeholder="Ex: Minha Loja"
+          placeholder="Ej: Mi Tienda"
           sx={{ mb: 2 }}
         />
         <TextField
           fullWidth
-          label="Seu nome"
+          label="Su nombre"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Opcional"
@@ -189,7 +189,7 @@ export default function RegisterPage() {
         />
         <TextField
           fullWidth
-          label="Senha"
+          label="Contraseña"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -202,11 +202,11 @@ export default function RegisterPage() {
           <Box id="recaptcha-register-container" sx={{ mb: 2, minHeight: 78 }} />
         )}
         <Button fullWidth type="submit" variant="contained" color="primary" disabled={loading || plans.length === 0} sx={{ mt: 1 }}>
-          {loading ? "Cadastrando..." : plans.length === 0 ? "Aguarde os planos..." : "Cadastrar"}
+          {loading ? "Registrando..." : plans.length === 0 ? "Espere a los planes..." : "Registrar"}
         </Button>
 
         <Typography variant="body2" sx={{ textAlign: "center", mt: 2, color: "#666" }}>
-          Já tem conta?{" "}
+          ¿Ya tiene cuenta?{" "}
           <Link component={RouterLink} to="/login" color="primary" underline="hover">
             Entrar
           </Link>

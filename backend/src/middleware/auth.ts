@@ -17,7 +17,7 @@ export function authMiddleware(
 ) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
-    return res.status(401).json({ message: "Token não enviado" });
+    return res.status(401).json({ message: "Token no enviado" });
   }
 
   const [, token] = authHeader.split(" ");
@@ -72,7 +72,7 @@ export function superAdminMiddleware(
         });
         if (user?.role === "SUPERADMIN") return next();
       }
-      res.status(403).json({ message: "Acesso restrito ao SuperAdmin" });
+      res.status(403).json({ message: "Acceso restringido al SuperAdmin" });
     } catch (e) {
       next(e);
     }

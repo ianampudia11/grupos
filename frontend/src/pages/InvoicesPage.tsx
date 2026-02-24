@@ -62,9 +62,9 @@ export default function InvoicesPage() {
     try {
       const res = await api.get<Invoice[]>("/invoices");
       setInvoices(res.data);
-      await refreshMe({ silent: true }); // atualiza subscription sem piscar o layout
+      await refreshMe({ silent: true }); // actualiza suscripción sin parpadear el diseño
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Faturas", message: e?.response?.data?.message ?? "Erro ao carregar." });
+      toast.push({ type: "danger", title: "Facturas", message: e?.response?.data?.message ?? "Error al cargar." });
     } finally {
       setLoading(false);
     }
@@ -93,19 +93,19 @@ export default function InvoicesPage() {
       } else {
         toast.push({
           type: "danger",
-          title: "Pagamento PIX",
-          message: String(data.message ?? "QR PIX não retornado. Execute Atualizar no instalador e verifique as chaves PIX no Mercado Pago."),
+          title: "Pago PIX",
+          message: String(data.message ?? "QR PIX no retornado. Ejecute Actualizar en el instalador y verifique las llaves PIX en Mercado Pago."),
         });
       }
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Pagamento", message: e?.response?.data?.message ?? "Erro ao gerar PIX." });
+      toast.push({ type: "danger", title: "Pago", message: e?.response?.data?.message ?? "Error al generar PIX." });
     }
   }
 
   function handleCopyPix() {
     if (!payModal) return;
     navigator.clipboard.writeText(payModal.qrCode);
-    toast.push({ type: "success", title: "PIX copiado", message: "Cole no app do seu banco para pagar." });
+    toast.push({ type: "success", title: "PIX copiado", message: "Pegue en la app de su banco para pagar." });
   }
 
   async function openUpgradeModal() {
@@ -124,11 +124,11 @@ export default function InvoicesPage() {
     setUpgrading(true);
     try {
       await api.post("/invoices/upgrade", { planId: upgradePlanId });
-      toast.push({ type: "success", title: "Upgrade", message: "Fatura criada. Pague até o fim do dia para ativar o novo plano." });
+      toast.push({ type: "success", title: "Actualización", message: "Factura creada. Pague hasta el final del día para activar el nuevo plan." });
       setUpgradeModal(false);
       void load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Upgrade", message: e?.response?.data?.message ?? "Erro ao solicitar upgrade." });
+      toast.push({ type: "danger", title: "Actualización", message: e?.response?.data?.message ?? "Error al solicitar la actualización." });
     } finally {
       setUpgrading(false);
     }
@@ -143,12 +143,12 @@ export default function InvoicesPage() {
 
   return (
     <PageContainer
-      title="Faturas"
-      subtitle="Suas faturas mensais. Pague via PIX."
+      title="Facturas"
+      subtitle="Sus facturas mensuales. Pague vía PIX."
       actions={
         <>
           <Button variant="outlined" startIcon={<TrendingUp />} onClick={openUpgradeModal}>
-            Fazer upgrade
+            Actualizar plan
           </Button>
         </>
       }
@@ -156,7 +156,7 @@ export default function InvoicesPage() {
       {isRestricted && (
         <Paper sx={{ p: 2, mb: 2, bgcolor: "warning.light", border: "1px solid", borderColor: "warning.main" }}>
           <Typography>
-            Seu período de teste expirou. Pague sua fatura para continuar utilizando o painel.
+            Su período de prueba ha expirado. Pague su factura para continuar utilizando el panel.
           </Typography>
         </Paper>
       )}
@@ -165,12 +165,12 @@ export default function InvoicesPage() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Fatura</TableCell>
-                <TableCell>Plano</TableCell>
+                <TableCell>Factura</TableCell>
+                <TableCell>Plan</TableCell>
                 <TableCell>Valor</TableCell>
-                <TableCell>Vencimento</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Ação</TableCell>
+                <TableCell>Vencimiento</TableCell>
+                <TableCell>Estado</TableCell>
+                <TableCell align="right">Acción</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -178,8 +178,8 @@ export default function InvoicesPage() {
                 <TableRow key={inv.id}>
                   <TableCell>#{inv.id.slice(-8).toUpperCase()}</TableCell>
                   <TableCell>{inv.subscription?.plan?.name ?? "—"}</TableCell>
-                  <TableCell>R$ {inv.amount.toFixed(2)}</TableCell>
-                  <TableCell>{new Date(inv.dueDate).toLocaleDateString("pt-BR")}</TableCell>
+                  <TableCell>S/. {inv.amount.toFixed(2)}</TableCell>
+                  <TableCell>{new Date(inv.dueDate).toLocaleDateString("es-ES")}</TableCell>
                   <TableCell>
                     <Chip label={inv.status} size="small" color={statusColor[inv.status] ?? "default"} />
                   </TableCell>
@@ -195,7 +195,7 @@ export default function InvoicesPage() {
               {!invoices.length && !loading && (
                 <TableRow>
                   <TableCell colSpan={6} sx={{ py: 4, textAlign: "center", color: "text.secondary" }}>
-                    Nenhuma fatura. As faturas são geradas automaticamente todo mês.
+                    Ninguna factura. Las facturas se generan automáticamente cada mes.
                   </TableCell>
                 </TableRow>
               )}
@@ -213,25 +213,25 @@ export default function InvoicesPage() {
         maxWidth="xs"
         fullWidth
       >
-        <DialogTitle>Pagamento via PIX</DialogTitle>
+        <DialogTitle>Pago vía PIX</DialogTitle>
         <DialogContent sx={{ textAlign: "center", pt: 1 }}>
           {payModal && (
             <>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Escaneie o QR code ou use o código copia e cola no app do seu banco. Ao concluir o pagamento, a fatura será baixada automaticamente.
+                Escanee el código QR o use el código de copiar y pegar en la aplicación de su banco. Al completar el pago, la factura se registrará automáticamente.
               </Typography>
               <Typography variant="h6" color="primary" sx={{ mb: 1 }}>
-                R$ {payModal.amount.toFixed(2)}
+                S/. {payModal.amount.toFixed(2)}
               </Typography>
               <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 2 }}>
-                Expira em {payModal.expirationMinutes} min
+                Expira en {payModal.expirationMinutes} min
               </Typography>
               <Box sx={{ display: "flex", justifyContent: "center", py: 2, bgcolor: "grey.50", borderRadius: 1, mb: 2 }}>
                 <img src={payModal.qrCodeBase64} alt="QR PIX" style={{ width: 200, height: 200 }} />
               </Box>
               <TextField
                 fullWidth
-                label="Código PIX (copia e cola)"
+                label="Código PIX (copia y pega)"
                 value={payModal.qrCode}
                 multiline
                 maxRows={4}
@@ -252,32 +252,32 @@ export default function InvoicesPage() {
               void load();
             }}
           >
-            Fechar
+            Cerrar
           </Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={upgradeModal} onClose={() => !upgrading && setUpgradeModal(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>Fazer upgrade</DialogTitle>
+        <DialogTitle>Actualizar plan</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Escolha o novo plano. A fatura será gerada com vencimento para hoje. Pague via PIX no mesmo dia para ativar.
+            Elija el nuevo plan. La factura se generará con vencimiento para hoy. Pague vía PIX el mismo día para activar.
           </Typography>
           {upgradePlans.length === 0 ? (
             <Typography variant="body2" color="text.secondary">
-              Nenhum plano disponível para upgrade no momento.
+              Ningún plan disponible para actualización en este momento.
             </Typography>
           ) : (
             <FormControl fullWidth sx={{ mt: 1 }}>
-              <InputLabel>Plano</InputLabel>
+              <InputLabel>Plan</InputLabel>
               <Select
                 value={upgradePlanId}
-                label="Plano"
+                label="Plan"
                 onChange={(e) => setUpgradePlanId(e.target.value)}
               >
                 {upgradePlans.map((p) => (
                   <MenuItem key={p.id} value={p.id}>
-                    {p.name} — R$ {p.price.toFixed(2)}/mês
+                    {p.name} — S/. {p.price.toFixed(2)}/mes
                   </MenuItem>
                 ))}
               </Select>
@@ -287,7 +287,7 @@ export default function InvoicesPage() {
         <DialogActions>
           <Button onClick={() => setUpgradeModal(false)} disabled={upgrading}>Cancelar</Button>
           <Button variant="contained" onClick={handleUpgrade} disabled={upgrading || !upgradePlanId || upgradePlans.length === 0}>
-            {upgrading ? "Gerando..." : "Solicitar upgrade"}
+            {upgrading ? "Generando..." : "Solicitar actualización"}
           </Button>
         </DialogActions>
       </Dialog>

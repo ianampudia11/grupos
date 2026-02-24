@@ -46,7 +46,7 @@ export default function LoginPage() {
           recaptchaToken = getRecaptchaTokenV2();
         }
         if (!recaptchaToken) {
-          setError(recaptchaConfig.version === "v2" ? "Marque a verificação \"Não sou um robô\"." : "Verificação de segurança falhou. Tente novamente.");
+          setError(recaptchaConfig.version === "v2" ? "Marque la verificación \"No soy un robot\"." : "La verificación de seguridad falló. Intente nuevamente.");
           setLoading(false);
           return;
         }
@@ -56,13 +56,13 @@ export default function LoginPage() {
       const res = await api.post("/auth/login", payload);
       window.localStorage.setItem("auth_token", res.data.token);
       const me = await refreshMe();
-      toast.push({ type: "success", title: "Login", message: "Bem-vindo!" });
+      toast.push({ type: "success", title: "Login", message: "¡Bienvenido!" });
       const redirectTo = me ? getDefaultRouteAfterLogin(me) : "/dashboard";
       navigate(redirectTo, { replace: true });
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ??
-        "Erro ao autenticar. Verifique suas credenciais.";
+        "Error al autenticar. Verifique sus credenciales.";
       setError(msg);
     } finally {
       setLoading(false);
@@ -81,7 +81,7 @@ export default function LoginPage() {
         position: "relative",
       }}
     >
-      <Tooltip title={mode === "dark" ? "Modo claro" : "Modo escuro"}>
+      <Tooltip title={mode === "dark" ? "Modo claro" : "Modo oscuro"}>
         <IconButton
           onClick={toggleMode}
           sx={{ position: "absolute", top: 16, right: 16 }}
@@ -113,7 +113,7 @@ export default function LoginPage() {
           </Typography>
         )}
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Entre com seu e-mail e senha
+          Ingrese con su e-mail y contraseña
         </Typography>
 
         {error && (
@@ -134,7 +134,7 @@ export default function LoginPage() {
         />
         <TextField
           fullWidth
-          label="Senha"
+          label="Contraseña"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -158,9 +158,9 @@ export default function LoginPage() {
         </Button>
 
         <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center", mt: 2 }}>
-          Não tem conta?{" "}
+          ¿No tiene cuenta?{" "}
           <Link component={RouterLink} to="/register" color="primary" underline="hover">
-            Criar conta
+            Crear cuenta
           </Link>
         </Typography>
       </Box>

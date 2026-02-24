@@ -20,7 +20,7 @@ export async function verifyRecaptcha(
   options?: { expectedAction?: string; minScore?: number }
 ): Promise<{ ok: boolean; error?: string }> {
   if (!token || !secretKey) {
-    return { ok: false, error: "Token ou chave não fornecidos" };
+    return { ok: false, error: "Token o clave no proporcionados" };
   }
 
   try {
@@ -33,19 +33,19 @@ export async function verifyRecaptcha(
     const data = (await res.json()) as RecaptchaVerifyResult;
     if (!data.success) {
       const codes = data["error-codes"] ?? [];
-      return { ok: false, error: codes.length ? codes.join(", ") : "Verificação reCAPTCHA falhou" };
+      return { ok: false, error: codes.length ? codes.join(", ") : "La verificación de reCAPTCHA falló" };
     }
 
     // v3: validar action e score se fornecidos
     if (options?.expectedAction && data.action && data.action !== options.expectedAction) {
-      return { ok: false, error: "Ação reCAPTCHA inválida" };
+      return { ok: false, error: "Acción de reCAPTCHA inválida" };
     }
     if (options?.minScore != null && typeof data.score === "number" && data.score < options.minScore) {
-      return { ok: false, error: "Score reCAPTCHA muito baixo" };
+      return { ok: false, error: "Puntuación de reCAPTCHA muy baja" };
     }
 
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: "Falha ao verificar reCAPTCHA" };
+    return { ok: false, error: "Fallo al verificar reCAPTCHA" };
   }
 }

@@ -55,7 +55,7 @@ export default function TemplatesPage() {
       setTemplates(tplRes.data.custom);
       setTypes(typRes.data);
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Templates", message: e?.response?.data?.message ?? "Erro ao carregar." });
+      toast.push({ type: "danger", title: "Plantillas", message: e?.response?.data?.message ?? "Error al cargar." });
     } finally {
       setLoading(false);
     }
@@ -87,7 +87,7 @@ export default function TemplatesPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!name.trim() || !body.trim()) {
-      toast.push({ type: "warning", title: "Templates", message: "Preencha nome e conteúdo." });
+      toast.push({ type: "warning", title: "Plantillas", message: "Complete nombre y contenido." });
       return;
     }
     setLoading(true);
@@ -95,45 +95,45 @@ export default function TemplatesPage() {
       const typeValue = templateType || defaultType;
       if (editingId) {
         await api.put(`/message-templates/${editingId}`, { name, templateType: typeValue, body, cta: cta || undefined });
-        toast.push({ type: "success", title: "Templates", message: "Template atualizado." });
+        toast.push({ type: "success", title: "Plantillas", message: "Plantilla actualizada." });
       } else {
         await api.post("/message-templates", { name, templateType: typeValue, body, cta: cta || undefined });
-        toast.push({ type: "success", title: "Templates", message: "Template criado." });
+        toast.push({ type: "success", title: "Plantillas", message: "Plantilla creada." });
       }
       await load();
       resetForm();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Templates", message: e?.response?.data?.message ?? "Erro ao salvar." });
+      toast.push({ type: "danger", title: "Plantillas", message: e?.response?.data?.message ?? "Error al guardar." });
     } finally {
       setLoading(false);
     }
   }
 
   async function removeTemplate(t: Template) {
-    if (!confirm(`Remover template "${t.name}"?`)) return;
+    if (!confirm(`¿Eliminar plantilla "${t.name}"?`)) return;
     try {
       await api.delete(`/message-templates/${t.id}`);
       setTemplates((prev) => prev.filter((x) => x.id !== t.id));
-      toast.push({ type: "success", title: "Templates", message: "Template removido." });
+      toast.push({ type: "success", title: "Plantillas", message: "Plantilla eliminada." });
       if (editingId === t.id) resetForm();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Templates", message: e?.response?.data?.message ?? "Erro ao remover." });
+      toast.push({ type: "danger", title: "Plantillas", message: e?.response?.data?.message ?? "Error al eliminar." });
     }
   }
 
   return (
     <PageContainer
-      title="Templates de mensagem"
-      subtitle="Crie templates reutilizáveis para campanhas. Use placeholders e spintax."
-      actions={<Button variant="outlined" onClick={load} disabled={loading}>Atualizar</Button>}
+      title="Plantillas de mensaje"
+      subtitle="Cree plantillas reutilizables para campañas. Use marcadores de posición y spintax."
+      actions={<Button variant="outlined" onClick={load} disabled={loading}>Actualizar</Button>}
     >
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
         <Paper sx={{ p: 2, flex: "1 1 400px", maxWidth: 500 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>{editingId ? "Editar template" : "Novo template"}</Typography>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>{editingId ? "Editar plantilla" : "Nueva plantilla"}</Typography>
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Nome"
+              label="Nombre"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ex: Black Friday 2025"
@@ -152,7 +152,7 @@ export default function TemplatesPage() {
             </FormControl>
             <TextField
               fullWidth
-              label="Conteúdo do template"
+              label="Contenido de la plantilla"
               multiline
               rows={8}
               value={body}
@@ -167,7 +167,7 @@ export default function TemplatesPage() {
               label="CTA (opcional)"
               value={cta}
               onChange={(e) => setCta(e.target.value)}
-              placeholder="Ex: Acesse agora!"
+              placeholder="Ej: ¡Acceda ahora!"
               sx={{ mb: 2 }}
             />
             <Box sx={{ display: "flex", gap: 2 }}>
@@ -177,7 +177,7 @@ export default function TemplatesPage() {
                 disabled={loading}
                 color="primary"
               >
-                {loading ? "Salvando..." : editingId ? "Atualizar" : "Criar template"}
+                {loading ? "Guardando..." : editingId ? "Actualizar" : "Crear plantilla"}
               </Button>
               {editingId && (
                 <Button variant="outlined" onClick={resetForm}>
@@ -189,12 +189,12 @@ export default function TemplatesPage() {
         </Paper>
 
         <Paper sx={{ p: 2, flex: "1 1 400px" }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>Meus templates</Typography>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>Mis plantillas</Typography>
           <TableContainer sx={{ maxHeight: 450 }}>
             <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow>
-                  <TableCell>Nome</TableCell>
+                  <TableCell>Nombre</TableCell>
                   <TableCell>Tipo</TableCell>
                   <TableCell align="right" sx={{ width: 120 }}></TableCell>
                 </TableRow>
@@ -211,7 +211,7 @@ export default function TemplatesPage() {
                       <IconButton size="small" onClick={() => startEdit(t)} title="Editar">
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton size="small" color="error" onClick={() => removeTemplate(t)} title="Remover">
+                      <IconButton size="small" color="error" onClick={() => removeTemplate(t)} title="Eliminar">
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
@@ -220,7 +220,7 @@ export default function TemplatesPage() {
                 {!templates.length && (
                   <TableRow>
                     <TableCell colSpan={3} sx={{ color: "#6b7280" }}>
-                      Nenhum template criado. Crie um ao lado.
+                      Ninguna plantilla creada. Cree una al lado.
                     </TableCell>
                   </TableRow>
                 )}

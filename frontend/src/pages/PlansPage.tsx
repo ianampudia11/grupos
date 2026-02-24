@@ -56,7 +56,7 @@ export default function PlansPage() {
       const res = await api.get<Plan[]>("/plans");
       setPlans(res.data);
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Planos", message: e?.response?.data?.message ?? "Erro ao carregar." });
+      toast.push({ type: "danger", title: "Planes", message: e?.response?.data?.message ?? "Error al cargar." });
     } finally {
       setLoading(false);
     }
@@ -82,13 +82,13 @@ export default function PlansPage() {
           groups: parseInt(groups) || 200,
         },
       });
-      toast.push({ type: "success", title: "Planos", message: "Plano criado." });
+      toast.push({ type: "success", title: "Planes", message: "Plan creado." });
       setName("");
       setSlug("");
       setPrice("");
       await load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Planos", message: e?.response?.data?.message ?? "Erro ao criar." });
+      toast.push({ type: "danger", title: "Planes", message: e?.response?.data?.message ?? "Error al crear." });
     } finally {
       setLoading(false);
     }
@@ -131,11 +131,11 @@ export default function PlansPage() {
         },
         isActive: editForm.isActive,
       });
-      toast.push({ type: "success", title: "Planos", message: "Plano atualizado." });
+      toast.push({ type: "success", title: "Planes", message: "Plan actualizado." });
       closeEdit();
       await load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Planos", message: e?.response?.data?.message ?? "Erro ao atualizar." });
+      toast.push({ type: "danger", title: "Planes", message: e?.response?.data?.message ?? "Error al actualizar." });
     } finally {
       setLoading(false);
     }
@@ -143,35 +143,35 @@ export default function PlansPage() {
 
   async function handleDelete(p: Plan) {
     if (p._count && p._count.subscriptions > 0) {
-      toast.push({ type: "warning", title: "Planos", message: "Plano em uso. Desative-o antes de excluir." });
+      toast.push({ type: "warning", title: "Planes", message: "Plan en uso. Desactívelo antes de eliminar." });
       return;
     }
-    if (!confirm(`Excluir o plano "${p.name}"?`)) return;
+    if (!confirm(`¿Eliminar el plan "${p.name}"?`)) return;
     try {
       await api.delete(`/plans/${p.id}`);
-      toast.push({ type: "success", title: "Planos", message: "Plano excluído." });
+      toast.push({ type: "success", title: "Planes", message: "Plan eliminado." });
       await load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Planos", message: e?.response?.data?.message ?? "Erro ao excluir." });
+      toast.push({ type: "danger", title: "Planes", message: e?.response?.data?.message ?? "Error al eliminar." });
     }
   }
 
   return (
-    <PageContainer title="Planos (limites por empresa)" subtitle="Defina planos e limites de uso por empresa.">
+    <PageContainer title="Planes (límites por empresa)" subtitle="Defina planes y límites de uso por empresa.">
       <Paper sx={{ p: 2, mb: 3 }}>
         <Typography variant="subtitle2" gutterBottom>
-          Novo plano
+          Nuevo plan
         </Typography>
         <Box component="form" onSubmit={handleCreate} sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-          <TextField label="Nome" value={name} onChange={(e) => setName(e.target.value)} size="small" required />
+          <TextField label="Nombre" value={name} onChange={(e) => setName(e.target.value)} size="small" required />
           <TextField label="Slug" value={slug} onChange={(e) => setSlug(e.target.value)} size="small" required placeholder="basico" />
-          <TextField label="Preço (R$/mês)" type="number" value={price} onChange={(e) => setPrice(e.target.value)} size="small" inputProps={{ step: 0.01, min: 0 }} required />
-          <TextField label="Conexões" type="number" value={connections} onChange={(e) => setConnections(e.target.value)} size="small" sx={{ width: 100 }} />
-          <TextField label="Campanhas" type="number" value={campaigns} onChange={(e) => setCampaigns(e.target.value)} size="small" sx={{ width: 100 }} />
-          <TextField label="Usuários" type="number" value={users} onChange={(e) => setUsers(e.target.value)} size="small" sx={{ width: 100 }} />
+          <TextField label="Precio (S/./mes)" type="number" value={price} onChange={(e) => setPrice(e.target.value)} size="small" inputProps={{ step: 0.01, min: 0 }} required />
+          <TextField label="Conexiones" type="number" value={connections} onChange={(e) => setConnections(e.target.value)} size="small" sx={{ width: 100 }} />
+          <TextField label="Campañas" type="number" value={campaigns} onChange={(e) => setCampaigns(e.target.value)} size="small" sx={{ width: 100 }} />
+          <TextField label="Usuarios" type="number" value={users} onChange={(e) => setUsers(e.target.value)} size="small" sx={{ width: 100 }} />
           <TextField label="Grupos" type="number" value={groups} onChange={(e) => setGroups(e.target.value)} size="small" sx={{ width: 100 }} />
           <Button type="submit" variant="contained" color="primary" disabled={loading}>
-            Criar plano
+            Crear plan
           </Button>
         </Box>
       </Paper>
@@ -181,11 +181,11 @@ export default function PlansPage() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Plano</TableCell>
-                <TableCell>Preço</TableCell>
-                <TableCell>Limites</TableCell>
-                <TableCell>Assinaturas</TableCell>
-                <TableCell>Status</TableCell>
+                <TableCell>Plan</TableCell>
+                <TableCell>Precio</TableCell>
+                <TableCell>Límites</TableCell>
+                <TableCell>Suscripciones</TableCell>
+                <TableCell>Estado</TableCell>
                 <TableCell align="right" sx={{ width: 100 }}></TableCell>
               </TableRow>
             </TableHead>
@@ -193,19 +193,19 @@ export default function PlansPage() {
               {plans.map((p) => (
                 <TableRow key={p.id}>
                   <TableCell>{p.name}</TableCell>
-                  <TableCell>R$ {p.price.toFixed(2)}/mês</TableCell>
+                  <TableCell>S/. {p.price.toFixed(2)}/mes</TableCell>
                   <TableCell>
                     <Box component="span" sx={{ fontSize: 12 }}>
-                      Conexões: {p.limits?.connections ?? "—"}, Campanhas: {p.limits?.campaigns ?? "—"}, Usuários: {p.limits?.users ?? "—"}, Grupos: {p.limits?.groups ?? "—"}
+                      Conexiones: {p.limits?.connections ?? "—"}, Campañas: {p.limits?.campaigns ?? "—"}, Usuarios: {p.limits?.users ?? "—"}, Grupos: {p.limits?.groups ?? "—"}
                     </Box>
                   </TableCell>
                   <TableCell>{p._count?.subscriptions ?? 0}</TableCell>
-                  <TableCell>{p.isActive ? <Chip label="Ativo" size="small" color="success" /> : <Chip label="Inativo" size="small" variant="outlined" />}</TableCell>
+                  <TableCell>{p.isActive ? <Chip label="Activo" size="small" color="success" /> : <Chip label="Inactivo" size="small" variant="outlined" />}</TableCell>
                   <TableCell align="right">
                     <IconButton size="small" onClick={() => openEdit(p)} title="Editar">
                       <EditIcon fontSize="small" />
                     </IconButton>
-                    <IconButton size="small" color="error" onClick={() => handleDelete(p)} title="Excluir">
+                    <IconButton size="small" color="error" onClick={() => handleDelete(p)} title="Eliminar">
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </TableCell>
@@ -218,26 +218,26 @@ export default function PlansPage() {
 
       <Dialog open={editOpen} onClose={closeEdit} maxWidth="sm" fullWidth>
         <form onSubmit={handleUpdate}>
-          <DialogTitle>Editar plano</DialogTitle>
+          <DialogTitle>Editar plan</DialogTitle>
           <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
-            <TextField label="Nome" value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} required fullWidth size="small" />
+            <TextField label="Nombre" value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} required fullWidth size="small" />
             <TextField label="Slug" value={editForm.slug} onChange={(e) => setEditForm((f) => ({ ...f, slug: e.target.value }))} required fullWidth size="small" />
-            <TextField label="Preço (R$/mês)" type="number" value={editForm.price} onChange={(e) => setEditForm((f) => ({ ...f, price: e.target.value }))} required fullWidth size="small" inputProps={{ step: 0.01, min: 0 }} />
+            <TextField label="Precio (S/./mes)" type="number" value={editForm.price} onChange={(e) => setEditForm((f) => ({ ...f, price: e.target.value }))} required fullWidth size="small" inputProps={{ step: 0.01, min: 0 }} />
             <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-              <TextField label="Conexões" type="number" value={editForm.connections} onChange={(e) => setEditForm((f) => ({ ...f, connections: e.target.value }))} size="small" sx={{ width: 90 }} />
-              <TextField label="Campanhas" type="number" value={editForm.campaigns} onChange={(e) => setEditForm((f) => ({ ...f, campaigns: e.target.value }))} size="small" sx={{ width: 90 }} />
-              <TextField label="Usuários" type="number" value={editForm.users} onChange={(e) => setEditForm((f) => ({ ...f, users: e.target.value }))} size="small" sx={{ width: 90 }} />
+              <TextField label="Conexiones" type="number" value={editForm.connections} onChange={(e) => setEditForm((f) => ({ ...f, connections: e.target.value }))} size="small" sx={{ width: 90 }} />
+              <TextField label="Campañas" type="number" value={editForm.campaigns} onChange={(e) => setEditForm((f) => ({ ...f, campaigns: e.target.value }))} size="small" sx={{ width: 90 }} />
+              <TextField label="Usuarios" type="number" value={editForm.users} onChange={(e) => setEditForm((f) => ({ ...f, users: e.target.value }))} size="small" sx={{ width: 90 }} />
               <TextField label="Grupos" type="number" value={editForm.groups} onChange={(e) => setEditForm((f) => ({ ...f, groups: e.target.value }))} size="small" sx={{ width: 90 }} />
             </Box>
             <FormControlLabel
               control={<Checkbox checked={editForm.isActive} onChange={(e) => setEditForm((f) => ({ ...f, isActive: e.target.checked }))} />}
-              label="Plano ativo"
+              label="Plan activo"
             />
           </DialogContent>
           <DialogActions sx={{ px: 3, pb: 2 }}>
             <Button onClick={closeEdit}>Cancelar</Button>
             <Button type="submit" variant="contained" color="primary" disabled={loading}>
-              Salvar
+              Guardar
             </Button>
           </DialogActions>
         </form>

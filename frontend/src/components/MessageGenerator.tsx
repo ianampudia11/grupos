@@ -72,10 +72,10 @@ export function MessageGenerator({ value, onChange, productId, onProductChange, 
       }}
     >
       <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }} color="text.primary">
-        Gerador de mensagem
+        Generador de mensaje
       </Typography>
       <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mb: 2 }}>
-        Use templates prontos, selecione um produto e variantes com spintax{" "}
+        Use plantillas listas, seleccione un producto y variantes con spintax{" "}
         <Box
           component="code"
           sx={{
@@ -86,15 +86,15 @@ export function MessageGenerator({ value, onChange, productId, onProductChange, 
             borderRadius: 1,
           }}
         >
-          {"{opção1|opção2}"}
+          {"{opción1|opción2}"}
         </Box>{" "}
-        para não repetir igual em todos os grupos.
+        para no repetir lo mismo en todos los grupos.
       </Typography>
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
         <FormControl size="small" sx={{ minWidth: 200 }}>
-          <InputLabel>Template</InputLabel>
+          <InputLabel>Plantilla</InputLabel>
           <Select
-            label="Template"
+            label="Plantilla"
             value={selectedTemplateId}
             onChange={(e) => {
               const v = e.target.value;
@@ -110,7 +110,7 @@ export function MessageGenerator({ value, onChange, productId, onProductChange, 
             }}
           >
             <MenuItem value="">
-              <em>Selecione</em>
+              <em>Seleccione</em>
             </MenuItem>
             {templates.builtin.map((t, i) => (
               <MenuItem key={i} value={`builtin_${i}`}>
@@ -126,14 +126,14 @@ export function MessageGenerator({ value, onChange, productId, onProductChange, 
         </FormControl>
         {onProductChange && (
           <FormControl size="small" sx={{ minWidth: 200 }}>
-            <InputLabel>Produto</InputLabel>
+            <InputLabel>Producto</InputLabel>
             <Select
-              label="Produto"
+              label="Producto"
               value={productId || ""}
               onChange={(e) => onProductChange(e.target.value)}
             >
               <MenuItem value="">
-                <em>Nenhum</em>
+                <em>Ninguno</em>
               </MenuItem>
               {products.filter((p) => !p.status || p.status === "active").map((p) => (
                 <MenuItem key={p.id} value={p.id}>
@@ -144,12 +144,12 @@ export function MessageGenerator({ value, onChange, productId, onProductChange, 
           </FormControl>
         )}
         <Button variant="outlined" size="small" onClick={generate} disabled={!templateBody.trim()}>
-          Gerar mensagem
+          Generar mensaje
         </Button>
       </Box>
       <TextField
         fullWidth
-        label="Template (placeholders: titulo, preco, precoAntigo, desconto, cupom, link, loja, categoria)"
+        label="Plantilla (marcadores de posición: titulo, preco, precoAntigo, desconto, cupom, link, loja, categoria)"
         multiline
         rows={3}
         value={templateBody}
@@ -159,7 +159,7 @@ export function MessageGenerator({ value, onChange, productId, onProductChange, 
       />
       <Box sx={{ mb: 1 }}>
         <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mb: 1 }}>
-          Preview (como vai aparecer no WhatsApp):
+          Vista previa (cómo aparecerá en WhatsApp):
         </Typography>
         <Paper
           variant="outlined"

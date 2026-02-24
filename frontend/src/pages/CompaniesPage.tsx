@@ -99,7 +99,7 @@ export default function CompaniesPage() {
       });
       setAssignPlanId(initial);
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Empresas", message: e?.response?.data?.message ?? "Erro ao carregar." });
+      toast.push({ type: "danger", title: "Empresas", message: e?.response?.data?.message ?? "Error al cargar." });
     } finally {
       setLoading(false);
     }
@@ -125,12 +125,12 @@ export default function CompaniesPage() {
           .replace(/\s+/g, "-") ||
         "empresa";
       await api.post("/companies", { name: name.trim(), slug: s });
-      toast.push({ type: "success", title: "Empresas", message: "Empresa criada." });
+      toast.push({ type: "success", title: "Empresas", message: "Empresa creada." });
       setName("");
       setSlug("");
       await load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Empresas", message: e?.response?.data?.message ?? "Erro ao criar." });
+      toast.push({ type: "danger", title: "Empresas", message: e?.response?.data?.message ?? "Error al crear." });
     } finally {
       setLoading(false);
     }
@@ -139,30 +139,30 @@ export default function CompaniesPage() {
   async function handleAssignPlan(companyId: string, planId: string) {
     try {
       await api.put(`/subscriptions/company/${companyId}`, { planId });
-      toast.push({ type: "success", title: "Assinatura", message: "Plano atribuído." });
+      toast.push({ type: "success", title: "Suscripción", message: "Plan asignado." });
       await load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Assinatura", message: e?.response?.data?.message ?? "Erro." });
+      toast.push({ type: "danger", title: "Suscripción", message: e?.response?.data?.message ?? "Error." });
     }
   }
 
   async function handleChangeCycle(companyId: string, billingDay: number) {
     try {
       await api.put(`/subscriptions/company/${companyId}/cycle`, { billingDay });
-      toast.push({ type: "success", title: "Ciclo", message: "Ciclo atualizado." });
+      toast.push({ type: "success", title: "Ciclo", message: "Ciclo actualizado." });
       await load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Ciclo", message: e?.response?.data?.message ?? "Erro." });
+      toast.push({ type: "danger", title: "Ciclo", message: e?.response?.data?.message ?? "Error." });
     }
   }
 
   async function handleBaixa(companyId: string) {
     try {
       await api.post(`/subscriptions/company/${companyId}/baixa`);
-      toast.push({ type: "success", title: "Baixa", message: "Baixa registrada. Período avançado." });
+      toast.push({ type: "success", title: "Baja", message: "Baja registrada. Período avanzado." });
       await load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Baixa", message: e?.response?.data?.message ?? "Erro." });
+      toast.push({ type: "danger", title: "Baixa", message: e?.response?.data?.message ?? "Error." });
     }
   }
 
@@ -173,7 +173,7 @@ export default function CompaniesPage() {
       const res = await api.get<CompanyDetail>(`/companies/${companyId}`);
       setDetailCompany(res.data);
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Empresa", message: e?.response?.data?.message ?? "Erro ao carregar detalhes." });
+      toast.push({ type: "danger", title: "Empresa", message: e?.response?.data?.message ?? "Error al cargar detalles." });
     } finally {
       setDetailLoading(false);
     }
@@ -182,14 +182,14 @@ export default function CompaniesPage() {
   async function handleDisconnect(sessionId: string) {
     try {
       await api.post(`/companies/sessions/${sessionId}/disconnect`);
-      toast.push({ type: "success", title: "Conexão", message: "Sessão desconectada." });
+      toast.push({ type: "success", title: "Conexión", message: "Sesión desconectada." });
       if (detailCompany) {
         const updated = await api.get<CompanyDetail>(`/companies/${detailCompany.id}`);
         setDetailCompany(updated.data);
       }
       await load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Conexão", message: e?.response?.data?.message ?? "Erro ao desconectar." });
+      toast.push({ type: "danger", title: "Conexión", message: e?.response?.data?.message ?? "Error al desconectar." });
     }
   }
 
@@ -199,35 +199,35 @@ export default function CompaniesPage() {
   }
 
   async function handleDeactivate(companyId: string, companyName: string) {
-    if (!confirm(`Desativar a empresa "${companyName}"? Usuários não poderão acessar o sistema.`)) return;
+    if (!confirm(`¿Desactivar la empresa "${companyName}"? Los usuarios no podrán acceder al sistema.`)) return;
     try {
       await api.post(`/companies/${companyId}/deactivate`);
-      toast.push({ type: "success", title: "Empresa", message: "Empresa desativada." });
+      toast.push({ type: "success", title: "Empresa", message: "Empresa desactivada." });
       await load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Empresa", message: e?.response?.data?.message ?? "Erro ao desativar." });
+      toast.push({ type: "danger", title: "Empresa", message: e?.response?.data?.message ?? "Error al desactivar." });
     }
   }
 
   async function handleActivate(companyId: string) {
     try {
       await api.post(`/companies/${companyId}/activate`);
-      toast.push({ type: "success", title: "Empresa", message: "Empresa reativada." });
+      toast.push({ type: "success", title: "Empresa", message: "Empresa reactivada." });
       await load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Empresa", message: e?.response?.data?.message ?? "Erro ao reativar." });
+      toast.push({ type: "danger", title: "Empresa", message: e?.response?.data?.message ?? "Error al reactivar." });
     }
   }
 
   async function handleDelete(companyId: string, companyName: string) {
-    if (!confirm(`Excluir permanentemente a empresa "${companyName}"?\n\nIsso removerá usuários, assinaturas e dados associados. Esta ação não pode ser desfeita.`)) return;
+    if (!confirm(`¿Eliminar permanentemente la empresa "${companyName}"?\n\nEsto eliminará usuarios, suscripciones y datos asociados. Esta acción no se puede deshacer.`)) return;
     try {
       await api.delete(`/companies/${companyId}`);
-      toast.push({ type: "success", title: "Empresa", message: "Empresa excluída." });
+      toast.push({ type: "success", title: "Empresa", message: "Empresa eliminada." });
       setDetailCompany((prev) => (prev?.id === companyId ? null : prev));
       await load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Empresa", message: e?.response?.data?.message ?? "Erro ao excluir." });
+      toast.push({ type: "danger", title: "Empresa", message: e?.response?.data?.message ?? "Error al eliminar." });
     }
   }
 
@@ -242,7 +242,7 @@ export default function CompaniesPage() {
       };
       if (editForm.password) payload.password = editForm.password;
       await api.put(`/admin/users/${editingUser.id}`, payload);
-      toast.push({ type: "success", title: "Usuário", message: "Dados atualizados." });
+      toast.push({ type: "success", title: "Usuario", message: "Datos actualizados." });
       setEditingUser(null);
       if (detailCompany) {
         const updated = await api.get<CompanyDetail>(`/companies/${detailCompany.id}`);
@@ -250,21 +250,21 @@ export default function CompaniesPage() {
       }
       await load();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Usuário", message: e?.response?.data?.message ?? "Erro ao atualizar." });
+      toast.push({ type: "danger", title: "Usuario", message: e?.response?.data?.message ?? "Error al actualizar." });
     }
   }
 
   return (
-    <PageContainer title="Empresas (SaaS)" subtitle="Gerencie empresas e assinaturas.">
+    <PageContainer title="Empresas (SaaS)" subtitle="Gestione empresas y suscripciones.">
       <Paper sx={{ p: 2, mb: 3 }}>
         <Typography variant="subtitle2" gutterBottom>
-          Nova empresa
+          Nueva empresa
         </Typography>
         <Box component="form" onSubmit={handleCreate} sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-          <TextField label="Nome" value={name} onChange={(e) => setName(e.target.value)} size="small" required />
+          <TextField label="Nombre" value={name} onChange={(e) => setName(e.target.value)} size="small" required />
           <TextField label="Slug" value={slug} onChange={(e) => setSlug(e.target.value)} size="small" placeholder="auto" />
           <Button type="submit" variant="contained" color="primary" disabled={loading}>
-            Criar
+            Crear
           </Button>
         </Box>
       </Paper>
@@ -277,21 +277,21 @@ export default function CompaniesPage() {
                 <TableCell sx={{ width: 48 }}></TableCell>
                 <TableCell>Empresa</TableCell>
                 <TableCell>Slug</TableCell>
-                <TableCell>Usuários</TableCell>
-                <TableCell>Plano atual</TableCell>
+                <TableCell>Usuarios</TableCell>
+                <TableCell>Plan actual</TableCell>
                 <TableCell>Ciclo (venc.)</TableCell>
                 <TableCell>Próx. venc.</TableCell>
-                <TableCell>Dar baixa</TableCell>
-                <TableCell>Atribuir plano</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Ações</TableCell>
+                <TableCell>Dar baja</TableCell>
+                <TableCell>Asignar plan</TableCell>
+                <TableCell>Estado</TableCell>
+                <TableCell align="right">Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {companies.map((c) => (
                 <TableRow key={c.id}>
                   <TableCell>
-                    <Tooltip title="Ver detalhes (usuários e conexões)">
+                    <Tooltip title="Ver detalles (usuarios y conexiones)">
                       <IconButton size="small" onClick={() => openDetail(c.id)} sx={{ p: 0.5 }}>
                         <VisibilityOutlined fontSize="small" />
                       </IconButton>
@@ -302,9 +302,9 @@ export default function CompaniesPage() {
                   <TableCell>{c._count?.users ?? 0}</TableCell>
                   <TableCell>
                     {c.subscription?.plan ? (
-                      <Chip label={`${c.subscription.plan.name} — R$ ${c.subscription.plan.price.toFixed(2)}/mês`} size="small" color="primary" variant="outlined" />
+                      <Chip label={`${c.subscription.plan.name} — R$ ${c.subscription.plan.price.toFixed(2)}/mes`} size="small" color="primary" variant="outlined" />
                     ) : (
-                      <Typography variant="body2" color="text.secondary">Sem plano</Typography>
+                      <Typography variant="body2" color="text.secondary">Sin plan</Typography>
                     )}
                   </TableCell>
                   <TableCell>
@@ -316,7 +316,7 @@ export default function CompaniesPage() {
                           sx={{ fontSize: "0.8rem", py: 0.25 }}
                         >
                           {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
-                            <MenuItem key={d} value={d}>Dia {d}</MenuItem>
+                            <MenuItem key={d} value={d}>Día {d}</MenuItem>
                           ))}
                         </Select>
                       </FormControl>
@@ -327,7 +327,7 @@ export default function CompaniesPage() {
                   <TableCell>
                     {c.subscription ? (
                       <Typography variant="body2">
-                        {new Date(c.subscription.currentPeriodEnd).toLocaleDateString("pt-BR")}
+                        {new Date(c.subscription.currentPeriodEnd).toLocaleDateString("es-ES")}
                       </Typography>
                     ) : (
                       "—"
@@ -335,7 +335,7 @@ export default function CompaniesPage() {
                   </TableCell>
                   <TableCell>
                     {c.subscription ? (
-                      <Tooltip title="Dar baixa (marca fatura como paga e avança período)">
+                      <Tooltip title="Dar de baja (marca la factura como pagada y avanza el período)">
                         <IconButton
                           size="small"
                           color="primary"
@@ -351,10 +351,10 @@ export default function CompaniesPage() {
                   </TableCell>
                   <TableCell>
                     <FormControl size="small" sx={{ minWidth: 140 }}>
-                      <InputLabel>Plano</InputLabel>
+                      <InputLabel>Plan</InputLabel>
                       <Select
                         value={assignPlanId[c.id] ?? c.subscription?.plan?.id ?? ""}
-                        label="Plano"
+                        label="Plan"
                         onChange={(e) => {
                           const pid = e.target.value;
                           setAssignPlanId((prev) => ({ ...prev, [c.id]: pid }));
@@ -372,7 +372,7 @@ export default function CompaniesPage() {
                   </TableCell>
                   <TableCell>
                     <Chip
-                      label={c.isActive !== false ? "Ativa" : "Inativa"}
+                      label={c.isActive !== false ? "Activa" : "Inactiva"}
                       size="small"
                       color={c.isActive !== false ? "success" : "default"}
                       variant="outlined"
@@ -381,21 +381,21 @@ export default function CompaniesPage() {
                   <TableCell align="right">
                     <Box sx={{ display: "flex", gap: 0.5, justifyContent: "flex-end", flexWrap: "wrap" }}>
                       {c.isActive !== false ? (
-                        <Tooltip title="Desativar empresa">
+                        <Tooltip title="Desactivar empresa">
                           <Button size="small" variant="outlined" color="warning" onClick={() => handleDeactivate(c.id, c.name)}>
-                            Desativar
+                            Desactivar
                           </Button>
                         </Tooltip>
                       ) : (
-                        <Tooltip title="Reativar empresa">
+                        <Tooltip title="Reactivar empresa">
                           <Button size="small" variant="outlined" color="success" onClick={() => handleActivate(c.id)}>
-                            Ativar
+                            Activar
                           </Button>
                         </Tooltip>
                       )}
                       <Tooltip title="Excluir empresa permanentemente">
                         <Button size="small" variant="outlined" color="error" onClick={() => handleDelete(c.id, c.name)}>
-                          Excluir
+                          Eliminar
                         </Button>
                       </Tooltip>
                     </Box>
@@ -407,24 +407,24 @@ export default function CompaniesPage() {
         </TableContainer>
       </Paper>
 
-      {/* Modal de detalhes: usuários e conexões */}
+      {/* Detail modal: users and connections */}
       <Dialog open={!!detailCompany || detailLoading} onClose={() => !detailLoading && setDetailCompany(null)} maxWidth="md" fullWidth>
-        <DialogTitle>{detailCompany ? detailCompany.name : "Detalhes"}</DialogTitle>
+        <DialogTitle>{detailCompany ? detailCompany.name : "Detalles"}</DialogTitle>
         <DialogContent>
           {detailLoading ? (
-            <Typography color="text.secondary">Carregando...</Typography>
+            <Typography color="text.secondary">Cargando...</Typography>
           ) : detailCompany ? (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 1 }}>
               <Box>
-                <Typography variant="subtitle2" fontWeight={600} gutterBottom>Usuários (dados de login)</Typography>
+                <Typography variant="subtitle2" fontWeight={600} gutterBottom>Usuarios (datos de login)</Typography>
                 {detailCompany.users.length === 0 ? (
-                  <Typography variant="body2" color="text.secondary">Nenhum usuário.</Typography>
+                  <Typography variant="body2" color="text.secondary">Ningún usuario.</Typography>
                 ) : (
                   <Table size="small">
                     <TableHead>
                       <TableRow>
                         <TableCell>E-mail</TableCell>
-                        <TableCell>Nome</TableCell>
+                        <TableCell>Nombre</TableCell>
                         <TableCell>Perfil</TableCell>
                         <TableCell align="right"></TableCell>
                       </TableRow>
@@ -447,38 +447,38 @@ export default function CompaniesPage() {
                 )}
               </Box>
               <Box>
-                <Typography variant="subtitle2" fontWeight={600} gutterBottom>Conexões WhatsApp</Typography>
+                <Typography variant="subtitle2" fontWeight={600} gutterBottom>Conexiones WhatsApp</Typography>
                 {!detailCompany.whatsappSessions?.length ? (
-                  <Typography variant="body2" color="text.secondary">Nenhuma conexão.</Typography>
+                  <Typography variant="body2" color="text.secondary">Ninguna conexión.</Typography>
                 ) : (
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Sessão</TableCell>
-                        <TableCell>Status</TableCell>
+                        <TableCell>Sesión</TableCell>
+                        <TableCell>Estado</TableCell>
                         <TableCell align="right"></TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {(detailCompany.whatsappSessions ?? []).map((s) => (
-                          <TableRow key={s.id}>
-                            <TableCell>{s.name} {s.waPushName ? `(${s.waPushName})` : ""}</TableCell>
-                            <TableCell>
-                              <Chip
-                                label={s.status === "connected" ? "Conectado" : s.status}
-                                size="small"
-                                color={s.status === "connected" ? "success" : "default"}
-                                variant="outlined"
-                              />
-                            </TableCell>
-                            <TableCell align="right">
-                              {s.status === "connected" && (
-                                <Button size="small" color="error" variant="outlined" onClick={() => handleDisconnect(s.id)}>
-                                  Desconectar
-                                </Button>
-                              )}
-                            </TableCell>
-                          </TableRow>
+                        <TableRow key={s.id}>
+                          <TableCell>{s.name} {s.waPushName ? `(${s.waPushName})` : ""}</TableCell>
+                          <TableCell>
+                            <Chip
+                              label={s.status === "connected" ? "Conectado" : s.status}
+                              size="small"
+                              color={s.status === "connected" ? "success" : "default"}
+                              variant="outlined"
+                            />
+                          </TableCell>
+                          <TableCell align="right">
+                            {s.status === "connected" && (
+                              <Button size="small" color="error" variant="outlined" onClick={() => handleDisconnect(s.id)}>
+                                Desconectar
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
                       ))}
                     </TableBody>
                   </Table>
@@ -488,19 +488,19 @@ export default function CompaniesPage() {
           ) : null}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDetailCompany(null)}>Fechar</Button>
+          <Button onClick={() => setDetailCompany(null)}>Cerrar</Button>
         </DialogActions>
       </Dialog>
 
-      {/* Modal editar usuário */}
+      {/* Modal editar usuario */}
       <Dialog open={!!editingUser} onClose={() => setEditingUser(null)} maxWidth="xs" fullWidth>
         <form onSubmit={handleEditUser}>
-          <DialogTitle>Editar usuário</DialogTitle>
+          <DialogTitle>Editar usuario</DialogTitle>
           <DialogContent>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
               <TextField
                 fullWidth
-                label="Nome"
+                label="Nombre"
                 value={editForm.name}
                 onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
               />
@@ -513,7 +513,7 @@ export default function CompaniesPage() {
               />
               <TextField
                 fullWidth
-                label="Nova senha (deixe em branco para manter)"
+                label="Nueva contraseña (deje en blanco para mantener)"
                 type="password"
                 value={editForm.password}
                 onChange={(e) => setEditForm((f) => ({ ...f, password: e.target.value }))}
@@ -534,7 +534,7 @@ export default function CompaniesPage() {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setEditingUser(null)}>Cancelar</Button>
-            <Button type="submit" variant="contained">Salvar</Button>
+            <Button type="submit" variant="contained">Guardar</Button>
           </DialogActions>
         </form>
       </Dialog>

@@ -39,7 +39,7 @@ router.get("/limits", async (req: AuthRequest, res) => {
       groupsPerCampaign: limits.groupsPerCampaign,
     });
   } catch (err: any) {
-    res.status(400).json({ message: err?.message ?? "Erro ao obter limites" });
+    res.status(400).json({ message: err?.message ?? "Error al obtener los límites" });
   }
 });
 
@@ -76,10 +76,10 @@ router.post("/", campaignImageUpload.single("image"), async (req: AuthRequest, r
       .map((s) => s.trim())
       .filter(Boolean);
 
-    if (!groupIds.length) return res.status(400).json({ message: "Selecione ao menos 1 grupo" });
+    if (!groupIds.length) return res.status(400).json({ message: "Seleccione al menos 1 grupo" });
 
     const companyId = req.companyId;
-    if (!companyId) return res.status(400).json({ message: "Usuário precisa estar vinculado a uma empresa" });
+    if (!companyId) return res.status(400).json({ message: "El usuario debe estar vinculado a una empresa" });
 
     const { assertCampaignsPerDay, assertCampaignGroupsLimit } = await import("../services/planLimitsService");
     await assertCampaignGroupsLimit(companyId, groupIds.length);
@@ -90,11 +90,11 @@ router.post("/", campaignImageUpload.single("image"), async (req: AuthRequest, r
     const session =
       parsed.sessionId
         ? await prisma.whatsappSession.findFirst({
-            where: { id: parsed.sessionId, companyId },
-          })
+          where: { id: parsed.sessionId, companyId },
+        })
         : await prisma.whatsappSession.findFirst({ where: { companyId } });
 
-    if (!session) return res.status(400).json({ message: "Sessão WhatsApp não encontrada" });
+    if (!session) return res.status(400).json({ message: "Sesión de WhatsApp no encontrada" });
 
     const imagePath = req.file ? getFilePathForDb(req, req.file.filename) : undefined;
 
@@ -157,7 +157,7 @@ router.post("/", campaignImageUpload.single("image"), async (req: AuthRequest, r
 
     res.status(201).json(campaign);
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao criar campanha" });
+    res.status(400).json({ message: err.message || "Error al crear la campaña" });
   }
 });
 
@@ -168,7 +168,7 @@ router.post("/:id/send", async (req: AuthRequest, res) => {
     await sendCampaign(req.params.id, userId);
     res.json({ ok: true });
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao enviar campanha" });
+    res.status(400).json({ message: err.message || "Error al enviar la campaña" });
   }
 });
 
@@ -177,7 +177,7 @@ router.patch("/:id/pause", async (req: AuthRequest, res) => {
     const userId = req.userId!;
     const campaign = await prisma.campaign.findUnique({ where: { id: req.params.id } });
     if (!campaign || campaign.userId !== userId) {
-      return res.status(404).json({ message: "Campanha não encontrada" });
+      return res.status(404).json({ message: "Campaña no encontrada" });
     }
     await prisma.campaign.update({
       where: { id: campaign.id },
@@ -185,7 +185,7 @@ router.patch("/:id/pause", async (req: AuthRequest, res) => {
     });
     res.json({ ok: true });
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao pausar" });
+    res.status(400).json({ message: err.message || "Error al pausar" });
   }
 });
 
@@ -194,7 +194,7 @@ router.patch("/:id/resume", async (req: AuthRequest, res) => {
     const userId = req.userId!;
     const campaign = await prisma.campaign.findUnique({ where: { id: req.params.id } });
     if (!campaign || campaign.userId !== userId) {
-      return res.status(404).json({ message: "Campanha não encontrada" });
+      return res.status(404).json({ message: "Campaña no encontrada" });
     }
     await prisma.campaign.update({
       where: { id: campaign.id },
@@ -202,7 +202,7 @@ router.patch("/:id/resume", async (req: AuthRequest, res) => {
     });
     res.json({ ok: true });
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao retomar" });
+    res.status(400).json({ message: err.message || "Error al reanudar" });
   }
 });
 
@@ -221,7 +221,7 @@ router.delete("/all", async (req: AuthRequest, res) => {
     ]);
     res.json({ ok: true, deleted: ids.length });
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao limpar" });
+    res.status(400).json({ message: err.message || "Error al limpiar" });
   }
 });
 
@@ -239,7 +239,7 @@ router.delete("/:id", async (req: AuthRequest, res) => {
     ]);
     res.json({ ok: true });
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao excluir" });
+    res.status(400).json({ message: err.message || "Error al eliminar" });
   }
 });
 

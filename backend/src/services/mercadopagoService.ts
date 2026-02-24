@@ -14,7 +14,7 @@ export async function getPixExpirationMinutes(): Promise<number> {
 
 export async function getMpAccessToken(): Promise<string> {
   const token = await getSetting(MP_ACCESS_TOKEN);
-  if (!token) throw new Error("Mercado Pago não configurado. Configure o token em Configurações.");
+  if (!token) throw new Error("Mercado Pago no configurado. Configure el token en Configuración.");
   return token;
 }
 
@@ -45,6 +45,7 @@ export async function createPixOrder(params: {
   const payload = {
     type: "online",
     external_reference: params.externalReference,
+    currency_id: "PEN",
     total_amount: params.amount.toFixed(2),
     processing_mode: "automatic" as const,
     transactions: {
@@ -97,7 +98,7 @@ export async function createPixOrder(params: {
 
   if (!qrCode || !qrCodeBase64) {
     const errDetail = res.data?.message ?? res.data?.error ?? JSON.stringify(res.data).slice(0, 200);
-    throw new Error(`Mercado Pago não retornou QR PIX. Verifique as chaves PIX no painel MP. Detalhe: ${errDetail}`);
+    throw new Error(`Mercado Pago no devolvió el QR PIX. Verifique las claves PIX en el panel de MP. Detalle: ${errDetail}`);
   }
 
   return {

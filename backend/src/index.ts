@@ -79,17 +79,17 @@ function getHttpLogLabel(method: string, path: string): string {
   const routes: Array<[string, string, string]> = [
     ["POST", "/api/auth/login", "Login"],
     ["POST", "/api/auth/register", "Registro"],
-    ["POST", "/api/groups/sync", "Sync grupos"],
+    ["POST", "/api/groups/sync", "Sincronizar grupos"],
     ["GET", "/api/groups", "Listar grupos"],
-    ["POST", "/api/campaigns", "Criar campanha"],
-    ["GET", "/api/campaigns", "Listar campanhas"],
-    ["POST", "/api/campaigns/", "Enviar/pausar campanha"],
-    ["DELETE", "/api/campaigns", "Excluir campanha(s)"],
-    ["GET", "/api/whatsapp/sessions", "Listar conexões"],
-    ["POST", "/api/whatsapp/sessions", "Criar conexão"],
-    ["GET", "/api/whatsapp/sessions/", "Status/QR conexão"],
-    ["POST", "/api/whatsapp/sessions/", "Restart/disconnect conexão"],
-    ["POST", "/api/whatsapp/sync-groups", "Sync grupos (whatsapp)"],
+    ["POST", "/api/campaigns", "Crear campaña"],
+    ["GET", "/api/campaigns", "Listar campañas"],
+    ["POST", "/api/campaigns/", "Enviar/pausar campaña"],
+    ["DELETE", "/api/campaigns", "Eliminar campaña(s)"],
+    ["GET", "/api/whatsapp/sessions", "Listar conexiones"],
+    ["POST", "/api/whatsapp/sessions", "Crear conexión"],
+    ["GET", "/api/whatsapp/sessions/", "Estado/QR conexión"],
+    ["POST", "/api/whatsapp/sessions/", "Reiniciar/desconectar conexión"],
+    ["POST", "/api/whatsapp/sync-groups", "Sincronizar grupos (whatsapp)"],
     ["GET", "/api/dashboard", "Dashboard"],
     ["GET", "/api/products", "Listar produtos"],
     ["POST", "/api/products", "Criar produto"],
@@ -97,14 +97,14 @@ function getHttpLogLabel(method: string, path: string): string {
     ["POST", "/api/invoices", "Pagar fatura"],
     ["GET", "/api/companies", "Empresas"],
     ["GET", "/api/plans", "Planos"],
-    ["GET", "/api/subscriptions", "Assinaturas"],
-    ["PUT", "/api/subscriptions", "Atualizar assinatura"],
+    ["GET", "/api/subscriptions", "Suscripciones"],
+    ["PUT", "/api/subscriptions", "Actualizar suscripción"],
     ["GET", "/api/admin", "Admin"],
     ["POST", "/api/admin", "Admin"],
-    ["GET", "/api/settings", "Configurações"],
-    ["PUT", "/api/settings", "Configurações"],
-    ["GET", "/api/settings/dispatch", "Config disparos"],
-    ["PUT", "/api/settings/dispatch", "Config disparos"],
+    ["GET", "/api/settings", "Configuración"],
+    ["PUT", "/api/settings", "Configuración"],
+    ["GET", "/api/settings/dispatch", "Configuración de envíos"],
+    ["PUT", "/api/settings/dispatch", "Configuración de envíos"],
     ["GET", "/api/message-templates", "Templates"],
     ["GET", "/api/template-types", "Tipos de template"],
     ["GET", "/api/webhooks", "Webhooks"],
@@ -207,11 +207,11 @@ app.use(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     if (err.name === "MulterError" && err.code === "LIMIT_FILE_SIZE") {
-      res.status(413).json({ message: "Arquivo muito grande. Logo: até 5 MB; favicon/ícone: até 512 KB." });
+      res.status(413).json({ message: "Archivo demasiado grande. Logotipo: hasta 5 MB; favicon/ícono: hasta 512 KB." });
       return;
     }
-    logger.error("API", "Erro interno não tratado", err);
-    res.status(500).json({ message: "Erro interno do servidor" });
+    logger.error("API", "Error interno no manejado", err);
+    res.status(500).json({ message: "Error interno del servidor" });
   }
 );
 
@@ -220,7 +220,7 @@ setupSocket(httpServer);
 onDestroySession(clearGroupsStoreForSession);
 
 httpServer.listen(env.port, () => {
-  logger.success("SERVER", `Backend rodando na porta ${env.port}`);
+  logger.success("SERVER", `Backend ejecutándose en el puerto ${env.port}`);
   startQueue();
   startWhatsAppQueueWorkers({
     restart: (sessionId, companyId) => restart(sessionId, companyId),

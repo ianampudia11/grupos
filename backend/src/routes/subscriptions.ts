@@ -16,13 +16,13 @@ router.put("/company/:companyId", async (req, res) => {
     const { planId } = schema.parse(req.body);
 
     const plan = await prisma.plan.findUnique({ where: { id: planId } });
-    if (!plan) return res.status(404).json({ message: "Plano não encontrado" });
+    if (!plan) return res.status(404).json({ message: "Plan no encontrado" });
 
     const company = await prisma.company.findUnique({
       where: { id: req.params.companyId },
       include: { subscription: true },
     });
-    if (!company) return res.status(404).json({ message: "Empresa não encontrada" });
+    if (!company) return res.status(404).json({ message: "Empresa no encontrada" });
 
     const now = new Date();
     const billingDay = Math.min(28, Math.max(1, now.getDate()));
@@ -58,7 +58,7 @@ router.put("/company/:companyId", async (req, res) => {
     });
     res.json(updated?.subscription);
   } catch (err: any) {
-    res.status(400).json({ message: err?.message ?? "Erro ao atualizar assinatura" });
+    res.status(400).json({ message: err?.message ?? "Error al actualizar la suscripción" });
   }
 });
 
@@ -72,8 +72,8 @@ router.put("/company/:companyId/cycle", async (req, res) => {
       where: { id: req.params.companyId },
       include: { subscription: true },
     });
-    if (!company) return res.status(404).json({ message: "Empresa não encontrada" });
-    if (!company.subscription) return res.status(400).json({ message: "Empresa sem assinatura" });
+    if (!company) return res.status(404).json({ message: "Empresa no encontrada" });
+    if (!company.subscription) return res.status(400).json({ message: "Empresa sin suscripción" });
 
     await prisma.subscription.update({
       where: { id: company.subscription.id },
@@ -85,7 +85,7 @@ router.put("/company/:companyId/cycle", async (req, res) => {
     });
     res.json(updated?.subscription);
   } catch (err: any) {
-    res.status(400).json({ message: err?.message ?? "Erro ao alterar ciclo" });
+    res.status(400).json({ message: err?.message ?? "Error al cambiar el ciclo" });
   }
 });
 
@@ -141,7 +141,7 @@ router.post("/company/:companyId/baixa", async (req, res) => {
     });
     res.json(updated?.subscription);
   } catch (err: any) {
-    res.status(400).json({ message: err?.message ?? "Erro ao dar baixa" });
+    res.status(400).json({ message: err?.message ?? "Error al realizar la baja manual" });
   }
 });
 

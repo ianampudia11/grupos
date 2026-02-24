@@ -101,7 +101,7 @@ export function Layout() {
           tabIndex={0}
           onClick={closeMobileMenu}
           onKeyDown={(e) => e.key === "Escape" && closeMobileMenu()}
-          aria-label="Fechar menu"
+          aria-label="Cerrar menu"
           style={{
             position: "fixed",
             inset: 0,
@@ -132,7 +132,7 @@ export function Layout() {
         <nav className="zest-menu">
           {!isRestricted && (
             <>
-              <span className="zest-menu-title">Painel</span>
+              <span className="zest-menu-title">Panel</span>
               {canAccessMenu(me, "dashboard") && (
                 <MenuItem to="/dashboard" icon={<DashboardOutlined sx={{ fontSize: 20 }} />} onNavigate={closeMobileMenu}>
                   Dashboard
@@ -140,12 +140,12 @@ export function Layout() {
               )}
               {canAccessMenu(me, "whatsapp_connection") && (
                 <MenuItem to="/whatsapp/connection" icon={<HubOutlined sx={{ fontSize: 20 }} />} onNavigate={closeMobileMenu}>
-                  Conexões
+                  Conexiones
                 </MenuItem>
               )}
               {canAccessMenu(me, "whatsapp_groups") && (
                 <MenuItem to="/whatsapp/groups" icon={<SendOutlined sx={{ fontSize: 20 }} />} onNavigate={closeMobileMenu}>
-                  Disparo em grupos
+                  Envío a grupos
                 </MenuItem>
               )}
               {canAccessMenu(me, "groups") && (
@@ -155,7 +155,7 @@ export function Layout() {
               )}
               {canAccessMenu(me, "products") && (
                 <MenuItem to="/products" icon={<Inventory2Outlined sx={{ fontSize: 20 }} />} onNavigate={closeMobileMenu}>
-                  Produtos e Criativos
+                  Productos y Creativos
                 </MenuItem>
               )}
               {canAccessMenu(me, "templates") && (
@@ -170,24 +170,24 @@ export function Layout() {
               )}
               {canAccessMenu(me, "campaigns") && (
                 <MenuItem to="/campaigns" icon={<CampaignOutlined sx={{ fontSize: 20 }} />} onNavigate={closeMobileMenu}>
-                  Campanhas
+                  Campañas
                 </MenuItem>
               )}
             </>
           )}
 
-          <span className="zest-menu-title" style={{ marginTop: 18 }}>Conta</span>
+          <span className="zest-menu-title" style={{ marginTop: 18 }}>Cuenta</span>
           <MenuItem to="/me" icon={<PersonOutlined sx={{ fontSize: 20 }} />} onNavigate={closeMobileMenu}>
-            Minha conta
+            Mi cuenta
           </MenuItem>
           {!isRestricted && canAccessMenu(me, "settings") && (
             <MenuItem to="/settings" icon={<SettingsOutlined sx={{ fontSize: 20 }} />} onNavigate={closeMobileMenu}>
-              Configuracoes
+              Configuraciones
             </MenuItem>
           )}
           {me?.companyId && canAccessMenu(me, "invoices") && (
             <MenuItem to="/invoices" icon={<ReceiptOutlined sx={{ fontSize: 20 }} />} onNavigate={closeMobileMenu}>
-              Faturas
+              Facturas
             </MenuItem>
           )}
 
@@ -203,19 +203,19 @@ export function Layout() {
                     Empresas
                   </MenuItem>
                   <MenuItem to="/admin/plans" icon={<ViewListOutlined sx={{ fontSize: 20 }} />} onNavigate={closeMobileMenu}>
-                    Planos
+                    Planes
                   </MenuItem>
                   <MenuItem to="/admin/invoices" icon={<ReceiptOutlined sx={{ fontSize: 20 }} />} onNavigate={closeMobileMenu}>
-                    Central de Faturas
+                    Central de Facturas
                   </MenuItem>
                 </>
               )}
             </>
           )}
 
-          <span className="zest-menu-title" style={{ marginTop: 18 }}>Ajuda</span>
+          <span className="zest-menu-title" style={{ marginTop: 18 }}>Ayuda</span>
           <MenuItem to="/help" icon={<HelpOutlineOutlined sx={{ fontSize: 20 }} />} onNavigate={closeMobileMenu}>
-            Como usar
+            Cómo usar
           </MenuItem>
         </nav>
       </aside>
@@ -223,39 +223,39 @@ export function Layout() {
       <div className="zest-main">
         <header className="zest-topbar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, minWidth: 0, flex: 1 }}>
-            <Tooltip title={isMobile ? "Menu" : sidebarCollapsed ? "Expandir menu" : "Recolher menu"}>
+            <Tooltip title={isMobile ? "Menú" : sidebarCollapsed ? "Expandir menú" : "Contraer menú"}>
               <IconButton size="small" onClick={toggleSidebar} sx={{ flexShrink: 0 }}>
                 <MenuIcon fontSize="small" />
               </IconButton>
             </Tooltip>
             <div className="zest-topbar-title" style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>
               <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}>
-                Olá {me?.name || me?.email?.split("@")[0] || "Usuário"}
-                {!isMobile && (me?.company ? <>, Bem-vindo a {me.company.name}!</> : <>, Bem-vindo!</>)}
+                Hola {me?.name || me?.email?.split("@")[0] || "Usuario"}
+                {!isMobile && (me?.company ? <>, ¡Bienvenido a {me.company.name}!</> : <>, ¡Bienvenido!</>)}
               </span>
               {me?.subscription?.currentPeriodEnd && (
                 <small style={{ color: "var(--zest-text-secondary)", fontWeight: 400, display: "block", marginTop: 1, fontSize: "inherit" }}>
-                  Válido até {new Date(me.subscription.currentPeriodEnd).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                  Válido hasta {new Date(me.subscription.currentPeriodEnd).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" })}
                 </small>
               )}
             </div>
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
-            <Tooltip title={mode === "dark" ? "Modo claro" : "Modo escuro"}>
+            <Tooltip title={mode === "dark" ? "Modo claro" : "Modo oscuro"}>
               <IconButton size="small" onClick={toggleMode}>
                 {mode === "dark" ? <LightModeOutlined fontSize="small" /> : <DarkModeOutlined fontSize="small" />}
               </IconButton>
             </Tooltip>
             {me?.role && !isMobile && <Chip label={me.role} size="small" color="primary" variant="outlined" sx={{ fontWeight: 500 }} />}
             {isMobile ? (
-              <Tooltip title="Sair">
+              <Tooltip title="Salir">
                 <IconButton size="small" onClick={handleLogout} color="primary">
                   <LogoutOutlined fontSize="small" />
                 </IconButton>
               </Tooltip>
             ) : (
               <Button variant="outlined" size="small" onClick={handleLogout} color="primary" startIcon={<LogoutOutlined fontSize="small" />}>
-                Sair
+                Salir
               </Button>
             )}
           </Box>
@@ -264,7 +264,7 @@ export function Layout() {
           <Outlet />
         </main>
         <footer className="zest-footer" style={{ textAlign: "center" }}>
-          <small>© {new Date().getFullYear()} • Desenvolvido por PLW Design</small>
+          <small>© {new Date().getFullYear()} iAwarrior tech</small>
         </footer>
       </div>
     </div>

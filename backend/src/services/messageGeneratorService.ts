@@ -41,15 +41,15 @@ export function generateMessage(
 ): string {
   const data: Record<string, string> = {
     titulo: product?.title ?? "",
-    preco: product?.price ?? "",
-    precoAntigo: product?.oldPrice ?? "",
-    desconto:
+    precio: product?.price ?? "",
+    precioAnterior: product?.oldPrice ?? "",
+    descuento:
       product?.discountPercent != null
         ? `${product.discountPercent}%`
         : "",
-    cupom: product?.coupon ?? "",
+    cupon: product?.coupon ?? "",
     link: product?.link ?? "",
-    loja: product?.store ?? "",
+    tienda: product?.store ?? "",
     categoria: product?.category ?? "",
   };
   let result = replacePlaceholders(templateBody, data);
@@ -68,53 +68,53 @@ export function generateMessage(
 
 export const DEFAULT_TEMPLATES = [
   {
-    name: "Oferta Relâmpago",
+    name: "Oferta Relámpago",
     templateType: "oferta_relampago",
-    body: `⚡ *OFERTA RELÂMPAGO* ⚡
+    body: `⚡ *OFERTA RELÁMPAGO* ⚡
 
 {titulo}
 
-💰 De {precoAntigo} por apenas *{preco}*
-🔥 {desconto} de desconto!
+💰 De {precioAnterior} por solo *{precio}*
+🔥 {descuento} de descuento!
 
-{cupom|🎫 Cupom: {cupom}|}
+{cupon|🎫 Cupón: {cupon}|}
 
 ➡️ {link}
 
-Não perca! {loja}`,
+¡No te lo pierdas! {tienda}`,
   },
   {
-    name: "Cupom",
+    name: "Cupón",
     templateType: "cupom",
-    body: `🎫 *CUPOM EXCLUSIVO* 🎫
+    body: `🎫 *CUPÓN EXCLUSIVO* 🎫
 
 {titulo}
 
-✅ Use o cupom: *{cupom}*
-💰 {preco} {desconto|com {desconto} OFF|}
+✅ Usa el cupón: *{cupon}*
+💰 {precio} {descuento|con {descuento} OFF|}
 
 🔗 {link}
-📦 {loja}`,
+📦 {tienda}`,
   },
   {
-    name: "Frete grátis",
+    name: "Envío gratis",
     templateType: "frete_gratis",
-    body: `🚚 *FRETE GRÁTIS* 🚚
+    body: `🚚 *ENVÍO GRATIS* 🚚
 
 {titulo}
 
-✨ Apenas *{preco}*
-{cupom|🎁 Cupom {cupom}|}
+ ✨ Solo *{precio}*
+{cupon|🎁 Cupón {cupon}|}
 
 👉 {link}
-Loja: {loja}`,
+Tienda: {tienda}`,
   },
   {
-    name: "Simples",
+    name: "Simple",
     templateType: "custom",
     body: `{titulo}
 
-{preco} {desconto|{desconto} OFF|}
+{precio} {descuento|{descuento} OFF|}
 {link}`,
   },
 ];

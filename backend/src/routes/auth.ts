@@ -23,7 +23,7 @@ async function ensureRecaptcha(req: { body?: { recaptchaToken?: string } }, acti
 
   const token = req.body?.recaptchaToken;
   if (!token || typeof token !== "string") {
-    return { ok: false, message: "Verificação de segurança (reCAPTCHA) é obrigatória." };
+    return { ok: false, message: "La verificación de seguridad (reCAPTCHA) es obligatoria." };
   }
 
   const secret = version === "v2"
@@ -35,7 +35,7 @@ async function ensureRecaptcha(req: { body?: { recaptchaToken?: string } }, acti
     expectedAction: action,
     minScore: version === "v3" ? 0.5 : undefined,
   });
-  if (!result.ok) return { ok: false, message: result.error || "Verificação de segurança falhou." };
+  if (!result.ok) return { ok: false, message: result.error || "La verificación de seguridad falló." };
   return { ok: true };
 }
 
@@ -48,8 +48,8 @@ router.post("/register", registerRateLimiter, async (req, res) => {
       email: z.string().email(),
       password: z.string().min(6),
       name: z.string().optional(),
-      companyName: z.string().min(2, "Nome da empresa é obrigatório"),
-      planId: z.string().min(1, "Selecione um plano"),
+      companyName: z.string().min(2, "El nombre de la empresa es obligatorio"),
+      planId: z.string().min(1, "Seleccione un plan"),
     });
     const data = schema.parse(req.body);
     const user = await registerUser(data);
@@ -59,7 +59,7 @@ router.post("/register", registerRateLimiter, async (req, res) => {
       company: user.company ? { id: user.company.id, name: user.company.name } : null,
     });
   } catch (err: any) {
-    return res.status(400).json({ message: err.message || "Erro ao registrar" });
+    return res.status(400).json({ message: err.message || "Error al registrar" });
   }
 });
 
@@ -84,7 +84,7 @@ router.post("/login", authRateLimiter, async (req, res) => {
   } catch (err: any) {
     const email = (req.body?.email as string) ?? "?";
     securityLogger.logAuthFailure(req.ip ?? "unknown", email);
-    return res.status(401).json({ message: err.message || "Erro ao autenticar" });
+    return res.status(401).json({ message: err.message || "Error al autenticar" });
   }
 });
 
@@ -99,7 +99,7 @@ router.post("/bootstrap-admin", registerRateLimiter, async (req, res) => {
     const user = await bootstrapAdmin(email, password, name);
     return res.status(201).json({ id: user.id, email: user.email, role: user.role });
   } catch (err: any) {
-    return res.status(400).json({ message: err.message || "Erro no bootstrap" });
+    return res.status(400).json({ message: err.message || "Error en el bootstrap" });
   }
 });
 
@@ -113,9 +113,9 @@ router.get("/me", authMiddleware, async (req: AuthRequest, res) => {
       },
     },
   });
-  if (!user) return res.status(404).json({ message: "Usuário não encontrado" });
+  if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
   if (user.companyId && user.company?.isActive === false) {
-    return res.status(403).json({ message: "Empresa desativada. Entre em contato com o suporte." });
+    return res.status(403).json({ message: "Empresa desactivada. Póngase en contacto con el soporte." });
   }
   const sub = user.company?.subscription;
   const trialEndsAt = sub?.trialEndsAt ?? null;
@@ -133,19 +133,19 @@ router.get("/me", authMiddleware, async (req: AuthRequest, res) => {
     menuPermissions: Array.isArray(menuPermissions) ? menuPermissions : null,
     company: user.company
       ? {
-          id: user.company.id,
-          name: user.company.name,
-          slug: user.company.slug,
-        }
+        id: user.company.id,
+        name: user.company.name,
+        slug: user.company.slug,
+      }
       : null,
     subscription: sub
       ? {
-          trialEndsAt: trialEndsAt?.toISOString() ?? null,
-          isTrialExpired,
-          hasActivePaidAccess: !!hasActivePaidAccess,
-          currentPeriodEnd: sub.currentPeriodEnd.toISOString(),
-          billingDay: sub.billingDay,
-        }
+        trialEndsAt: trialEndsAt?.toISOString() ?? null,
+        isTrialExpired,
+        hasActivePaidAccess: !!hasActivePaidAccess,
+        currentPeriodEnd: sub.currentPeriodEnd.toISOString(),
+        billingDay: sub.billingDay,
+      }
       : null,
   });
 });
@@ -161,11 +161,11 @@ router.put("/me", authMiddleware, async (req: AuthRequest, res) => {
     const data = schema.parse(req.body);
 
     const current = await prisma.user.findUnique({ where: { id: userId } });
-    if (!current) return res.status(404).json({ message: "Usuário não encontrado" });
+    if (!current) return res.status(404).json({ message: "Usuario no encontrado" });
 
     if (data.email && data.email !== current.email) {
       const exists = await prisma.user.findUnique({ where: { email: data.email } });
-      if (exists) return res.status(400).json({ message: "E-mail já cadastrado" });
+      if (exists) return res.status(400).json({ message: "El correo electrónico ya está registrado" });
     }
 
     const update: any = {};
@@ -190,7 +190,7 @@ router.put("/me", authMiddleware, async (req: AuthRequest, res) => {
         : null,
     });
   } catch (err: any) {
-    return res.status(400).json({ message: err.message || "Erro ao atualizar perfil" });
+    return res.status(400).json({ message: err.message || "Error al actualizar el perfil" });
   }
 });
 

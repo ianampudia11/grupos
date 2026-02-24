@@ -5,41 +5,41 @@ import Typography from "@mui/material/Typography";
 
 export default function HelpPage() {
   return (
-    <PageContainer title="Ajuda" subtitle="Passo a passo e erros comuns.">
+    <PageContainer title="Ayuda" subtitle="Paso a paso y errores comunes.">
       <Paper sx={{ p: 2 }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>Passo a passo</Typography>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>Paso a paso</Typography>
         <ol style={{ color: "#6b7280" }}>
           <li>
-            Faça login no painel em <code>/login</code>.
+            Inicie sesión en el panel en <code>/login</code>.
           </li>
           <li>
-            Vá em <b>Conexão WhatsApp</b> → gere o QR e leia com seu WhatsApp.
+            Vaya a <b>Conexión WhatsApp</b> → genere el QR y léalo con su WhatsApp.
           </li>
           <li>
-            Vá em <b>Disparo em grupos</b> → sincronize grupos.
+            Vaya a <b>Envío a grupos</b> → sincronice los grupos.
           </li>
           <li>
-            Vá em <b>Campanhas</b> → crie (foto/texto/link) e envie.
+            Vaya a <b>Campañas</b> → cree (foto/texto/enlace) y envíe.
           </li>
         </ol>
 
         <Box sx={{ my: 2, borderTop: 1, borderColor: "divider" }} />
 
-        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>Erros comuns</Typography>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>Errores comunes</Typography>
         <ul style={{ color: "#6b7280" }}>
           <li>
-            <b>401</b>: token expirou ou você não está logado. Faça login novamente.
+            <b>401</b>: el token ha expirado o no ha iniciado sesión. Inicie sesión nuevamente.
           </li>
           <li>
-            <b>Não aparece QR</b>: aguarde alguns segundos após clicar em "Gerar QR" para o
-            o backend gerar o código QR (conexão via Baileys).
+            <b>No aparece el QR</b>: espere unos segundos después de hacer clic en "Generar QR" para que el
+            backend genere el código QR (conexión vía Baileys).
           </li>
           <li>
-            <b>QR expirou</b>: clique em <b>Reiniciar</b> e depois em <b>Gerar QR</b> novamente.
+            <b>El QR ha expirado</b>: haga clic en <b>Reiniciar</b> y luego en <b>Generar QR</b> nuevamente.
           </li>
           <li>
-            <b>Grupos não aparecem</b>: certifique-se de que o WhatsApp está conectado
-            antes de sincronizar os grupos.
+            <b>Los grupos no aparecen</b>: asegúrese de que el WhatsApp esté conectado
+            antes de sincronizar los grupos.
           </li>
         </ul>
       </Paper>

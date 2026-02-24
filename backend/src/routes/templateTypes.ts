@@ -4,9 +4,9 @@ import { authMiddleware, AuthRequest } from "../middleware/auth";
 import { prisma } from "../prismaClient";
 
 const DEFAULT_TYPES = [
-  { slug: "oferta_relampago", label: "Oferta Relâmpago", sortOrder: 0 },
-  { slug: "cupom", label: "Cupom", sortOrder: 1 },
-  { slug: "frete_gratis", label: "Frete Grátis", sortOrder: 2 },
+  { slug: "oferta_relampago", label: "Oferta Relámpago", sortOrder: 0 },
+  { slug: "cupom", label: "Cupón", sortOrder: 1 },
+  { slug: "frete_gratis", label: "Envío Gratis", sortOrder: 2 },
   { slug: "custom", label: "Personalizado", sortOrder: 3 },
 ];
 
@@ -35,14 +35,14 @@ router.post("/", async (req: AuthRequest, res) => {
   try {
     const userId = req.userId!;
     const schema = z.object({
-      slug: z.string().min(1).regex(/^[a-z0-9_]+$/, "Use apenas letras minúsculas, números e _"),
+      slug: z.string().min(1).regex(/^[a-z0-9_]+$/, "Use solo letras minúsculas, números y _"),
       label: z.string().min(1),
     });
     const body = schema.parse(req.body);
     const existing = await prisma.templateType.findUnique({
       where: { userId_slug: { userId, slug: body.slug } },
     });
-    if (existing) return res.status(400).json({ message: "Já existe um tipo com este slug" });
+    if (existing) return res.status(400).json({ message: "Ya existe un tipo con este slug" });
     const maxOrder = await prisma.templateType.aggregate({
       where: { userId },
       _max: { sortOrder: true },
@@ -57,7 +57,7 @@ router.post("/", async (req: AuthRequest, res) => {
     });
     res.status(201).json(type);
   } catch (err: any) {
-    res.status(400).json({ message: err.message ?? "Erro ao criar tipo" });
+    res.status(400).json({ message: err.message ?? "Error al crear el tipo" });
   }
 });
 
@@ -72,7 +72,7 @@ router.put("/:id", async (req: AuthRequest, res) => {
     const existing = await prisma.templateType.findFirst({
       where: { id: req.params.id, userId },
     });
-    if (!existing) return res.status(404).json({ message: "Tipo não encontrado" });
+    if (!existing) return res.status(404).json({ message: "Tipo no encontrado" });
     if (body.slug) {
       const dup = await prisma.templateType.findFirst({
         where: { userId, slug: body.slug, id: { not: req.params.id } },
@@ -85,7 +85,7 @@ router.put("/:id", async (req: AuthRequest, res) => {
     });
     res.json(type);
   } catch (err: any) {
-    res.status(400).json({ message: err.message ?? "Erro ao atualizar tipo" });
+    res.status(400).json({ message: err.message ?? "Error al actualizar el tipo" });
   }
 });
 
@@ -103,7 +103,7 @@ router.delete("/:id", async (req: AuthRequest, res) => {
     });
     res.json({ ok: true });
   } catch (err: any) {
-    res.status(400).json({ message: err.message ?? "Erro ao remover tipo" });
+    res.status(400).json({ message: err.message ?? "Error al eliminar el tipo" });
   }
 });
 

@@ -67,14 +67,14 @@ export async function checkLimit(
 
   const allowed = used < limit;
   const labels: Record<string, string> = {
-    connections: "Conexões WhatsApp",
-    campaigns: "Campanhas",
-    users: "Usuários",
+    connections: "Conexiones WhatsApp",
+    campaigns: "Campañas",
+    users: "Usuarios",
     groups: "Grupos",
   };
   const message = allowed
     ? undefined
-    : `Limite do plano atingido: ${labels[resource]} (${used}/${limit}). Faça upgrade para adicionar mais.`;
+    : `Límite del plan alcanzado: ${labels[resource]} (${used}/${limit}). Realice una mejora para agregar más.`;
 
   return { allowed, used, limit, message };
 }
@@ -131,7 +131,7 @@ export async function checkGroupSendsPerDay(companyId: string): Promise<{
   const allowed = usedToday < limit;
   const message = allowed
     ? undefined
-    : `Limite diário atingido: ${usedToday}/${limit} envios para grupos hoje. Amanhã será liberado novamente.`;
+    : `Límite diario alcanzado: ${usedToday}/${limit} envíos a grupos hoy. Mañana se liberará nuevamente.`;
 
   return { allowed, usedToday, limit, message };
 }
@@ -154,7 +154,7 @@ export async function assertCampaignGroupsLimit(companyId: string, groupCount: n
   const maxGroups = limits.groupsPerCampaign;
   if (groupCount > maxGroups) {
     throw new Error(
-      `Limite do plano: você pode selecionar no máximo ${maxGroups} grupo(s) por campanha. Selecionou ${groupCount}.`
+      `Límite del plan: puede seleccionar como máximo ${maxGroups} grupo(s) por campaña. Seleccionó ${groupCount}.`
     );
   }
 }

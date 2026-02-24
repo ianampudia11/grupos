@@ -29,7 +29,7 @@ export async function processScheduledCampaigns(): Promise<void> {
           where: { id: c.id },
           data: { scheduledAt: next, status: "queued", errorMessage: null },
         });
-        logger.info("QUEUE", `Campanha ${c.id} reagendada para ${next.toISOString()} (diário)`);
+        logger.info("QUEUE", `Campaña ${c.id} reagendada para ${next.toISOString()} (diario)`);
       } else if (c.repeatRule === "weekly") {
         const next = new Date(c.scheduledAt!);
         next.setDate(next.getDate() + 7);
@@ -37,16 +37,16 @@ export async function processScheduledCampaigns(): Promise<void> {
           where: { id: c.id },
           data: { scheduledAt: next, status: "queued", errorMessage: null },
         });
-        logger.info("QUEUE", `Campanha ${c.id} reagendada para ${next.toISOString()} (semanal)`);
+        logger.info("QUEUE", `Campaña ${c.id} reagendada para ${next.toISOString()} (semanal)`);
       }
 
-      logger.success("QUEUE", `Campanha ${c.id} enviada (${c.title || "Sem título"})`);
+      logger.success("QUEUE", `Campaña ${c.id} enviada (${c.title || "Sin título"})`);
     } catch (err: any) {
-      logger.error("QUEUE", `Falha ao enviar campanha ${c.id}`, err);
-      const isLimitError = err?.message?.includes("Limite diário") ?? false;
+      logger.error("QUEUE", `Fallo al enviar la campaña ${c.id}`, err);
+      const isLimitError = err?.message?.includes("Límite diario") ?? false;
       const errorMessage = isLimitError
-        ? "Limite diário de envios atingido. Reagende para amanhã e tente novamente."
-        : err?.message ?? "Falha ao enviar. Reagende ou tente novamente.";
+        ? "Límite diario de envíos alcanzado. Reagende para mañana e intente nuevamente."
+        : err?.message ?? "Fallo al enviar. Reagende o intente nuevamente.";
       await prisma.campaign.update({
         where: { id: c.id },
         data: { status: "failed", errorMessage },
@@ -83,7 +83,7 @@ export async function generateMonthlyInvoices(): Promise<void> {
         dueDate,
       },
     });
-    logger.info("QUEUE", `Fatura criada para ${sub.company.name}`);
+    logger.info("QUEUE", `Factura creada para ${sub.company.name}`);
   }
 }
 
@@ -96,7 +96,7 @@ export async function markOverdueInvoices(): Promise<void> {
     data: { status: "overdue" },
   });
   if (result.count > 0) {
-    logger.info("QUEUE", `${result.count} fatura(s) marcada(s) como vencida`);
+    logger.info("QUEUE", `${result.count} factura(s) marcada(s) como vencida(s)`);
   }
 }
 
@@ -114,11 +114,11 @@ function runWithFallback(
       .then((result) => {
         if (result.ok) return;
         if (result.luaError) {
-          logger.warn("QUEUE", `BullMQ requer Redis 6.2+. Executando ${logLabel} em processo (fallback).`);
-          void runInProcess().catch((err: any) => logger.error("QUEUE", `Erro em ${logLabel}`, err));
+          logger.warn("QUEUE", `BullMQ requiere Redis 6.2+. Ejecutando ${logLabel} en el proceso (fallback).`);
+          void runInProcess().catch((err: any) => logger.error("QUEUE", `Error en ${logLabel}`, err));
         }
       })
-      .catch((err: any) => logger.error("QUEUE", `Erro ao enfileirar ${logLabel}`, err));
+      .catch((err: any) => logger.error("QUEUE", `Error al encolar ${logLabel}`, err));
   });
 }
 
@@ -135,7 +135,7 @@ export function startQueue() {
       runWithFallback(
         () => addJobSafe(QUEUE_NAMES.INVOICES_MONTHLY, "run", {}),
         generateMonthlyInvoices,
-        "faturas mensais"
+        "facturas mensuales"
       )
   );
   cron.schedule(
@@ -144,7 +144,7 @@ export function startQueue() {
       runWithFallback(
         () => addJobSafe(QUEUE_NAMES.INVOICES_OVERDUE, "run", {}),
         markOverdueInvoices,
-        "faturas vencidas"
+        "facturas vencidas"
       )
   );
   cron.schedule(
@@ -153,9 +153,9 @@ export function startQueue() {
       runWithFallback(
         () => addJobSafe(QUEUE_NAMES.CAMPAIGNS, "run", {}),
         processScheduledCampaigns,
-        "campanhas agendadas"
+        "campañas programadas"
       )
   );
 
-  logger.info("QUEUE", "Scheduler iniciado (BullMQ ou fallback em processo)");
+  logger.info("QUEUE", "Scheduler iniciado (BullMQ o fallback en el proceso)");
 }

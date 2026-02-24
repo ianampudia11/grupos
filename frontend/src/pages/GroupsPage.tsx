@@ -71,7 +71,7 @@ export default function GroupsPage() {
       toast.push({
         type: "danger",
         title: "Grupos",
-        message: e?.response?.data?.message ?? "Erro ao carregar grupos.",
+        message: e?.response?.data?.message ?? "Error al cargar los grupos.",
       });
     } finally {
       setLoading(false);
@@ -91,12 +91,12 @@ export default function GroupsPage() {
       ]);
       setGroups(groupsRes.data);
       setSessions(sessionsRes.data.map((s) => ({ id: s.id, name: s.name, isDefault: s.isDefault })));
-      toast.push({ type: "success", title: "Grupos", message: "Grupos sincronizados com sucesso." });
+      toast.push({ type: "success", title: "Grupos", message: "Grupos sincronizados con éxito." });
     } catch (e: any) {
       toast.push({
         type: "danger",
         title: "Grupos",
-        message: e?.response?.data?.message ?? "Erro ao sincronizar. Conecte o WhatsApp primeiro.",
+        message: e?.response?.data?.message ?? "Error al sincronizar. Conecte WhatsApp primero.",
       });
     } finally {
       setSyncing(false);
@@ -112,9 +112,9 @@ export default function GroupsPage() {
       a.download = "grupos.csv";
       a.click();
       URL.revokeObjectURL(url);
-      toast.push({ type: "success", title: "Grupos", message: "Exportação concluída." });
+      toast.push({ type: "success", title: "Grupos", message: "Exportación completada." });
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Grupos", message: e?.response?.data?.message ?? "Erro ao exportar." });
+      toast.push({ type: "danger", title: "Grupos", message: e?.response?.data?.message ?? "Error al exportar." });
     }
   }
 
@@ -137,7 +137,7 @@ export default function GroupsPage() {
         message: `${res.data.created} grupo(s) importado(s). Total: ${res.data.total}`,
       });
     } catch (err: any) {
-      toast.push({ type: "danger", title: "Grupos", message: err?.response?.data?.message ?? "Erro ao importar." });
+      toast.push({ type: "danger", title: "Grupos", message: err?.response?.data?.message ?? "Error al importar." });
     } finally {
       setImporting(false);
       e.target.value = "";
@@ -146,15 +146,15 @@ export default function GroupsPage() {
 
   return (
     <PageContainer
-      title="Grupos do WhatsApp"
-      subtitle="Lista completa com fotos, IDs e participantes. Sincronize, importe ou exporte grupos."
+      title="Grupos de WhatsApp"
+      subtitle="Lista completa con fotos, IDs y participantes. Sincronice, importe o exporte grupos."
       actions={
         <>
           <Button variant="outlined" onClick={load} disabled={loading}>
-            Atualizar
+            Actualizar
           </Button>
           <Button variant="outlined" startIcon={<UploadIcon />} onClick={handleImportClick} disabled={importing}>
-            {importing ? "Importando..." : "Importar planilha"}
+            {importing ? "Importando..." : "Importar planilla"}
           </Button>
           <input
             ref={fileInputRef}
@@ -176,7 +176,7 @@ export default function GroupsPage() {
             label={
               <Box component="span" sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                 Todos ({groups.length})
-                <Tooltip title="Sincronizar grupos do WhatsApp">
+                <Tooltip title="Sincronizar grupos de WhatsApp">
                   <IconButton
                     component="span"
                     role="button"
@@ -201,7 +201,7 @@ export default function GroupsPage() {
               label={
                 <Box component="span" sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                   {s.name} ({groups.filter((g) => g.sessionId === s.id).length})
-                  <Tooltip title="Sincronizar grupos desta conexão">
+                  <Tooltip title="Sincronizar grupos de esta conexión">
                     <IconButton
                       component="span"
                       role="button"
@@ -228,11 +228,11 @@ export default function GroupsPage() {
             <TableHead>
               <TableRow>
                 <TableCell sx={{ width: 56 }}></TableCell>
-                <TableCell>Nome</TableCell>
-                {tab === "all" && sessions.length > 1 && <TableCell>Conexão</TableCell>}
-                <TableCell>ID do grupo</TableCell>
+                <TableCell>Nombre</TableCell>
+                {tab === "all" && sessions.length > 1 && <TableCell>Conexión</TableCell>}
+                <TableCell>ID del grupo</TableCell>
                 <TableCell align="center">Participantes</TableCell>
-                <TableCell>Fonte</TableCell>
+                <TableCell>Fuente</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -284,7 +284,7 @@ export default function GroupsPage() {
                     colSpan={tab === "all" && sessions.length > 1 ? 6 : 5}
                     sx={{ py: 4, textAlign: "center", color: "text.secondary" }}
                   >
-                    Nenhum grupo. Use o ícone de sincronizar ao lado das abas para buscar do WhatsApp ou <strong>Importar planilha</strong> (CSV/Excel com colunas waId e nome).
+                    Ningún grupo. Use el icono de sincronizar al lado de las pestañas para buscar en WhatsApp o <strong>Importar planilla</strong> (CSV/Excel con columnas waId y nombre).
                   </TableCell>
                 </TableRow>
               )}

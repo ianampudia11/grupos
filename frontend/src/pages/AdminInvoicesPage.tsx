@@ -66,7 +66,7 @@ export default function AdminInvoicesPage() {
       const res = await api.get<Invoice[]>(`/admin-invoices?${params.toString()}`);
       setInvoices(res.data);
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Faturas", message: e?.response?.data?.message ?? "Erro ao carregar." });
+      toast.push({ type: "danger", title: "Facturas", message: e?.response?.data?.message ?? "Error al cargar." });
     } finally {
       setLoading(false);
     }
@@ -94,11 +94,11 @@ export default function AdminInvoicesPage() {
     setMarkingPaid(invoice.id);
     try {
       await api.patch(`/admin-invoices/${invoice.id}/mark-paid`);
-      toast.push({ type: "success", title: "Baixa", message: "Fatura marcada como paga." });
+      toast.push({ type: "success", title: "Cobro", message: "Factura marcada como pagada." });
       void loadInvoices();
       setDetailInvoice(null);
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Baixa", message: e?.response?.data?.message ?? "Erro ao dar baixa." });
+      toast.push({ type: "danger", title: "Cobro", message: e?.response?.data?.message ?? "Error al realizar el cobro." });
     } finally {
       setMarkingPaid(null);
     }
@@ -113,11 +113,11 @@ export default function AdminInvoicesPage() {
 
   return (
     <PageContainer
-      title="Central de Faturas"
-      subtitle="Acompanhe e gerencie faturas de todas as empresas. SuperAdmin pode dar baixa manual."
+      title="Central de Facturas"
+      subtitle="Siga y gestione las facturas de todas las empresas. El SuperAdmin puede realizar cobros manuales."
       actions={
         <Button variant="outlined" startIcon={<RefreshOutlined />} onClick={() => void loadInvoices()} disabled={loading}>
-          Atualizar
+          Actualizar
         </Button>
       }
     >
@@ -130,8 +130,8 @@ export default function AdminInvoicesPage() {
             onChange={(e) => setFilterStatus(e.target.value)}
           >
             <MenuItem value="">Todos</MenuItem>
-            <MenuItem value="pending">Pendente</MenuItem>
-            <MenuItem value="paid">Pago</MenuItem>
+            <MenuItem value="pending">Pendiente</MenuItem>
+            <MenuItem value="paid">Pagado</MenuItem>
             <MenuItem value="overdue">Vencido</MenuItem>
           </Select>
         </FormControl>
@@ -155,14 +155,14 @@ export default function AdminInvoicesPage() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Fatura</TableCell>
+                <TableCell>Factura</TableCell>
                 <TableCell>Empresa</TableCell>
-                <TableCell>Plano</TableCell>
+                <TableCell>Plan</TableCell>
                 <TableCell>Valor</TableCell>
-                <TableCell>Vencimento</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Pago em</TableCell>
-                <TableCell align="center">Ações</TableCell>
+                <TableCell>Vencimiento</TableCell>
+                <TableCell>Estado</TableCell>
+                <TableCell>Pagado el</TableCell>
+                <TableCell align="center">Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -176,22 +176,22 @@ export default function AdminInvoicesPage() {
                     )}
                   </TableCell>
                   <TableCell>{inv.subscription?.plan?.name ?? "—"}</TableCell>
-                  <TableCell>R$ {inv.amount.toFixed(2)}</TableCell>
-                  <TableCell>{new Date(inv.dueDate).toLocaleDateString("pt-BR")}</TableCell>
+                  <TableCell>S/. {inv.amount.toFixed(2)}</TableCell>
+                  <TableCell>{new Date(inv.dueDate).toLocaleDateString("es-ES")}</TableCell>
                   <TableCell>
                     <Chip label={inv.status} size="small" color={statusColor[inv.status] ?? "default"} />
                   </TableCell>
                   <TableCell>
-                    {inv.paidAt ? new Date(inv.paidAt).toLocaleString("pt-BR") : "—"}
+                    {inv.paidAt ? new Date(inv.paidAt).toLocaleString("es-ES") : "—"}
                   </TableCell>
                   <TableCell align="center">
-                    <Tooltip title="Ver detalhes">
+                    <Tooltip title="Ver detalles">
                       <IconButton size="small" onClick={() => setDetailInvoice(inv)}>
                         <VisibilityOutlined fontSize="small" />
                       </IconButton>
                     </Tooltip>
                     {["pending", "overdue"].includes(inv.status) && (
-                      <Tooltip title="Dar baixa manual">
+                      <Tooltip title="Realizar cobro manual">
                         <IconButton
                           size="small"
                           color="success"
@@ -208,7 +208,7 @@ export default function AdminInvoicesPage() {
               {!invoices.length && !loading && (
                 <TableRow>
                   <TableCell colSpan={8} sx={{ py: 4, textAlign: "center", color: "text.secondary" }}>
-                    Nenhuma fatura encontrada.
+                    Ninguna factura encontrada.
                   </TableCell>
                 </TableRow>
               )}
@@ -218,7 +218,7 @@ export default function AdminInvoicesPage() {
       </Paper>
 
       <Dialog open={!!detailInvoice} onClose={() => setDetailInvoice(null)} maxWidth="sm" fullWidth>
-        <DialogTitle>Detalhes da fatura</DialogTitle>
+        <DialogTitle>Detalles de la factura</DialogTitle>
         <DialogContent>
           {detailInvoice && (
             <Box sx={{ "& > div": { mb: 1.5 } }}>
@@ -227,20 +227,20 @@ export default function AdminInvoicesPage() {
               {detailInvoice.company.email && (
                 <Typography variant="body2"><strong>E-mail empresa:</strong> {detailInvoice.company.email}</Typography>
               )}
-              <Typography variant="body2"><strong>Plano:</strong> {detailInvoice.subscription?.plan?.name ?? "—"}</Typography>
-              <Typography variant="body2"><strong>Valor:</strong> R$ {detailInvoice.amount.toFixed(2)}</Typography>
-              <Typography variant="body2"><strong>Status:</strong> <Chip label={detailInvoice.status} size="small" color={statusColor[detailInvoice.status] ?? "default"} /></Typography>
-              <Typography variant="body2"><strong>Vencimento:</strong> {new Date(detailInvoice.dueDate).toLocaleDateString("pt-BR")}</Typography>
+              <Typography variant="body2"><strong>Plan:</strong> {detailInvoice.subscription?.plan?.name ?? "—"}</Typography>
+              <Typography variant="body2"><strong>Valor:</strong> S/. {detailInvoice.amount.toFixed(2)}</Typography>
+              <Typography variant="body2"><strong>Estado:</strong> <Chip label={detailInvoice.status} size="small" color={statusColor[detailInvoice.status] ?? "default"} /></Typography>
+              <Typography variant="body2"><strong>Vencimiento:</strong> {new Date(detailInvoice.dueDate).toLocaleDateString("es-ES")}</Typography>
               {detailInvoice.paidAt && (
-                <Typography variant="body2"><strong>Pago em:</strong> {new Date(detailInvoice.paidAt).toLocaleString("pt-BR")}</Typography>
+                <Typography variant="body2"><strong>Pagado el:</strong> {new Date(detailInvoice.paidAt).toLocaleString("es-ES")}</Typography>
               )}
               {detailInvoice.mpPaymentId && (
-                <Typography variant="body2"><strong>ID pagamento:</strong> {detailInvoice.mpPaymentId}</Typography>
+                <Typography variant="body2"><strong>ID pago:</strong> {detailInvoice.mpPaymentId}</Typography>
               )}
               {detailInvoice.subscription && (
                 <>
-                  <Typography variant="body2"><strong>Período atual:</strong> {new Date(detailInvoice.subscription.currentPeriodStart).toLocaleDateString("pt-BR")} — {new Date(detailInvoice.subscription.currentPeriodEnd).toLocaleDateString("pt-BR")}</Typography>
-                  <Typography variant="body2"><strong>Criado em:</strong> {new Date(detailInvoice.createdAt).toLocaleString("pt-BR")}</Typography>
+                  <Typography variant="body2"><strong>Periodo actual:</strong> {new Date(detailInvoice.subscription.currentPeriodStart).toLocaleDateString("es-ES")} — {new Date(detailInvoice.subscription.currentPeriodEnd).toLocaleDateString("es-ES")}</Typography>
+                  <Typography variant="body2"><strong>Creado el:</strong> {new Date(detailInvoice.createdAt).toLocaleString("es-ES")}</Typography>
                 </>
               )}
             </Box>
@@ -255,10 +255,10 @@ export default function AdminInvoicesPage() {
               onClick={() => handleMarkPaid(detailInvoice)}
               disabled={!!markingPaid}
             >
-              Dar baixa manual
+              Realizar cobro manual
             </Button>
           )}
-          <Button onClick={() => setDetailInvoice(null)}>Fechar</Button>
+          <Button onClick={() => setDetailInvoice(null)}>Cerrar</Button>
         </DialogActions>
       </Dialog>
     </PageContainer>

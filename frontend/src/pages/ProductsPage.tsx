@@ -78,7 +78,7 @@ export default function ProductsPage() {
       const res = await api.get<Product[]>("/products");
       setProducts(res.data);
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Produtos", message: e?.response?.data?.message ?? "Erro ao carregar." });
+      toast.push({ type: "danger", title: "Productos", message: e?.response?.data?.message ?? "Error al cargar." });
     } finally {
       setLoading(false);
     }
@@ -122,7 +122,7 @@ export default function ProductsPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!form.title.trim() || !form.price.trim()) {
-      toast.push({ type: "warning", title: "Produtos", message: "Preencha título e preço." });
+      toast.push({ type: "warning", title: "Productos", message: "Complete título y precio." });
       return;
     }
     setLoading(true);
@@ -144,15 +144,15 @@ export default function ProductsPage() {
       if (editProduct) {
         const res = await api.put<Product>(`/products/${editProduct.id}`, fd);
         setProducts((prev) => prev.map((x) => (x.id === res.data.id ? res.data : x)));
-        toast.push({ type: "success", title: "Produtos", message: "Produto atualizado." });
+        toast.push({ type: "success", title: "Productos", message: "Producto actualizado." });
       } else {
         const res = await api.post<Product>("/products", fd);
         setProducts((prev) => [res.data, ...prev]);
-        toast.push({ type: "success", title: "Produtos", message: "Produto cadastrado." });
+        toast.push({ type: "success", title: "Productos", message: "Producto registrado." });
       }
       closeForm();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Produtos", message: e?.response?.data?.message ?? "Erro ao salvar." });
+      toast.push({ type: "danger", title: "Productos", message: e?.response?.data?.message ?? "Error al guardar." });
     } finally {
       setLoading(false);
     }
@@ -163,10 +163,10 @@ export default function ProductsPage() {
     try {
       await api.delete(`/products/${deleteConfirm.id}`);
       setProducts((prev) => prev.filter((x) => x.id !== deleteConfirm.id));
-      toast.push({ type: "success", title: "Produtos", message: "Produto removido." });
+      toast.push({ type: "success", title: "Productos", message: "Producto eliminado." });
       setDeleteConfirm(null);
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Produtos", message: e?.response?.data?.message ?? "Erro ao remover." });
+      toast.push({ type: "danger", title: "Productos", message: e?.response?.data?.message ?? "Error al eliminar." });
     }
   }
 
@@ -174,15 +174,15 @@ export default function ProductsPage() {
 
   return (
     <PageContainer
-      title="Produtos e Criativos"
-      subtitle="Cadastre produtos com ofertas para usar nas campanhas."
+      title="Productos y Creativos"
+      subtitle="Registre productos con ofertas para usar en las campañas."
       actions={
         <Box sx={{ display: "flex", gap: 1 }}>
           <Button variant="outlined" size="small" startIcon={<RefreshIcon />} onClick={load} disabled={loading}>
-            Atualizar
+            Actualizar
           </Button>
           <Button variant="contained" size="small" startIcon={<AddIcon />} onClick={openCreate}>
-            Novo produto
+            Nuevo producto
           </Button>
         </Box>
       }
@@ -199,13 +199,13 @@ export default function ProductsPage() {
         >
           <ImageIcon sx={{ fontSize: 48, color: "text.secondary", mb: 2 }} />
           <Typography variant="h6" color="text.secondary" gutterBottom>
-            Nenhum produto cadastrado
+            Ningún producto registrado
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Cadastre produtos com ofertas, imagens e links para usar nas suas campanhas.
+            Registre productos con ofertas, imágenes y enlaces para usar en sus campañas.
           </Typography>
           <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}>
-            Cadastrar primeiro produto
+            Registrar primer producto
           </Button>
         </Paper>
       ) : (
@@ -258,7 +258,7 @@ export default function ProductsPage() {
                     <Chip label={p.store} size="small" variant="outlined" sx={{ height: 22, fontSize: "0.75rem" }} />
                   )}
                   <Chip
-                    label={p.status === "active" ? "Ativo" : "Expirado"}
+                    label={p.status === "active" ? "Activo" : "Expirado"}
                     size="small"
                     color={p.status === "active" ? "success" : "default"}
                     variant="outlined"
@@ -270,7 +270,7 @@ export default function ProductsPage() {
                 <IconButton size="small" onClick={() => openEdit(p)} title="Editar">
                   <EditIcon fontSize="small" />
                 </IconButton>
-                <IconButton size="small" color="error" onClick={() => setDeleteConfirm(p)} title="Remover">
+                <IconButton size="small" color="error" onClick={() => setDeleteConfirm(p)} title="Eliminar">
                   <DeleteIcon fontSize="small" />
                 </IconButton>
               </CardActions>
@@ -281,7 +281,7 @@ export default function ProductsPage() {
 
       {/* Modal Novo/Editar */}
       <Dialog open={formOpen} onClose={closeForm} maxWidth="sm" fullWidth>
-        <DialogTitle>{editProduct ? "Editar produto" : "Novo produto"}</DialogTitle>
+        <DialogTitle>{editProduct ? "Editar producto" : "Nuevo producto"}</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent dividers>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -294,14 +294,14 @@ export default function ProductsPage() {
               />
               <Box sx={{ display: "flex", gap: 2 }}>
                 <TextField
-                  label="Preço"
+                  label="Precio"
                   value={form.price}
                   onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
                   required
                   sx={{ flex: 1 }}
                 />
                 <TextField
-                  label="Preço antigo"
+                  label="Precio antiguo"
                   value={form.oldPrice}
                   onChange={(e) => setForm((f) => ({ ...f, oldPrice: e.target.value }))}
                   sx={{ flex: 1 }}
@@ -316,13 +316,13 @@ export default function ProductsPage() {
               </Box>
               <Box sx={{ display: "flex", gap: 2 }}>
                 <TextField
-                  label="Cupom"
+                  label="Cupón"
                   value={form.coupon}
                   onChange={(e) => setForm((f) => ({ ...f, coupon: e.target.value }))}
                   sx={{ flex: 1 }}
                 />
                 <TextField
-                  label="Link"
+                  label="Enlace"
                   value={form.link}
                   onChange={(e) => setForm((f) => ({ ...f, link: e.target.value }))}
                   placeholder="https://..."
@@ -331,14 +331,14 @@ export default function ProductsPage() {
               </Box>
               <Box sx={{ display: "flex", gap: 2 }}>
                 <TextField
-                  label="Loja"
+                  label="Tienda"
                   value={form.store}
                   onChange={(e) => setForm((f) => ({ ...f, store: e.target.value }))}
                   placeholder="Shopee, Amazon..."
                   sx={{ flex: 1 }}
                 />
                 <TextField
-                  label="Categoria"
+                  label="Categoría"
                   value={form.category}
                   onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
                   sx={{ flex: 1 }}
@@ -353,7 +353,7 @@ export default function ProductsPage() {
               />
               <Box sx={{ display: "flex", gap: 2 }}>
                 <TextField
-                  label="Validade"
+                  label="Validez"
                   type="datetime-local"
                   value={form.validUntil}
                   onChange={(e) => setForm((f) => ({ ...f, validUntil: e.target.value }))}
@@ -367,14 +367,14 @@ export default function ProductsPage() {
                     label="Status"
                     onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as "active" | "expired" }))}
                   >
-                    <MenuItem value="active">Ativo</MenuItem>
+                    <MenuItem value="active">Activo</MenuItem>
                     <MenuItem value="expired">Expirado</MenuItem>
                   </Select>
                 </FormControl>
               </Box>
               <Box>
                 <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 0.5 }}>
-                  Imagens ou vídeo {editProduct ? "(novas serão adicionadas)" : ""}
+                  Imágenes o video {editProduct ? "(se añadirán las nuevas)" : ""}
                 </Typography>
                 <input
                   type="file"
@@ -385,7 +385,7 @@ export default function ProductsPage() {
                 />
                 {form.imageFiles.length > 0 && (
                   <Typography variant="caption" sx={{ display: "block", mt: 0.5 }}>
-                    {form.imageFiles.length} arquivo(s) selecionado(s)
+                    {form.imageFiles.length} archivo(s) seleccionado(s)
                   </Typography>
                 )}
               </Box>
@@ -394,24 +394,24 @@ export default function ProductsPage() {
           <DialogActions sx={{ px: 3, py: 2 }}>
             <Button onClick={closeForm}>Cancelar</Button>
             <Button type="submit" variant="contained" disabled={loading}>
-              {loading ? "Salvando..." : editProduct ? "Salvar" : "Cadastrar"}
+              {loading ? "Guardando..." : editProduct ? "Guardar" : "Registrar"}
             </Button>
           </DialogActions>
         </form>
       </Dialog>
 
-      {/* Confirmação de exclusão */}
+      {/* Confirmación de eliminación */}
       <Dialog open={!!deleteConfirm} onClose={() => setDeleteConfirm(null)}>
-        <DialogTitle>Remover produto</DialogTitle>
+        <DialogTitle>Eliminar producto</DialogTitle>
         <DialogContent>
           <Typography>
-            Deseja remover &quot;{deleteConfirm?.title}&quot;? Esta ação não pode ser desfeita.
+            ¿Desea eliminar &quot;{deleteConfirm?.title}&quot;? Esta acción no se puede deshacer.
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteConfirm(null)}>Cancelar</Button>
           <Button color="error" variant="contained" onClick={handleDelete}>
-            Remover
+            Eliminar
           </Button>
         </DialogActions>
       </Dialog>

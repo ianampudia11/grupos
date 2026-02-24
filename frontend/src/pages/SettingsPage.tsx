@@ -71,9 +71,9 @@ export default function SettingsPage() {
       if (mpToken && mpToken !== "••••••••" && mpToken.length > 10) payload.mercadopago_access_token = mpToken;
       if (pixExpiration !== undefined) payload.pix_expiration_minutes = pixExpiration;
       await api.put("/settings/system", payload);
-      toast.push({ type: "success", title: "Mercado Pago", message: "Configurações salvas." });
+      toast.push({ type: "success", title: "Mercado Pago", message: "Configuraciones guardadas." });
     } catch (err: any) {
-      toast.push({ type: "danger", title: "Mercado Pago", message: err?.response?.data?.message ?? "Erro ao salvar." });
+      toast.push({ type: "danger", title: "Mercado Pago", message: err?.response?.data?.message ?? "Error al guardar." });
     }
   }
 
@@ -84,8 +84,8 @@ export default function SettingsPage() {
   if (hasCompany && !isSuperAdmin) {
     return (
       <PageContainer
-        title="Configurações"
-        subtitle="Configure o delay dos disparos da sua empresa. Cada empresa tem suas próprias configurações."
+        title="Configuraciones"
+        subtitle="Configure el retraso de los envíos de su empresa. Cada empresa tiene sus propias configuraciones."
       >
         <Box sx={{ mt: 2, maxWidth: 640 }}>
           <DisparosSection />
@@ -96,10 +96,10 @@ export default function SettingsPage() {
 
   if (!isSuperAdmin) {
     return (
-      <PageContainer title="Configurações" subtitle="Configurações da sua empresa.">
+      <PageContainer title="Configuraciones" subtitle="Configuraciones de su empresa.">
         <Paper sx={{ p: 3, textAlign: "center", maxWidth: 400, mx: "auto" }}>
           <Typography color="text.secondary">
-            Você precisa estar vinculado a uma empresa para acessar as configurações.
+            Necesita estar vinculado a una empresa para acceder a las configuraciones.
           </Typography>
         </Paper>
       </PageContainer>
@@ -108,158 +108,158 @@ export default function SettingsPage() {
 
   // SuperAdmin: acesso total (aparência, sistema, reCAPTCHA, Mercado Pago, disparos)
   return (
-    <PageContainer title="Configurações" subtitle="Personalize dados globais da interface (SuperAdmin).">
+    <PageContainer title="Configuraciones" subtitle="Personalice datos globales de la interfaz (SuperAdmin).">
       <Box sx={{ mt: 2 }}>
         <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3, borderBottom: 1, borderColor: "divider" }}>
-          <Tab icon={<PaletteOutlined />} iconPosition="start" label="Aparência" />
+          <Tab icon={<PaletteOutlined />} iconPosition="start" label="Apariencia" />
           <Tab icon={<SmartToyOutlined />} iconPosition="start" label="Sistema" />
           <Tab icon={<SecurityOutlined />} iconPosition="start" label="reCAPTCHA" />
           <Tab icon={<ReceiptOutlined />} iconPosition="start" label="Mercado Pago" />
-          <Tab icon={<ScheduleSendOutlined />} iconPosition="start" label="Disparos" />
+          <Tab icon={<ScheduleSendOutlined />} iconPosition="start" label="Envíos" />
         </Tabs>
 
         {tab === 0 && <LogotiposSection />}
 
-          {tab === 2 && (
-            <Card variant="outlined" sx={{ maxWidth: 520 }}>
-              <CardContent sx={{ "&:last-child": { pb: 3 } }}>
-                <Typography variant="h6" sx={{ mb: 1 }}>
-                  Google reCAPTCHA
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  Proteção em formulários de login e registro. Use v2 (checkbox) ou v3 (invisível). Configure no Google reCAPTCHA Admin.
-                </Typography>
-                <Box
-                  component="form"
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    try {
-                      const payload: Record<string, string> = {
-                        recaptcha_version: recaptchaVersion,
-                        recaptcha_v2_site_key: recaptchaV2Site,
-                        recaptcha_v3_site_key: recaptchaV3Site,
-                      };
-                      if (recaptchaV2Secret) payload.recaptcha_v2_secret_key = recaptchaV2Secret;
-                      if (recaptchaV3Secret) payload.recaptcha_v3_secret_key = recaptchaV3Secret;
-                      await api.put("/settings/system", payload);
-                      toast.push({ type: "success", title: "reCAPTCHA", message: "Configurações salvas." });
-                    } catch (err: any) {
-                      toast.push({ type: "danger", title: "reCAPTCHA", message: err?.response?.data?.message ?? "Erro ao salvar." });
-                    }
-                  }}
-                  sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+        {tab === 2 && (
+          <Card variant="outlined" sx={{ maxWidth: 520 }}>
+            <CardContent sx={{ "&:last-child": { pb: 3 } }}>
+              <Typography variant="h6" sx={{ mb: 1 }}>
+                Google reCAPTCHA
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Protección en formularios de login y registro. Use v2 (checkbox) o v3 (invisible). Configure en Google reCAPTCHA Admin.
+              </Typography>
+              <Box
+                component="form"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  try {
+                    const payload: Record<string, string> = {
+                      recaptcha_version: recaptchaVersion,
+                      recaptcha_v2_site_key: recaptchaV2Site,
+                      recaptcha_v3_site_key: recaptchaV3Site,
+                    };
+                    if (recaptchaV2Secret) payload.recaptcha_v2_secret_key = recaptchaV2Secret;
+                    if (recaptchaV3Secret) payload.recaptcha_v3_secret_key = recaptchaV3Secret;
+                    await api.put("/settings/system", payload);
+                    toast.push({ type: "success", title: "reCAPTCHA", message: "Configuraciones guardadas." });
+                  } catch (err: any) {
+                    toast.push({ type: "danger", title: "reCAPTCHA", message: err?.response?.data?.message ?? "Error al guardar." });
+                  }
+                }}
+                sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+              >
+                <TextField
+                  select
+                  fullWidth
+                  label="Usar reCAPTCHA en login/registro"
+                  value={recaptchaVersion}
+                  onChange={(e) => setRecaptchaVersion(e.target.value)}
+                  SelectProps={{ native: true }}
+                  size="small"
                 >
-                  <TextField
-                    select
-                    fullWidth
-                    label="Usar reCAPTCHA em login/registro"
-                    value={recaptchaVersion}
-                    onChange={(e) => setRecaptchaVersion(e.target.value)}
-                    SelectProps={{ native: true }}
-                    size="small"
-                  >
-                    <option value="off">Desativado</option>
-                    <option value="v2">reCAPTCHA v2 (checkbox)</option>
-                    <option value="v3">reCAPTCHA v3 (invisível)</option>
-                  </TextField>
-                  <Typography variant="subtitle2" color="text.secondary">reCAPTCHA v2</Typography>
-                  <TextField fullWidth size="small" label="Site Key (v2)" value={recaptchaV2Site} onChange={(e) => setRecaptchaV2Site(e.target.value)} placeholder="6Lc..." />
-                  <TextField fullWidth size="small" label="Secret Key (v2)" type="password" value={recaptchaV2Secret} onChange={(e) => setRecaptchaV2Secret(e.target.value)} placeholder="Deixe em branco para não alterar" />
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 1 }}>reCAPTCHA v3</Typography>
-                  <TextField fullWidth size="small" label="Site Key (v3)" value={recaptchaV3Site} onChange={(e) => setRecaptchaV3Site(e.target.value)} placeholder="6Lc..." />
-                  <TextField fullWidth size="small" label="Secret Key (v3)" type="password" value={recaptchaV3Secret} onChange={(e) => setRecaptchaV3Secret(e.target.value)} placeholder="Deixe em branco para não alterar" />
-                  <Button type="submit" variant="contained" color="primary">Salvar reCAPTCHA</Button>
-                </Box>
-              </CardContent>
-            </Card>
-          )}
+                  <option value="off">Desactivado</option>
+                  <option value="v2">reCAPTCHA v2 (checkbox)</option>
+                  <option value="v3">reCAPTCHA v3 (invisible)</option>
+                </TextField>
+                <Typography variant="subtitle2" color="text.secondary">reCAPTCHA v2</Typography>
+                <TextField fullWidth size="small" label="Site Key (v2)" value={recaptchaV2Site} onChange={(e) => setRecaptchaV2Site(e.target.value)} placeholder="6Lc..." />
+                <TextField fullWidth size="small" label="Secret Key (v2)" type="password" value={recaptchaV2Secret} onChange={(e) => setRecaptchaV2Secret(e.target.value)} placeholder="Dejar en blanco para no alterar" />
+                <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 1 }}>reCAPTCHA v3</Typography>
+                <TextField fullWidth size="small" label="Site Key (v3)" value={recaptchaV3Site} onChange={(e) => setRecaptchaV3Site(e.target.value)} placeholder="6Lc..." />
+                <TextField fullWidth size="small" label="Secret Key (v3)" type="password" value={recaptchaV3Secret} onChange={(e) => setRecaptchaV3Secret(e.target.value)} placeholder="Dejar en blanco para no alterar" />
+                <Button type="submit" variant="contained" color="primary">Guardar reCAPTCHA</Button>
+              </Box>
+            </CardContent>
+          </Card>
+        )}
 
-          {tab === 1 && (
-            <Card variant="outlined" sx={{ maxWidth: 520 }}>
-              <CardContent sx={{ "&:last-child": { pb: 3 } }}>
-                <Typography variant="h6" sx={{ mb: 1 }}>
-                  Período de teste
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  Dias de teste concedidos ao criar conta. Use 0 para desativar.
-                </Typography>
-                <Box
-                  component="form"
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    try {
-                      await api.put("/settings/system", { trial_days: trialDays });
-                      toast.push({ type: "success", title: "Período de teste", message: "Salvo." });
-                    } catch (err: any) {
-                      toast.push({ type: "danger", title: "Período de teste", message: err?.response?.data?.message ?? "Erro." });
-                    }
-                  }}
-                  sx={{ display: "flex", gap: 2, alignItems: "center" }}
-                >
-                  <TextField
-                    type="number"
-                    label="Dias"
-                    value={trialDays}
-                    onChange={(e) => setTrialDays(e.target.value)}
-                    inputProps={{ min: 0, max: 365 }}
-                    size="small"
-                    sx={{ width: 100 }}
-                  />
-                  <Button type="submit" variant="contained" color="primary">
-                    Salvar
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          )}
+        {tab === 1 && (
+          <Card variant="outlined" sx={{ maxWidth: 520 }}>
+            <CardContent sx={{ "&:last-child": { pb: 3 } }}>
+              <Typography variant="h6" sx={{ mb: 1 }}>
+                Período de prueba
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Días de prueba concedidos al crear cuenta. Use 0 para desactivar.
+              </Typography>
+              <Box
+                component="form"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  try {
+                    await api.put("/settings/system", { trial_days: trialDays });
+                    toast.push({ type: "success", title: "Período de prueba", message: "Guardado." });
+                  } catch (err: any) {
+                    toast.push({ type: "danger", title: "Período de prueba", message: err?.response?.data?.message ?? "Error." });
+                  }
+                }}
+                sx={{ display: "flex", gap: 2, alignItems: "center" }}
+              >
+                <TextField
+                  type="number"
+                  label="Dias"
+                  value={trialDays}
+                  onChange={(e) => setTrialDays(e.target.value)}
+                  inputProps={{ min: 0, max: 365 }}
+                  size="small"
+                  sx={{ width: 100 }}
+                />
+                <Button type="submit" variant="contained" color="primary">
+                  Guardar
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        )}
 
-          {tab === 3 && (
-            <Card variant="outlined" sx={{ maxWidth: 520 }}>
-              <CardContent sx={{ "&:last-child": { pb: 3 } }}>
-                <Typography variant="h6" sx={{ mb: 1 }}>
-                  Mercado Pago (SaaS)
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  Token, chave pública e expiração PIX. Webhook: POST /api/webhooks/mercadopago
-                </Typography>
-                <Box component="form" onSubmit={handleSaveMp}>
-                  <TextField
-                    fullWidth
-                    label="Access Token (privado)"
-                    type="password"
-                    value={mpToken}
-                    onChange={(e) => setMpToken(e.target.value)}
-                    placeholder="APP_USR-..."
-                    sx={{ mb: 2 }}
-                  />
-                  <TextField
-                    fullWidth
-                    label="Public Key"
-                    value={mpPublicKey}
-                    onChange={(e) => setMpPublicKey(e.target.value)}
-                    placeholder="APP_USR-..."
-                    sx={{ mb: 2 }}
-                  />
-                  <TextField
-                    fullWidth
-                    type="number"
-                    label="Expiração PIX (minutos)"
-                    value={pixExpiration}
-                    onChange={(e) => setPixExpiration(e.target.value)}
-                    helperText="30 a 43200 (30 min a 30 dias). Padrão: 30"
-                    inputProps={{ min: 30, max: 43200 }}
-                    sx={{ mb: 2 }}
-                  />
-                  <Button type="submit" variant="contained" color="primary">
-                    Salvar
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          )}
+        {tab === 3 && (
+          <Card variant="outlined" sx={{ maxWidth: 520 }}>
+            <CardContent sx={{ "&:last-child": { pb: 3 } }}>
+              <Typography variant="h6" sx={{ mb: 1 }}>
+                Mercado Pago (SaaS)
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Token, clave pública y expiración PIX. Webhook: POST /api/webhooks/mercadopago
+              </Typography>
+              <Box component="form" onSubmit={handleSaveMp}>
+                <TextField
+                  fullWidth
+                  label="Access Token (privado)"
+                  type="password"
+                  value={mpToken}
+                  onChange={(e) => setMpToken(e.target.value)}
+                  placeholder="APP_USR-..."
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  fullWidth
+                  label="Public Key"
+                  value={mpPublicKey}
+                  onChange={(e) => setMpPublicKey(e.target.value)}
+                  placeholder="APP_USR-..."
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  fullWidth
+                  type="number"
+                  label="Expiración PIX (minutos)"
+                  value={pixExpiration}
+                  onChange={(e) => setPixExpiration(e.target.value)}
+                  helperText="30 a 43200 (30 min a 30 días). Predeterminado: 30"
+                  inputProps={{ min: 30, max: 43200 }}
+                  sx={{ mb: 2 }}
+                />
+                <Button type="submit" variant="contained" color="primary">
+                  Guardar
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        )}
 
-          {tab === 4 && <DisparosSection />}
-        </Box>
+        {tab === 4 && <DisparosSection />}
+      </Box>
     </PageContainer>
   );
 }
@@ -284,10 +284,10 @@ const DISPAROS_PRESETS: Array<{
   recommended?: boolean;
   warning?: string;
 }> = [
-  { id: "seguro", title: "Seguro", subtitle: "Recomendado", delay: "12–25 s", lote: "15 / pausa 120 s", perHour: "~120/h", recommended: true },
-  { id: "equilibrado", title: "Equilibrado", subtitle: "", delay: "8–15 s", lote: "20 / pausa 90 s", perHour: "~180/h" },
-  { id: "rapido", title: "Rápido", subtitle: "Com aviso", delay: "5–10 s", lote: "25 / pausa 60 s", perHour: "~240/h", warning: "Maior risco de restrição pelo WhatsApp." },
-];
+    { id: "seguro", title: "Seguro", subtitle: "Recomendado", delay: "12–25 s", lote: "15 / pausa 120 s", perHour: "~120/h", recommended: true },
+    { id: "equilibrado", title: "Equilibrado", subtitle: "", delay: "8–15 s", lote: "20 / pausa 90 s", perHour: "~180/h" },
+    { id: "rapido", title: "Rápido", subtitle: "Con aviso", delay: "5–10 s", lote: "25 / pausa 60 s", perHour: "~240/h", warning: "Mayor riesgo de restricción por WhatsApp." },
+  ];
 
 function DisparosSection() {
   const toast = useToast();
@@ -299,7 +299,7 @@ function DisparosSection() {
     api
       .get<DispatchSettings>("/settings/dispatch")
       .then((r) => setSettings(r.data))
-      .catch(() => toast.push({ type: "danger", title: "Disparos", message: "Erro ao carregar configuração." }))
+      .catch(() => toast.push({ type: "danger", title: "Envíos", message: "Error al cargar configuración." }))
       .finally(() => setLoading(false));
   }, [toast]);
 
@@ -308,9 +308,9 @@ function DisparosSection() {
     try {
       const r = await api.put<DispatchSettings>("/settings/dispatch", { preset: presetId });
       setSettings(r.data);
-      toast.push({ type: "success", title: "Disparos", message: "Preset aplicado. Os próximos envios usarão essa configuração." });
+      toast.push({ type: "success", title: "Envíos", message: "Preset aplicado. Los próximos envíos usarán esta configuración." });
     } catch (err: any) {
-      toast.push({ type: "danger", title: "Disparos", message: err?.response?.data?.message ?? "Erro ao salvar." });
+      toast.push({ type: "danger", title: "Envíos", message: err?.response?.data?.message ?? "Error al guardar." });
     } finally {
       setSaving(null);
     }
@@ -319,7 +319,7 @@ function DisparosSection() {
   if (loading) {
     return (
       <Card variant="outlined" sx={{ maxWidth: 640 }}>
-        <CardContent><Typography color="text.secondary">Carregando...</Typography></CardContent>
+        <CardContent><Typography color="text.secondary">Cargando...</Typography></CardContent>
       </Card>
     );
   }
@@ -328,10 +328,10 @@ function DisparosSection() {
     <Card variant="outlined" sx={{ maxWidth: 640 }}>
       <CardContent sx={{ "&:last-child": { pb: 3 } }}>
         <Typography variant="h6" sx={{ mb: 0.5 }}>
-          Delay dos disparos
+          Retraso de los envíos
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Define o intervalo entre mensagens e pausas entre lotes em campanhas e agendamentos. Escolha um preset:
+          Define el intervalo entre mensajes y pausas entre lotes en campañas y programaciones. Elija un preset:
         </Typography>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {DISPAROS_PRESETS.map((p) => (
@@ -359,7 +359,7 @@ function DisparosSection() {
                   )}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Delay {p.delay} · Lote {p.lote} · {p.perHour}
+                  Retraso {p.delay} · Lote {p.lote} · {p.perHour}
                 </Typography>
                 {p.warning && (
                   <Typography variant="caption" color="warning.main" display="block" sx={{ mt: 0.5 }}>
@@ -373,7 +373,7 @@ function DisparosSection() {
                 onClick={() => applyPreset(p.id)}
                 disabled={saving !== null}
               >
-                {saving === p.id ? "Salvando..." : settings?.preset === p.id ? "Ativo" : "Usar este"}
+                {saving === p.id ? "Guardando..." : settings?.preset === p.id ? "Activo" : "Usar este"}
               </Button>
             </Paper>
           ))}
@@ -381,12 +381,12 @@ function DisparosSection() {
         {settings && (
           <>
             <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: "block" }}>
-              Configuração atual: delay {settings.delayMinSec}–{settings.delayMaxSec} s, lote {settings.batchSize}, pausa {settings.pauseBetweenBatchesSec} s.
+              Configuración actual: retraso {settings.delayMinSec}–{settings.delayMaxSec} s, lote {settings.batchSize}, pausa {settings.pauseBetweenBatchesSec} s.
             </Typography>
             {settings.apiTermsAcceptedAt && (
               <Typography variant="caption" color="primary" sx={{ mt: 1, display: "block" }}>
-                Termo de uso de API terceira: você concordou em{" "}
-                {new Date(settings.apiTermsAcceptedAt).toLocaleDateString("pt-BR", {
+                Términos de uso de API de terceros: usted aceptó el{" "}
+                {new Date(settings.apiTermsAcceptedAt).toLocaleDateString("es-ES", {
                   day: "2-digit",
                   month: "2-digit",
                   year: "numeric",
@@ -466,11 +466,11 @@ function LogotiposSection() {
       const fd = new FormData();
       fd.append("file", logoFile);
       await api.post("/settings/branding/logo", fd, { headers: { "Content-Type": "multipart/form-data" } });
-      toast.push({ type: "success", title: "Logo", message: "Atualizado." });
+      toast.push({ type: "success", title: "Logo", message: "Actualizado." });
       setLogoFile(null);
       branding.refresh();
     } catch (err: any) {
-      toast.push({ type: "danger", title: "Logo", message: err?.response?.data?.message ?? "Erro." });
+      toast.push({ type: "danger", title: "Logo", message: err?.response?.data?.message ?? "Error." });
     } finally {
       setSaving(false);
     }
@@ -484,11 +484,11 @@ function LogotiposSection() {
       const fd = new FormData();
       fd.append("file", logoDarkFile);
       await api.post("/settings/branding/logo-dark", fd, { headers: { "Content-Type": "multipart/form-data" } });
-      toast.push({ type: "success", title: "Logo dark", message: "Atualizado." });
+      toast.push({ type: "success", title: "Logo oscuro", message: "Actualizado." });
       setLogoDarkFile(null);
       branding.refresh();
     } catch (err: any) {
-      toast.push({ type: "danger", title: "Logo dark", message: err?.response?.data?.message ?? "Erro." });
+      toast.push({ type: "danger", title: "Logo oscuro", message: err?.response?.data?.message ?? "Error." });
     } finally {
       setSaving(false);
     }
@@ -502,11 +502,11 @@ function LogotiposSection() {
       const fd = new FormData();
       fd.append("file", iconFile);
       await api.post("/settings/branding/icon", fd, { headers: { "Content-Type": "multipart/form-data" } });
-      toast.push({ type: "success", title: "Ícone sidebar", message: "Atualizado." });
+      toast.push({ type: "success", title: "Ícono sidebar", message: "Actualizado." });
       setIconFile(null);
       branding.refresh();
     } catch (err: any) {
-      toast.push({ type: "danger", title: "Ícone", message: err?.response?.data?.message ?? "Erro." });
+      toast.push({ type: "danger", title: "Ícono", message: err?.response?.data?.message ?? "Error." });
     } finally {
       setSaving(false);
     }
@@ -520,11 +520,11 @@ function LogotiposSection() {
       const fd = new FormData();
       fd.append("file", faviconFile);
       await api.post("/settings/branding/favicon", fd, { headers: { "Content-Type": "multipart/form-data" } });
-      toast.push({ type: "success", title: "Favicon", message: "Atualizado." });
+      toast.push({ type: "success", title: "Favicon", message: "Actualizado." });
       setFaviconFile(null);
       branding.refresh();
     } catch (err: any) {
-      toast.push({ type: "danger", title: "Favicon", message: err?.response?.data?.message ?? "Erro." });
+      toast.push({ type: "danger", title: "Favicon", message: err?.response?.data?.message ?? "Error." });
     } finally {
       setSaving(false);
     }
@@ -536,9 +536,9 @@ function LogotiposSection() {
     try {
       await api.put("/settings/branding/title", { system_title: title });
       branding.refresh();
-      toast.push({ type: "success", title: "Título", message: "Salvo." });
+      toast.push({ type: "success", title: "Título", message: "Guardado." });
     } catch (err: any) {
-      toast.push({ type: "danger", title: "Título", message: err?.response?.data?.message ?? "Erro." });
+      toast.push({ type: "danger", title: "Título", message: err?.response?.data?.message ?? "Error." });
     } finally {
       setSaving(false);
     }
@@ -554,6 +554,7 @@ function LogotiposSection() {
     onSubmit,
     accept,
     previewSize = { maxHeight: 80, maxWidth: 200 },
+    btnLabel = "Elegir archivo",
   }: {
     title: string;
     desc: string;
@@ -564,6 +565,7 @@ function LogotiposSection() {
     onSubmit: (e: FormEvent) => void;
     accept: string;
     previewSize?: { maxHeight?: number; maxWidth?: number };
+    btnLabel?: string;
   }) {
     const displayUrl = previewUrl || currentUrl;
     return (
@@ -597,14 +599,14 @@ function LogotiposSection() {
               />
             ) : (
               <Typography variant="caption" color="text.secondary">
-                Sem imagem
+                Sin imagen
               </Typography>
             )}
           </Box>
           <Box sx={{ flex: 1, minWidth: 200 }}>
             <Box component="form" onSubmit={onSubmit} sx={{ display: "flex", gap: 1, alignItems: "center", flexWrap: "wrap" }}>
               <Button variant="outlined" component="label" size="small">
-                Escolher arquivo
+                Elegir archivo
                 <input
                   type="file"
                   accept={accept}
@@ -627,25 +629,25 @@ function LogotiposSection() {
     <Box>
       <Card variant="outlined" sx={{ p: 2, mb: 3 }}>
         <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
-          Título da aba
+          Título de la pestaña
         </Typography>
         <Box component="form" onSubmit={handleTitleSave} sx={{ display: "flex", gap: 2, alignItems: "center", flexWrap: "wrap" }}>
           <TextField
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Ex: Meu Painel"
+            placeholder="Ej: Mi Panel"
             size="small"
             sx={{ minWidth: 200, flex: 1 }}
           />
           <Button type="submit" variant="contained" color="primary" disabled={saving}>
-            Salvar
+            Guardar
           </Button>
         </Box>
       </Card>
 
       <UploadCard
         title="Logo (modo claro)"
-        desc="Exibido no login, registro e sidebar."
+        desc="Se muestra en login, registro y sidebar."
         currentUrl={branding.logoUrl}
         previewUrl={logoPreview}
         file={logoFile}
@@ -656,8 +658,8 @@ function LogotiposSection() {
       />
 
       <UploadCard
-        title="Logo (modo escuro)"
-        desc="Versão clara para fundos escuros. Usado quando o tema está em dark mode."
+        title="Logo (modo oscuro)"
+        desc="Versión clara para fondos oscuros. Usado cuando el tema está en modo oscuro."
         currentUrl={branding.logoDarkUrl}
         previewUrl={logoDarkPreview}
         file={logoDarkFile}
@@ -668,8 +670,8 @@ function LogotiposSection() {
       />
 
       <UploadCard
-        title="Ícone da sidebar (fechada)"
-        desc="Ícone quadrado exibido quando o menu lateral está recolhido. Recomendado: 40x40 ou 48x48 px."
+        title="Ícono de la sidebar (cerrada)"
+        desc="Ícono cuadrado mostrado cuando el menú lateral está contraído. Recomendado: 40x40 o 48x48 px."
         currentUrl={branding.iconUrl}
         previewUrl={iconPreview}
         file={iconFile}
@@ -681,7 +683,7 @@ function LogotiposSection() {
 
       <UploadCard
         title="Favicon"
-        desc="Ícone exibido na aba do navegador."
+        desc="Ícono mostrado en la pestaña del navegador."
         currentUrl={branding.faviconUrl}
         previewUrl={faviconPreview}
         file={faviconFile}
@@ -693,11 +695,11 @@ function LogotiposSection() {
 
       <Paper variant="outlined" sx={{ p: 2, mt: 3, bgcolor: "action.hover" }}>
         <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-          Prévia rápida
+          Vista previa rápida
         </Typography>
         <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap", alignItems: "flex-end" }}>
           <Box>
-            <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: "block" }}>Sidebar aberta</Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: "block" }}>Sidebar abierta</Typography>
             <Box sx={{ p: 1.5, bgcolor: "background.paper", borderRadius: 1, border: "1px solid", borderColor: "divider", width: 180 }}>
               {branding.logoUrl ? (
                 <img src={branding.logoUrl} alt="" style={{ maxHeight: 40, maxWidth: 160, objectFit: "contain" }} />
@@ -707,7 +709,7 @@ function LogotiposSection() {
             </Box>
           </Box>
           <Box>
-            <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: "block" }}>Sidebar fechada</Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: "block" }}>Sidebar cerrada</Typography>
             <Box sx={{ p: 1, bgcolor: "background.paper", borderRadius: 1, border: "1px solid", borderColor: "divider", width: 52, height: 52, display: "flex", alignItems: "center", justifyContent: "center" }}>
               {branding.iconUrl || branding.faviconUrl ? (
                 <img

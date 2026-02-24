@@ -103,7 +103,7 @@ export default function CampaignsPage() {
   const campaignsToday = limits?.campaignsPerDay ?? { usedToday: 0, limit: 50 };
   const atDailyLimit = campaignsToday.usedToday >= campaignsToday.limit;
   const previewGroup = selectedGroups[0];
-  const previewGroupName = previewGroup?.name ?? "Grupo do WhatsApp";
+  const previewGroupName = previewGroup?.name ?? "Grupo de WhatsApp";
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -157,8 +157,8 @@ export default function CampaignsPage() {
     } catch (e: any) {
       toast.push({
         type: "danger",
-        title: "Campanhas",
-        message: e?.response?.data?.message ?? "Erro ao carregar dados.",
+        title: "Campañas",
+        message: e?.response?.data?.message ?? "Error al cargar los datos.",
       });
     } finally {
       setLoading(false);
@@ -213,8 +213,8 @@ export default function CampaignsPage() {
 
     toast.push({
       type: "success",
-      title: "Campanhas",
-      message: scheduleEnabled ? "Campanha agendada." : "Campanha criada.",
+      title: "Campañas",
+      message: scheduleEnabled ? "Campaña programada." : "Campaña creada.",
     });
     if (sendNow) await loadLimits();
   }
@@ -222,22 +222,22 @@ export default function CampaignsPage() {
   async function handleCreate(e: FormEvent) {
     e.preventDefault();
     if (!selectedGroupIds.length) {
-      toast.push({ type: "warning", title: "Campanhas", message: "Selecione ao menos 1 grupo." });
+      toast.push({ type: "warning", title: "Campañas", message: "Seleccione al menos 1 grupo." });
       return;
     }
     if (!messageText.trim()) {
-      toast.push({ type: "warning", title: "Campanhas", message: "Informe o texto da campanha." });
+      toast.push({ type: "warning", title: "Campañas", message: "Ingrese el texto de la campaña." });
       return;
     }
     if (scheduleEnabled && (!scheduleDate || !scheduleTime)) {
-      toast.push({ type: "warning", title: "Campanhas", message: "Informe data e horário para agendar." });
+      toast.push({ type: "warning", title: "Campañas", message: "Ingrese fecha y hora para programar." });
       return;
     }
     if (atDailyLimit && (sendNow || scheduleEnabled)) {
       toast.push({
         type: "warning",
-        title: "Limite diário",
-        message: `Limite diário de envios para grupos atingido (${campaignsToday.usedToday}/${campaignsToday.limit}). Não é possível enviar nem agendar. Tente novamente amanhã.`,
+        title: "Límite diario",
+        message: `Límite diario de envíos a grupos alcanzado (${campaignsToday.usedToday}/${campaignsToday.limit}). No es posible enviar ni programar. Intente nuevamente mañana.`,
       });
       return;
     }
@@ -248,7 +248,7 @@ export default function CampaignsPage() {
         try {
           await doCreateCampaign();
         } catch (e: any) {
-          toast.push({ type: "danger", title: "Campanhas", message: e?.response?.data?.message ?? "Erro ao criar campanha." });
+          toast.push({ type: "danger", title: "Campañas", message: e?.response?.data?.message ?? "Error al crear la campaña." });
         } finally {
           setLoading(false);
         }
@@ -261,7 +261,7 @@ export default function CampaignsPage() {
     try {
       await doCreateCampaign();
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Campanhas", message: e?.response?.data?.message ?? "Erro ao criar campanha." });
+      toast.push({ type: "danger", title: "Campañas", message: e?.response?.data?.message ?? "Error al crear la campaña." });
     } finally {
       setLoading(false);
     }
@@ -269,7 +269,7 @@ export default function CampaignsPage() {
 
   async function doSendCampaign(c: Campaign) {
     await api.post(`/campaigns/${c.id}/send`);
-    toast.push({ type: "success", title: "Campanhas", message: "Campanha enviada." });
+    toast.push({ type: "success", title: "Campañas", message: "Campaña enviada." });
     await Promise.all([loadCampaigns(), loadLimits()]);
   }
 
@@ -277,8 +277,8 @@ export default function CampaignsPage() {
     if (campaignsToday.usedToday >= campaignsToday.limit) {
       toast.push({
         type: "warning",
-        title: "Limite diário",
-        message: `Limite diário de envios para grupos atingido. Tente novamente amanhã.`,
+        title: "Límite diario",
+        message: `Límite diario de envíos a grupos alcanzado. Intente nuevamente mañana.`,
       });
       return;
     }
@@ -288,7 +288,7 @@ export default function CampaignsPage() {
         try {
           await doSendCampaign(c);
         } catch (e: any) {
-          toast.push({ type: "danger", title: "Campanhas", message: e?.response?.data?.message ?? "Erro ao enviar." });
+          toast.push({ type: "danger", title: "Campañas", message: e?.response?.data?.message ?? "Error al enviar." });
         } finally {
           setLoading(false);
         }
@@ -300,45 +300,45 @@ export default function CampaignsPage() {
     try {
       await doSendCampaign(c);
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Campanhas", message: e?.response?.data?.message ?? "Erro ao enviar." });
+      toast.push({ type: "danger", title: "Campañas", message: e?.response?.data?.message ?? "Error al enviar." });
     } finally {
       setLoading(false);
     }
   }
 
   async function deleteCampaign(c: Campaign) {
-    if (!confirm(`Excluir a campanha "${c.title || "Sem título"}"?`)) return;
+    if (!confirm(`¿Eliminar la campaña "${c.title || "Sin título"}"?`)) return;
     setDeletingId(c.id);
     try {
       await api.delete(`/campaigns/${c.id}`);
       setCampaigns((prev) => prev.filter((x) => x.id !== c.id));
-      toast.push({ type: "success", title: "Campanhas", message: "Campanha excluída." });
+      toast.push({ type: "success", title: "Campañas", message: "Campaña eliminada." });
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Campanhas", message: e?.response?.data?.message ?? "Erro ao excluir." });
+      toast.push({ type: "danger", title: "Campañas", message: e?.response?.data?.message ?? "Error al eliminar." });
     } finally {
       setDeletingId(null);
     }
   }
 
   async function clearAllCampaigns() {
-    if (!confirm(`Excluir todas as ${campaigns.length} campanhas? Esta ação não pode ser desfeita.`)) return;
+    if (!confirm(`¿Eliminar todas las ${campaigns.length} campañas? Esta acción no se puede deshacer.`)) return;
     setClearing(true);
     try {
       await api.delete("/campaigns/all");
       setCampaigns([]);
-      toast.push({ type: "success", title: "Campanhas", message: "Histórico limpo." });
+      toast.push({ type: "success", title: "Campañas", message: "Historial limpiado." });
     } catch (e: any) {
-      toast.push({ type: "danger", title: "Campanhas", message: e?.response?.data?.message ?? "Erro ao limpar." });
+      toast.push({ type: "danger", title: "Campañas", message: e?.response?.data?.message ?? "Error al limpiar." });
     } finally {
       setClearing(false);
     }
   }
 
   const statusLabel: Record<string, string> = {
-    draft: "Rascunho",
-    queued: "Agendada",
+    draft: "Borrador",
+    queued: "Programada",
     sent: "Enviada",
-    failed: "Falhou",
+    failed: "Falló",
     paused: "Pausada",
   };
 
@@ -354,28 +354,28 @@ export default function CampaignsPage() {
     ? mediaFile.type === "image"
       ? ImageIcon
       : mediaFile.type === "video"
-      ? VideoFileIcon
-      : mediaFile.type === "audio"
-      ? AudioFileIcon
-      : DescriptionIcon
+        ? VideoFileIcon
+        : mediaFile.type === "audio"
+          ? AudioFileIcon
+          : DescriptionIcon
     : AttachFileIcon;
 
   return (
     <PageContainer
-      title="Campanhas"
-      subtitle="Crie e envie mensagens com mídia para seus grupos do WhatsApp"
+      title="Campañas"
+      subtitle="Cree y envíe mensajes con multimedia a sus grupos de WhatsApp"
       actions={
         <Stack direction="row" spacing={1} alignItems="center">
           {limits && (
             <Chip
-              label={`${campaignsToday.usedToday}/${campaignsToday.limit} envios/dia`}
+              label={`${campaignsToday.usedToday}/${campaignsToday.limit} envíos/día`}
               size="small"
               color={atDailyLimit ? "warning" : "default"}
               variant="outlined"
             />
           )}
           <Button variant="outlined" size="medium" onClick={loadAll} disabled={loading}>
-            Atualizar
+            Actualizar
           </Button>
         </Stack>
       }
@@ -392,7 +392,7 @@ export default function CampaignsPage() {
         >
           <Paper sx={{ p: 3, overflow: "hidden" }} elevation={0} variant="outlined">
             <Typography variant="h6" sx={{ fontWeight: 600, mb: 2.5, color: "text.primary" }}>
-              Nova campanha
+              Nueva campaña
             </Typography>
             <form onSubmit={handleCreate}>
               <Stack spacing={2}>
@@ -407,7 +407,7 @@ export default function CampaignsPage() {
                 <Accordion disableGutters elevation={0} sx={{ "&:before": { display: "none" }, bgcolor: "transparent" }}>
                   <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 0, minHeight: 48 }}>
                     <Typography variant="body2" color="text.secondary">
-                      Gerador de mensagem (opcional)
+                      Generador de mensaje (opcional)
                     </Typography>
                   </AccordionSummary>
                   <AccordionDetails sx={{ px: 0, pt: 0 }}>
@@ -425,18 +425,18 @@ export default function CampaignsPage() {
                 <TextField
                   fullWidth
                   size="small"
-                  label="Mensagem"
+                  label="Mensaje"
                   multiline
                   rows={4}
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
-                  placeholder="Digite o texto da campanha..."
+                  placeholder="Escriba el texto de la campaña..."
                 />
 
                 <TextField
                   fullWidth
                   size="small"
-                  label="Link (opcional)"
+                  label="Enlace (opcional)"
                   value={linkUrl}
                   onChange={(e) => setLinkUrl(e.target.value)}
                   placeholder="https://..."
@@ -444,7 +444,7 @@ export default function CampaignsPage() {
 
                 <Box>
                   <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-                    Mídia
+                    Multimedia
                   </Typography>
                   <Box
                     sx={{
@@ -476,11 +476,11 @@ export default function CampaignsPage() {
                         <Stack direction="row" spacing={1}>
                           <label htmlFor="campaign-media-input">
                             <Button size="small" variant="outlined" component="span">
-                              Trocar
+                              Cambiar
                             </Button>
                           </label>
                           <Button size="small" variant="text" color="error" onClick={() => setMediaFile(null)}>
-                            Remover
+                            Eliminar
                           </Button>
                         </Stack>
                       </>
@@ -488,7 +488,7 @@ export default function CampaignsPage() {
                       <label htmlFor="campaign-media-input" style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 1 }}>
                         <AttachFileIcon fontSize="small" color="action" />
                         <Typography variant="body2" color="text.secondary">
-                          Imagens, vídeos, áudios, documentos (até 16MB)
+                          Imágenes, vídeos, audios, documentos (hasta 16MB)
                         </Typography>
                       </label>
                     )}
@@ -510,7 +510,7 @@ export default function CampaignsPage() {
                       Grupos destino
                     </Typography>
                     <Chip
-                      label={`${selectedGroupIds.length}/${maxGroups} selecionado${selectedGroupIds.length !== 1 ? "s" : ""}`}
+                      label={`${selectedGroupIds.length}/${maxGroups} seleccionado${selectedGroupIds.length !== 1 ? "s" : ""}`}
                       size="small"
                       color={selectedGroupIds.length > 0 ? "primary" : "default"}
                     />
@@ -518,7 +518,7 @@ export default function CampaignsPage() {
                   {groups.length > 0 && (
                     <TextField
                       size="small"
-                      placeholder="Pesquisar grupo..."
+                      placeholder="Buscar grupo..."
                       value={groupSearch}
                       onChange={(e) => setGroupSearch(e.target.value)}
                       sx={{ mb: 1.5, "& .MuiInputBase-root": { bgcolor: "background.paper" } }}
@@ -527,16 +527,16 @@ export default function CampaignsPage() {
                   )}
                   {!canSelectMoreGroups && (
                     <Typography variant="caption" color="warning.main" sx={{ display: "block", mb: 1 }}>
-                      Limite do plano: máximo {maxGroups} grupo(s) por campanha.
+                      Límite del plan: máximo {maxGroups} grupo(s) por campaña.
                     </Typography>
                   )}
                   {!groups.length ? (
                     <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: "center" }}>
-                      Nenhum grupo. Sincronize em Grupos.
+                      Ningún grupo. Sincronice en Grupos.
                     </Typography>
                   ) : !filteredGroups.length ? (
                     <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: "center" }}>
-                      Nenhum grupo encontrado para &quot;{groupSearch}&quot;.
+                      Ningún grupo encontrado para &quot;{groupSearch}&quot;.
                     </Typography>
                   ) : (
                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, maxHeight: 160, overflowY: "auto" }}>
@@ -589,7 +589,7 @@ export default function CampaignsPage() {
                         size="small"
                       />
                     }
-                    label={atDailyLimit ? `Enviar agora (limite diário: ${campaignsToday.usedToday}/${campaignsToday.limit})` : "Enviar agora"}
+                    label={atDailyLimit ? `Enviar ahora (límite diario: ${campaignsToday.usedToday}/${campaignsToday.limit})` : "Enviar ahora"}
                   />
                   <FormControlLabel
                     control={
@@ -600,11 +600,11 @@ export default function CampaignsPage() {
                         size="small"
                       />
                     }
-                    label={atDailyLimit ? `Agendar (limite diário atingido)` : "Agendar"}
+                    label={atDailyLimit ? `Programar (límite diario alcanzado)` : "Programar"}
                   />
                   <FormControlLabel
                     control={<Checkbox checked={mentionAll} onChange={(e) => setMentionAll(e.target.checked)} size="small" />}
-                    label="Mencionar Todos"
+                    label="Mencionar a todos"
                   />
                   {scheduleEnabled && (
                     <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
@@ -627,8 +627,8 @@ export default function CampaignsPage() {
                       <FormControl size="small" sx={{ minWidth: 120 }}>
                         <InputLabel>Repetir</InputLabel>
                         <Select value={repeatRule} label="Repetir" onChange={(e) => setRepeatRule(e.target.value as "none" | "daily" | "weekly")}>
-                          <MenuItem value="none">Não</MenuItem>
-                          <MenuItem value="daily">Diário</MenuItem>
+                          <MenuItem value="none">No</MenuItem>
+                          <MenuItem value="daily">Diario</MenuItem>
                           <MenuItem value="weekly">Semanal</MenuItem>
                         </Select>
                       </FormControl>
@@ -643,7 +643,7 @@ export default function CampaignsPage() {
                   size="large"
                   fullWidth
                 >
-                  {loading ? "Salvando..." : atDailyLimit && (sendNow || scheduleEnabled) ? "Limite diário atingido" : "Criar campanha"}
+                  {loading ? "Guardando..." : atDailyLimit && (sendNow || scheduleEnabled) ? "Límite diario alcanzado" : "Crear campaña"}
                 </Button>
               </Stack>
             </form>
@@ -651,7 +651,7 @@ export default function CampaignsPage() {
 
           <Paper sx={{ p: 2, position: "sticky", top: 16 }} elevation={0} variant="outlined">
             <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5, color: "text.secondary" }}>
-              Preview
+              Vista Previa
             </Typography>
             <GroupConversationPreview
               message={messageText}
@@ -661,7 +661,7 @@ export default function CampaignsPage() {
             />
             {!messageText.trim() && !mediaFile && (
               <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
-                {selectedGroupIds.length > 0 ? "Digite a mensagem para ver o preview." : "Selecione grupos para ver o preview."}
+                {selectedGroupIds.length > 0 ? "Escriba el mensaje para ver la vista previa." : "Seleccione grupos para ver la vista previa."}
               </Typography>
             )}
           </Paper>
@@ -673,18 +673,18 @@ export default function CampaignsPage() {
         <Box>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
             <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              Histórico
+              Historial
             </Typography>
             {campaigns.length > 0 && (
               <Button size="small" color="error" variant="outlined" startIcon={<DeleteIcon />} onClick={clearAllCampaigns} disabled={clearing}>
-                Limpar todas
+                Limpiar todas
               </Button>
             )}
           </Box>
 
           {campaigns.length === 0 && !loading ? (
             <Paper sx={{ p: 4, textAlign: "center" }} variant="outlined">
-              <Typography color="text.secondary">Nenhuma campanha. Crie uma acima.</Typography>
+              <Typography color="text.secondary">Ninguna campaña. Cree una arriba.</Typography>
             </Paper>
           ) : (
             <Stack spacing={1.5}>
@@ -703,7 +703,7 @@ export default function CampaignsPage() {
                 >
                   <Box sx={{ flex: "1 1 200px", minWidth: 0 }}>
                     <Typography variant="subtitle2" fontWeight={600}>
-                      {c.title || "Sem título"}
+                      {c.title || "Sin título"}
                     </Typography>
                     <Typography
                       variant="body2"
@@ -719,7 +719,7 @@ export default function CampaignsPage() {
                         <>
                           {" · "}
                           <ScheduleIcon sx={{ fontSize: 12, verticalAlign: "middle", mr: 0.25 }} />
-                          {new Date(c.scheduledAt).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}
+                          {new Date(c.scheduledAt).toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" })}
                         </>
                       )}
                     </Typography>
@@ -747,7 +747,7 @@ export default function CampaignsPage() {
                         Enviar
                       </Button>
                     )}
-                    <IconButton size="small" color="error" onClick={() => deleteCampaign(c)} disabled={deletingId === c.id} title="Excluir">
+                    <IconButton size="small" color="error" onClick={() => deleteCampaign(c)} disabled={deletingId === c.id} title="Eliminar">
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Stack>

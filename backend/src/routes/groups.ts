@@ -33,7 +33,7 @@ router.get("/", async (req: AuthRequest, res) => {
     const groups = await listGroupsFull(companyId);
     res.json(groups);
   } catch (err: any) {
-    res.status(400).json({ message: err?.message ?? "Erro ao listar grupos" });
+    res.status(400).json({ message: err?.message ?? "Error al listar los grupos" });
   }
 });
 
@@ -45,7 +45,7 @@ router.post("/sync", async (req: AuthRequest, res) => {
     const groups = await listGroupsFull(companyId);
     res.json(groups);
   } catch (err: any) {
-    const message = err?.message ?? "Erro ao sincronizar";
+    const message = err?.message ?? "Error al sincronizar";
     logger.warn("GROUPS", `POST /sync 400: ${message}`);
     res.status(400).json({ message });
   }
@@ -56,7 +56,7 @@ router.get("/export", async (req: AuthRequest, res) => {
   try {
     const companyId = requireCompany(req);
     const groups = await listGroupsFull(companyId);
-    const header = "waId;nome;participantes;fonte\n";
+    const header = "waId;nombre;participantes;fuente\n";
     const rows = groups
       .map(
         (g) =>
@@ -68,7 +68,7 @@ router.get("/export", async (req: AuthRequest, res) => {
     res.setHeader("Content-Disposition", "attachment; filename=grupos.csv");
     res.send(csv);
   } catch (err: any) {
-    res.status(400).json({ message: err?.message ?? "Erro ao exportar" });
+    res.status(400).json({ message: err?.message ?? "Error al exportar" });
   }
 });
 
@@ -79,7 +79,7 @@ function escapeCsv(s: string): string {
 
 function requireCompany(req: AuthRequest): string {
   const companyId = req.companyId;
-  if (!companyId) throw new Error("Usuário precisa estar vinculado a uma empresa.");
+  if (!companyId) throw new Error("El usuario debe estar vinculado a una empresa.");
   return companyId;
 }
 
@@ -89,7 +89,7 @@ router.post("/import", upload.single("file"), async (req: AuthRequest, res) => {
     const companyId = requireCompany(req);
     const file = req.file;
     if (!file?.buffer) {
-      return res.status(400).json({ message: "Nenhum arquivo enviado" });
+      return res.status(400).json({ message: "Ningún archivo enviado" });
     }
 
     const session = await prisma.whatsappSession.findFirst({
@@ -98,14 +98,14 @@ router.post("/import", upload.single("file"), async (req: AuthRequest, res) => {
     });
     if (!session) {
       return res.status(400).json({
-        message: "Crie uma conexão WhatsApp antes de importar grupos",
+        message: "Cree una conexión de WhatsApp antes de importar grupos",
       });
     }
 
     const rows = parseFile(file.buffer, file.originalname);
     if (rows.length === 0) {
       return res.status(400).json({
-        message: "Arquivo vazio ou sem dados válidos",
+        message: "Archivo vacío o sin datos válidos",
       });
     }
 
@@ -147,7 +147,7 @@ router.post("/import", upload.single("file"), async (req: AuthRequest, res) => {
     const groups = await listGroupsFull(companyId);
     res.json({ created, total: groups.length, groups });
   } catch (err: any) {
-    res.status(400).json({ message: err?.message ?? "Erro ao importar" });
+    res.status(400).json({ message: err?.message ?? "Error al importar" });
   }
 });
 

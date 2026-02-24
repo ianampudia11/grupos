@@ -44,7 +44,7 @@ const waitForClientReady = async (
     if (isClientReady(sessionId)) return;
     await sleep(intervalMs);
   }
-  throw new Error("WhatsApp ainda não está pronto. Aguarde alguns segundos e tente novamente.");
+  throw new Error("WhatsApp aún no está listo. Espere unos segundos e intente nuevamente.");
 };
 
 const WAIT_FOR_READY_MS = 90000;
@@ -66,7 +66,7 @@ const ensureClientsAndWaitReady = async (sessions: SessionForSync[]): Promise<Se
   try {
     await getOrCreateClient(connectedInDb[0].id);
   } catch (e) {
-    logger.warn("WHATSAPP", "Falha ao restaurar sessão para sync de grupos", e);
+    logger.warn("WHATSAPP", "Fallo al restaurar la sesión para la sincronización de grupos", e);
   }
   for (let i = 1; i < connectedInDb.length; i++) {
     void getOrCreateClient(connectedInDb[i].id);
@@ -76,7 +76,7 @@ const ensureClientsAndWaitReady = async (sessions: SessionForSync[]): Promise<Se
   while (Date.now() < deadline) {
     const ready = sessions.filter((s) => isClientReady(s.id));
     if (ready.length > 0) {
-      logger.success("WHATSAPP", `${ready.length} sessão(ões) pronta(s) para sync.`);
+      logger.success("WHATSAPP", `${ready.length} sesión(es) lista(s) para sincronización.`);
       return ready;
     }
     await sleep(READY_POLL_MS);
@@ -110,10 +110,10 @@ export const fetchGroupsFromRemote = async (companyId: string) => {
     const hasConnectedInDb = sessions.some((s) => s.status === "connected");
     if (hasConnectedInDb) {
       throw new Error(
-        "WhatsApp está conectado no painel mas ainda não ficou pronto. Aguarde cerca de 1 minuto e clique em Sincronizar novamente. Se o problema continuar, tente Desconectar e escanear o QR de novo."
+        "WhatsApp está conectado en el panel pero aún no está listo. Espere aproximadamente 1 minuto y haga clic en Sincronizar nuevamente. Si el problema persiste, intente Desconectar y escanear el QR de nuevo."
       );
     }
-    throw new Error("Nenhum WhatsApp conectado. Conecte ao menos uma sessão (QR Code) e tente novamente.");
+    throw new Error("Ningún WhatsApp conectado. Conecte al menos una sesión (Código QR) e intente nuevamente.");
   }
 
   const allGroups: GroupData[] = [];
@@ -141,7 +141,7 @@ export const fetchGroupsFromRemote = async (companyId: string) => {
       const msg = err instanceof Error ? err.message : String(err);
       if (/timeout|timed out|protocolTimeout/i.test(msg)) {
         throw new Error(
-          "A sincronização demorou mais que o esperado (muitos grupos ou conexão lenta). Tente novamente em alguns instantes."
+          "La sincronización tardó más de lo esperado (muchos grupos o conexión lenta). Intente nuevamente en unos instantes."
         );
       }
       throw err;
@@ -190,7 +190,7 @@ export const fetchGroupsFromRemote = async (companyId: string) => {
           },
         });
       } catch (err) {
-        logger.error("WHATSAPP", `Falha ao persistir grupos: ${getSessionDisplayName(session.id)}`, err);
+        logger.error("WHATSAPP", `Fallo al persistir grupos: ${getSessionDisplayName(session.id)}`, err);
       }
     }
     groupsStoreBySession.set(session.id, { groups, fetchedAt: Date.now() });
@@ -289,7 +289,7 @@ export const sendMessageToGroup = async (
     },
     select: { id: true, waId: true, sessionId: true },
   });
-  if (!group) throw new Error("Grupo não encontrado");
+  if (!group) throw new Error("Grupo no encontrado");
   const sock = getReadyClient(group.sessionId);
   const waId = group.waId;
   const dbGroupId = group.id;
@@ -316,7 +316,7 @@ export const sendMessageToGroup = async (
           .filter((id): id is string => Boolean(id));
       }
     } catch (e) {
-      logger.warn("WHATSAPP", "Participantes para @todos não obtidos; enviando sem menções.", e);
+      logger.warn("WHATSAPP", "No se obtuvieron los participantes para @todos; enviando sin menciones.", e);
     }
   }
 
@@ -332,7 +332,7 @@ export const sendMessageToGroup = async (
       }
 
       if (!fs.existsSync(absolutePath)) {
-        throw new Error("Arquivo de mídia não encontrado");
+        throw new Error("Archivo de medios no encontrado");
       }
 
       const buffer = fs.readFileSync(absolutePath);

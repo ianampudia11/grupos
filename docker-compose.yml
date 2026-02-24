@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  db-wagrupos:
+    image: postgres:15-alpine
+    container_name: postgres-wagrupos
+    restart: always
+    environment:
+      POSTGRES_USER: wagrupos_user
+      POSTGRES_PASSWORD: wagrupos_password
+      POSTGRES_DB: wagrupos_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata-wagrupos:/var/lib/postgresql/data
+
+  redis-wagrupos:
+    image: redis:7-alpine
+    container_name: redis-wagrupos
+    restart: always
+    ports:
+      - "6380:6379"
+
+volumes:
+  pgdata-wagrupos:

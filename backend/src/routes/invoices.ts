@@ -20,7 +20,7 @@ router.get("/plans/upgrade", async (req: AuthRequest, res) => {
     const plans = await prisma.plan.findMany({ where: { isActive: true }, orderBy: { price: "asc" } });
     res.json(plans.filter((p) => p.id !== currentPlanId));
   } catch (err: any) {
-    res.status(400).json({ message: err?.message ?? "Erro ao listar planos" });
+    res.status(400).json({ message: err?.message ?? "Error al listar los planes" });
   }
 });
 
@@ -36,13 +36,13 @@ router.post("/upgrade", async (req: AuthRequest, res) => {
       return res.status(400).json({ message: "Usuário sem empresa" });
     }
     const planId = req.body?.planId as string | undefined;
-    if (!planId) return res.status(400).json({ message: "Informe o plano (planId)" });
+    if (!planId) return res.status(400).json({ message: "Informe el plan (planId)" });
     const plan = await prisma.plan.findFirst({ where: { id: planId, isActive: true } });
-    if (!plan) return res.status(404).json({ message: "Plano não encontrado" });
+    if (!plan) return res.status(404).json({ message: "Plan no encontrado" });
 
     const sub = user.company.subscription;
-    if (!sub) return res.status(400).json({ message: "Empresa sem assinatura. Contate o suporte." });
-    if (sub.planId === planId) return res.status(400).json({ message: "Você já está neste plano." });
+    if (!sub) return res.status(400).json({ message: "Empresa sin suscripción. Contacte al soporte." });
+    if (sub.planId === planId) return res.status(400).json({ message: "Usted ya está en este plan." });
 
     const today = new Date();
     today.setHours(23, 59, 59, 999);
@@ -60,7 +60,7 @@ router.post("/upgrade", async (req: AuthRequest, res) => {
     });
     res.json(invoice);
   } catch (err: any) {
-    res.status(400).json({ message: err?.message ?? "Erro ao solicitar upgrade" });
+    res.status(400).json({ message: err?.message ?? "Error al solicitar la actualización" });
   }
 });
 
@@ -83,7 +83,7 @@ router.get("/", async (req: AuthRequest, res) => {
     });
     res.json(invoices);
   } catch (err: any) {
-    res.status(400).json({ message: err?.message ?? "Erro ao listar faturas" });
+    res.status(400).json({ message: err?.message ?? "Error al listar las facturas" });
   }
 });
 
@@ -103,7 +103,7 @@ router.post("/:id/pay", async (req: AuthRequest, res) => {
       where: { id: req.params.id, companyId: user.companyId, status: "pending" },
     });
     if (!invoice) {
-      return res.status(404).json({ message: "Fatura não encontrada ou já paga" });
+      return res.status(404).json({ message: "Factura no encontrada o ya pagada" });
     }
 
     const pix = await createPixOrder({
@@ -127,7 +127,7 @@ router.post("/:id/pay", async (req: AuthRequest, res) => {
       amount: invoice.amount,
     });
   } catch (err: any) {
-    res.status(400).json({ message: err?.message ?? "Erro ao gerar pagamento PIX" });
+    res.status(400).json({ message: err?.message ?? "Error al generar el pago PIX" });
   }
 });
 

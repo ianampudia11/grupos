@@ -50,7 +50,7 @@ async function markInvoicePaidAndEmit(invoice: {
     });
   }
 
-  logger.success("WEBHOOK", `Fatura ${invoice.id} marcada como paga`);
+  logger.success("WEBHOOK", `Factura ${invoice.id} marcada como pagada`);
   emitInvoicePaid(invoice.companyId, { invoiceId: invoice.id });
 }
 
@@ -61,13 +61,13 @@ router.post("/mercadopago", async (req: Request, res: Response) => {
     const type = body?.type;
     const dataId = body?.data?.id;
     if (!type || !dataId) {
-      res.status(400).json({ message: "Payload inválido" });
+      res.status(400).json({ message: "Carga útil (payload) inválida" });
       return;
     }
 
     const token = await getSetting("mercadopago_access_token");
     if (!token) {
-      logger.warn("WEBHOOK", "MERCADOPAGO_ACCESS_TOKEN não configurado");
+      logger.warn("WEBHOOK", "MERCADOPAGO_ACCESS_TOKEN no configurado");
       res.status(200).send("OK");
       return;
     }
@@ -85,13 +85,13 @@ router.post("/mercadopago", async (req: Request, res: Response) => {
 
       let invoice = externalRef
         ? await prisma.invoice.findUnique({
-            where: { id: externalRef },
-            include: { subscription: true },
-          })
+          where: { id: externalRef },
+          include: { subscription: true },
+        })
         : await prisma.invoice.findFirst({
-            where: { mpPaymentId: String(dataId) },
-            include: { subscription: true },
-          });
+          where: { mpPaymentId: String(dataId) },
+          include: { subscription: true },
+        });
 
       if (status === "approved" && invoice) {
         await markInvoicePaidAndEmit(invoice, String(dataId));
@@ -106,7 +106,7 @@ router.post("/mercadopago", async (req: Request, res: Response) => {
         const order = orderRes.data as {
           external_reference?: string;
           status?: string;
-          payments?: Array< { id?: string; status?: string } >;
+          payments?: Array<{ id?: string; status?: string }>;
         };
         const externalRef = order?.external_reference;
         const orderStatus = order?.status;
@@ -120,13 +120,13 @@ router.post("/mercadopago", async (req: Request, res: Response) => {
 
         let invoice = externalRef
           ? await prisma.invoice.findUnique({
-              where: { id: externalRef },
-              include: { subscription: true },
-            })
+            where: { id: externalRef },
+            include: { subscription: true },
+          })
           : await prisma.invoice.findFirst({
-              where: { mpPaymentId: String(approvedPayment?.id ?? dataId) },
-              include: { subscription: true },
-            });
+            where: { mpPaymentId: String(approvedPayment?.id ?? dataId) },
+            include: { subscription: true },
+          });
 
         const isPaid =
           orderStatus === "paid" || approvedPayment != null;
@@ -138,14 +138,14 @@ router.post("/mercadopago", async (req: Request, res: Response) => {
           );
         }
       } catch (orderErr) {
-        logger.warn("WEBHOOK", "Erro ao buscar order MP", orderErr);
+        logger.warn("WEBHOOK", "Error al buscar el pedido de MP", orderErr);
       }
     }
 
     res.status(200).send("OK");
   } catch (err) {
-    logger.error("WEBHOOK", "Erro ao processar webhook MP", err);
-    res.status(500).json({ message: "Erro interno" });
+    logger.error("WEBHOOK", "Error al procesar el webhook de MP", err);
+    res.status(500).json({ message: "Error interno" });
   }
 });
 

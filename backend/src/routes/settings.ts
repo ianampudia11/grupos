@@ -68,7 +68,7 @@ const ICON_EXTS = ["icon.svg", "icon.webp", "icon.png", "icon.jpg", "icon.jpeg"]
 
 /** Branding público (sem auth) - logo, favicon, título */
 router.get("/branding", async (_req, res) => {
-  const systemTitle = (await getSetting("system_title")) || "Painel de disparos WhatsApp";
+  const systemTitle = (await getSetting("system_title")) || "Grupos";
   const logoFile = LOGO_EXTS.find((f) => fs.existsSync(path.join(logotiposDir, f)));
   const logoDarkFile = LOGO_DARK_EXTS.find((f) => fs.existsSync(path.join(logotiposDir, f)));
   const faviconFile = FAVICON_EXTS.find((f) => fs.existsSync(path.join(logotiposDir, f)));
@@ -102,12 +102,12 @@ router.use(authMiddleware);
 router.get("/dispatch", async (req: AuthRequest, res) => {
   await enrichAuth(req);
   const companyId = req.companyId;
-  if (!companyId) return res.status(403).json({ message: "Você precisa estar vinculado a uma empresa." });
+  if (!companyId) return res.status(403).json({ message: "Debe estar vinculado a una empresa." });
   try {
     const settings = await getDispatchSettings(companyId);
     res.json(settings);
   } catch (e: any) {
-    res.status(400).json({ message: e?.message ?? "Erro ao carregar configuração de disparos." });
+    res.status(400).json({ message: e?.message ?? "Error al cargar la configuración de envíos." });
   }
 });
 
@@ -128,7 +128,7 @@ router.put("/dispatch", async (req: AuthRequest, res) => {
     const result = await setDispatchSettings(companyId, data);
     res.json(result);
   } catch (e: any) {
-    res.status(400).json({ message: e?.message ?? "Erro ao salvar configuração de disparos." });
+    res.status(400).json({ message: e?.message ?? "Error al guardar la configuración de envíos." });
   }
 });
 
@@ -207,13 +207,13 @@ router.put("/system", async (req, res) => {
     }
     res.json({ ok: true });
   } catch (err: any) {
-    res.status(400).json({ message: err?.message ?? "Erro ao salvar" });
+    res.status(400).json({ message: err?.message ?? "Error al guardar" });
   }
 });
 
 /** Upload logo (SuperAdmin) */
 router.post("/branding/logo", uploadLogo.single("file"), async (req, res) => {
-  if (!req.file) return res.status(400).json({ message: "Arquivo não enviado" });
+  if (!req.file) return res.status(400).json({ message: "Archivo no enviado" });
   ["logo.png", "logo.jpg", "logo.jpeg", "logo.svg", "logo.webp"].forEach((f) => {
     const p = path.join(logotiposDir, f);
     if (fs.existsSync(p) && f !== req.file!.filename) fs.unlinkSync(p);
@@ -223,7 +223,7 @@ router.post("/branding/logo", uploadLogo.single("file"), async (req, res) => {
 
 /** Upload logo dark mode (SuperAdmin) */
 router.post("/branding/logo-dark", uploadLogoDark.single("file"), async (req, res) => {
-  if (!req.file) return res.status(400).json({ message: "Arquivo não enviado" });
+  if (!req.file) return res.status(400).json({ message: "Archivo no enviado" });
   LOGO_DARK_EXTS.forEach((f) => {
     const p = path.join(logotiposDir, f);
     if (fs.existsSync(p) && f !== req.file!.filename) fs.unlinkSync(p);
@@ -233,7 +233,7 @@ router.post("/branding/logo-dark", uploadLogoDark.single("file"), async (req, re
 
 /** Upload favicon (SuperAdmin) */
 router.post("/branding/favicon", uploadFavicon.single("file"), async (req, res) => {
-  if (!req.file) return res.status(400).json({ message: "Arquivo não enviado" });
+  if (!req.file) return res.status(400).json({ message: "Archivo no enviado" });
   ["favicon.ico", "favicon.png"].forEach((f) => {
     const p = path.join(logotiposDir, f);
     if (fs.existsSync(p) && f !== req.file!.filename) fs.unlinkSync(p);

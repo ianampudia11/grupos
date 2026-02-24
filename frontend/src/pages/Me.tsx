@@ -29,18 +29,18 @@ export default function Me() {
       password: password || undefined,
     })
     setPassword("")
-    setMsg("Perfil atualizado")
+    setMsg("Perfil actualizado")
   }
 
   return (
     <Box sx={{ maxWidth: 520, mx: "auto", mt: 4 }}>
       <Card>
         <CardContent>
-          <Typography variant="h6" sx={{ mb: 2 }}>Meu Perfil</Typography>
+          <Typography variant="h6" sx={{ mb: 2 }}>Mi Perfil</Typography>
 
           <TextField
             fullWidth
-            label="Nome"
+            label="Nombre"
             value={name}
             onChange={(e) => setName(e.target.value)}
             sx={{ mb: 2 }}
@@ -58,7 +58,7 @@ export default function Me() {
 
           <TextField
             fullWidth
-            label="Nova senha"
+            label="Nueva contraseña"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -67,7 +67,7 @@ export default function Me() {
           />
 
           <Button variant="contained" fullWidth onClick={save} disabled={loading}>
-            Salvar
+            Guardar
           </Button>
 
           {msg && (

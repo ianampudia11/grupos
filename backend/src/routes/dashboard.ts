@@ -11,7 +11,7 @@ router.get("/", async (req: AuthRequest, res) => {
     const data = await getDashboardData(userId);
     res.json(data);
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao carregar dashboard" });
+    res.status(400).json({ message: err.message || "Error al cargar el panel de control" });
   }
 });
 

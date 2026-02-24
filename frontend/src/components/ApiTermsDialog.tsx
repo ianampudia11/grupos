@@ -34,7 +34,7 @@ export function ApiTermsDialog({ open, onClose, onAccept, accepting }: ApiTermsD
           Cancelar
         </Button>
         <Button variant="contained" onClick={handleAccept} disabled={accepting}>
-          {accepting ? "Salvando..." : "Concordo"}
+          {accepting ? "Guardando..." : "Acepto"}
         </Button>
       </DialogActions>
     </Dialog>

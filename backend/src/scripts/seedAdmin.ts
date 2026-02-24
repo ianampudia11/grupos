@@ -11,7 +11,7 @@ async function getOrCreateSistemaCompany() {
   const plan = await prisma.plan.findFirst({
     where: { slug: "vitalicio" },
   }) ?? await prisma.plan.create({
-    data: { name: "Vitalício", slug: "vitalicio", price: 0, limits: {} },
+    data: { name: "Vitalicio", slug: "vitalicio", price: 0, limits: {} },
   });
 
   const now = new Date();
@@ -44,7 +44,7 @@ async function run() {
   const name = (process.env.ADMIN_NAME || "Administrador").trim();
 
   if (password.length < 6) {
-    throw new Error("ADMIN_PASSWORD precisa ter pelo menos 6 caracteres.");
+    throw new Error("ADMIN_PASSWORD debe tener al menos 6 caracteres.");
   }
 
   const sistemaCompanyId = await getOrCreateSistemaCompany();
@@ -60,7 +60,7 @@ async function run() {
           companyId: sistemaCompanyId,
         },
       });
-      logger.success("SEED", `Usuario promovido para SUPERADMIN: ${email}`);
+      logger.success("SEED", `Usuario promovido a SUPERADMIN: ${email}`);
       return;
     }
     if (!existing.companyId || existing.companyId !== sistemaCompanyId) {
@@ -70,7 +70,7 @@ async function run() {
       });
       logger.success("SEED", `Admin vinculado a Sistema Administrativo: ${email}`);
     }
-    logger.info("SEED", `Admin ja existe: ${email}`);
+    logger.info("SEED", `El Admin ya existe: ${email}`);
     return;
   }
 
@@ -85,12 +85,12 @@ async function run() {
     },
   });
 
-  logger.success("SEED", `Admin criado: ${email}`);
+  logger.success("SEED", `Admin creado: ${email}`);
 }
 
 run()
   .catch((err) => {
-    logger.error("SEED", "Falha ao criar admin inicial", err);
+    logger.error("SEED", "Fallo al crear el administrador inicial", err);
     process.exit(1);
   })
   .finally(async () => {

@@ -62,7 +62,7 @@ export default function GroupSenderPage() {
         navigate("/login");
         return;
       }
-      setFeedback({ type: "error", message: "Erro ao carregar grupos. Tente sincronizar novamente." });
+      setFeedback({ type: "error", message: "Error al cargar los grupos. Intente sincronizar nuevamente." });
     } finally {
       setLoadingGroups(false);
     }
@@ -74,10 +74,10 @@ export default function GroupSenderPage() {
     try {
       await api.post("/groups/sync");
       await loadGroups();
-      setFeedback({ type: "success", message: "Grupos sincronizados com sucesso." });
+      setFeedback({ type: "success", message: "Grupos sincronizados con éxito." });
     } catch {
       setLoadingGroups(false);
-      setFeedback({ type: "error", message: "Erro ao sincronizar grupos." });
+      setFeedback({ type: "error", message: "Error al sincronizar los grupos." });
     }
   }
 
@@ -90,7 +90,7 @@ export default function GroupSenderPage() {
     });
     setMessage("");
     setSelectedGroups([]);
-    setFeedback({ type: "success", message: "Mensagem enviada com sucesso!" });
+    setFeedback({ type: "success", message: "¡Mensaje enviado con éxito!" });
     const limitsRes = await api.get<{ campaignsPerDay: { usedToday: number; limit: number } }>("/campaigns/limits");
     setLimits(limitsRes.data.campaignsPerDay);
   }
@@ -100,12 +100,12 @@ export default function GroupSenderPage() {
     if (atDailyLimit) {
       setFeedback({
         type: "warning",
-        message: `Limite diário atingido (${limits?.usedToday}/${limits?.limit} envios). Amanhã será liberado.`,
+        message: `Límite diario alcanzado (${limits?.usedToday}/${limits?.limit} envíos). Mañana será liberado.`,
       });
       return;
     }
     if (!selectedGroups.length || !message.trim()) {
-      setFeedback({ type: "warning", message: "Selecione ao menos um grupo e escreva a mensagem." });
+      setFeedback({ type: "warning", message: "Seleccione al menos un grupo y escriba el mensaje." });
       return;
     }
     if (!dispatchSettings?.apiTermsAcceptedAt) {
@@ -117,7 +117,7 @@ export default function GroupSenderPage() {
         } catch (err: any) {
           setFeedback({
             type: "error",
-            message: err?.response?.data?.message ?? "Erro ao enviar mensagem.",
+            message: err?.response?.data?.message ?? "Error al enviar el mensaje.",
           });
         } finally {
           setSending(false);
@@ -133,7 +133,7 @@ export default function GroupSenderPage() {
     } catch (err: any) {
       setFeedback({
         type: "error",
-        message: err?.response?.data?.message ?? "Erro ao enviar mensagem.",
+        message: err?.response?.data?.message ?? "Error al enviar el mensaje.",
       });
     } finally {
       setSending(false);
@@ -142,8 +142,8 @@ export default function GroupSenderPage() {
 
   return (
     <PageContainer
-      title="Disparo em grupos do WhatsApp"
-      subtitle="Conecte seu WhatsApp e envie campanhas para grupos selecionados."
+      title="Envío masivo a grupos de WhatsApp"
+      subtitle="Conecte su WhatsApp y envíe campañas a los grupos seleccionados."
       actions={
         <Button variant="contained" color="primary" onClick={handleSync} disabled={loadingGroups}>
           {loadingGroups ? "Sincronizando..." : "Sincronizar grupos"}
@@ -170,7 +170,7 @@ export default function GroupSenderPage() {
             <TextField
               {...params}
               label="Grupos"
-              placeholder="Pesquise e selecione um ou mais grupos..."
+              placeholder="Busque y seleccione uno o más grupos..."
             />
           )}
           renderOption={(props, g) => (
@@ -188,16 +188,16 @@ export default function GroupSenderPage() {
 
         <TextField
           fullWidth
-          label="Mensagem"
+          label="Mensaje"
           multiline
           rows={6}
-          placeholder="Texto da promoção, link da Shopee, etc..."
+          placeholder="Texto de la promoción, enlace de Shopee, etc..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           helperText={
             selectedGroups.length === 0
-              ? "Selecione um ou mais grupos."
-              : `A mensagem será enviada para ${selectedGroups.length} grupo(s).`
+              ? "Seleccione uno o más grupos."
+              : `El mensaje será enviado a ${selectedGroups.length} grupo(s).`
           }
           sx={{ mb: 2 }}
         />
@@ -210,18 +210,18 @@ export default function GroupSenderPage() {
               color="primary"
             />
           }
-          label="Mencionar Todos — notifica todos do grupo sem incluir @ na mensagem (menção fantasma)"
+          label="Mencionar a Todos — notifica a todos en el grupo sin incluir @ en el mensaje (mención fantasma)"
           sx={{ mb: 2, display: "block" }}
         />
 
         {atDailyLimit && (
           <Alert severity="warning" sx={{ mb: 2 }}>
-            Limite diário de envios para grupos atingido ({limits?.usedToday}/{limits?.limit}). Disparos e campanhas
-            “Enviar agora” ficam bloqueados até amanhã.
+            Límite diario de envíos a grupos alcanzado ({limits?.usedToday}/{limits?.limit}). Los envíos y campañas
+            “Enviar ahora” quedarán bloqueados hasta mañana.
           </Alert>
         )}
         <Button variant="contained" color="primary" type="submit" disabled={sending || atDailyLimit}>
-          {sending ? "Enviando..." : atDailyLimit ? "Limite diário atingido" : "Disparar mensagem"}
+          {sending ? "Enviando..." : atDailyLimit ? "Límite diario alcanzado" : "Enviar mensaje"}
         </Button>
       </Paper>
 

@@ -101,12 +101,12 @@ export async function loginUser(email: string, password: string) {
     include: { company: true },
   });
   if (!user) {
-    throw new Error("Credenciais inválidas");
+    throw new Error("Credenciales inválidas");
   }
 
   const isValid = await bcrypt.compare(password, user.passwordHash);
   if (!isValid) {
-    throw new Error("Credenciais inválidas");
+    throw new Error("Credenciales inválidas");
   }
 
   if (user.companyId && user.company && user.company.isActive === false) {

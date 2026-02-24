@@ -29,7 +29,7 @@ router.get("/", async (req: AuthRequest, res) => {
 
     res.json(invoices);
   } catch (err: any) {
-    res.status(400).json({ message: err?.message ?? "Erro ao listar faturas" });
+    res.status(400).json({ message: err?.message ?? "Error al listar las facturas" });
   }
 });
 
@@ -43,11 +43,11 @@ router.patch("/:id/mark-paid", async (req: AuthRequest, res) => {
     });
 
     if (!invoice) {
-      return res.status(404).json({ message: "Fatura não encontrada" });
+      return res.status(404).json({ message: "Factura no encontrada" });
     }
 
     if (invoice.status === "paid") {
-      return res.status(400).json({ message: "Fatura já está paga" });
+      return res.status(400).json({ message: "La factura ya está pagada" });
     }
 
     const now = new Date();
@@ -86,7 +86,7 @@ router.patch("/:id/mark-paid", async (req: AuthRequest, res) => {
 
     res.json(updated);
   } catch (err: any) {
-    res.status(400).json({ message: err?.message ?? "Erro ao dar baixa" });
+    res.status(400).json({ message: err?.message ?? "Error al realizar la baja manual" });
   }
 });
 

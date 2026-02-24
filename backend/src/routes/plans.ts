@@ -54,7 +54,7 @@ router.post("/", async (req, res) => {
     const data = schema.parse(req.body);
 
     const existing = await prisma.plan.findUnique({ where: { slug: data.slug } });
-    if (existing) return res.status(400).json({ message: "Slug já existe" });
+    if (existing) return res.status(400).json({ message: "El slug ya existe" });
 
     const limits = { ...defaultLimits, ...data.limits };
     const plan = await prisma.plan.create({
@@ -67,7 +67,7 @@ router.post("/", async (req, res) => {
     });
     res.status(201).json(plan);
   } catch (err: any) {
-    res.status(400).json({ message: err.message ?? "Erro ao criar plano" });
+    res.status(400).json({ message: err.message ?? "Error al crear el plan" });
   }
 });
 
@@ -87,7 +87,7 @@ router.put("/:id", async (req, res) => {
     });
     res.json(plan);
   } catch (err: any) {
-    res.status(400).json({ message: err.message ?? "Erro ao atualizar" });
+    res.status(400).json({ message: err.message ?? "Error al actualizar" });
   }
 });
 
@@ -95,12 +95,12 @@ router.delete("/:id", async (req, res) => {
   try {
     const subs = await prisma.subscription.count({ where: { planId: req.params.id } });
     if (subs > 0) {
-      return res.status(400).json({ message: "Plano em uso. Desative-o em vez de excluir." });
+      return res.status(400).json({ message: "Plan en uso. Desactívelo en lugar de eliminarlo." });
     }
     await prisma.plan.delete({ where: { id: req.params.id } });
     res.json({ ok: true });
   } catch (err: any) {
-    res.status(400).json({ message: err.message ?? "Erro ao remover" });
+    res.status(400).json({ message: err.message ?? "Error al eliminar" });
   }
 });
 

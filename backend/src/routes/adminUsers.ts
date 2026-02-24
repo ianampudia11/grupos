@@ -54,14 +54,14 @@ router.post("/users", async (req: AuthRequest, res) => {
     const targetCompanyId =
       me?.role === "SUPERADMIN" ? companyId ?? me?.companyId : me?.companyId;
     if (me?.role !== "SUPERADMIN" && !targetCompanyId) {
-      return res.status(400).json({ message: "Usuário precisa estar em uma empresa" });
+      return res.status(400).json({ message: "El usuario debe estar en una empresa" });
     }
     if (me?.role === "ADMIN" && role === "ADMIN") {
-      return res.status(400).json({ message: "Apenas SuperAdmin pode criar outros administradores." });
+      return res.status(400).json({ message: "Solo el SuperAdmin puede crear otros administradores." });
     }
 
     const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) return res.status(400).json({ message: "E-mail já cadastrado" });
+    if (existing) return res.status(400).json({ message: "El correo electrónico ya está registrado" });
 
     if (targetCompanyId) {
       const { assertWithinLimit } = await import("../services/planLimitsService");
@@ -83,7 +83,7 @@ router.post("/users", async (req: AuthRequest, res) => {
     });
     res.status(201).json(user);
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao criar usuário" });
+    res.status(400).json({ message: err.message || "Error al crear el usuario" });
   }
 });
 
@@ -97,9 +97,9 @@ router.put("/users/:id", async (req: AuthRequest, res) => {
       where: { id: req.params.id },
       select: { companyId: true, role: true },
     });
-    if (!target) return res.status(404).json({ message: "Usuário não encontrado" });
+    if (!target) return res.status(404).json({ message: "Usuario no encontrado" });
     if (me?.role === "ADMIN" && target.companyId !== me?.companyId) {
-      return res.status(403).json({ message: "Sem permissão para editar este usuário." });
+      return res.status(403).json({ message: "Sin permiso para editar este usuario." });
     }
 
     const schema = z.object({
@@ -112,7 +112,7 @@ router.put("/users/:id", async (req: AuthRequest, res) => {
     const data = schema.parse(req.body);
 
     if (me?.role === "ADMIN" && data.role === "ADMIN") {
-      return res.status(400).json({ message: "Apenas SuperAdmin pode promover a administrador." });
+      return res.status(400).json({ message: "Solo el SuperAdmin puede promover a administrador." });
     }
 
     const update: any = {};
@@ -134,7 +134,7 @@ router.put("/users/:id", async (req: AuthRequest, res) => {
     });
     res.json(user);
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao atualizar usuário" });
+    res.status(400).json({ message: err.message || "Error al actualizar el usuario" });
   }
 });
 
@@ -148,14 +148,14 @@ router.delete("/users/:id", async (req: AuthRequest, res) => {
       where: { id: req.params.id },
       select: { companyId: true },
     });
-    if (!target) return res.status(404).json({ message: "Usuário não encontrado" });
+    if (!target) return res.status(404).json({ message: "Usuario no encontrado" });
     if (me?.role === "ADMIN" && target.companyId !== me?.companyId) {
-      return res.status(403).json({ message: "Sem permissão para remover este usuário." });
+      return res.status(403).json({ message: "Sin permiso para eliminar este usuario." });
     }
     await prisma.user.delete({ where: { id: req.params.id } });
     res.json({ ok: true });
   } catch (err: any) {
-    res.status(400).json({ message: err.message || "Erro ao remover usuário" });
+    res.status(400).json({ message: err.message || "Error al eliminar el usuario" });
   }
 });
 

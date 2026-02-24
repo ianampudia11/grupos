@@ -26,7 +26,7 @@ router.post("/sessions/:sessionId/disconnect", async (req, res) => {
     const session = await prisma.whatsappSession.findUnique({
       where: { id: req.params.sessionId },
     });
-    if (!session) return res.status(404).json({ message: "Sessão não encontrada" });
+    if (!session) return res.status(404).json({ message: "Sesión no encontrada" });
     const { destroyClient } = await import("../services/whatsappClientManager");
     await destroyClient(session.id);
     await prisma.whatsappSession.update({
@@ -35,7 +35,7 @@ router.post("/sessions/:sessionId/disconnect", async (req, res) => {
     });
     res.json({ ok: true });
   } catch (err: any) {
-    res.status(400).json({ message: err.message ?? "Erro ao desconectar" });
+    res.status(400).json({ message: err.message ?? "Error al desconectar" });
   }
 });
 
@@ -68,7 +68,7 @@ router.get("/:id", async (req, res) => {
       },
     },
   });
-  if (!company) return res.status(404).json({ message: "Empresa não encontrada" });
+  if (!company) return res.status(404).json({ message: "Empresa no encontrada" });
   const { isClientReady } = await import("../services/whatsappClientManager");
   const sessionsWithStatus = company.whatsappSessions.map((s) => ({
     ...s,
@@ -89,13 +89,13 @@ router.post("/", async (req, res) => {
     const data = schema.parse(req.body);
 
     const existing = await prisma.company.findUnique({ where: { slug: data.slug } });
-    if (existing) return res.status(400).json({ message: "Slug já existe" });
+    if (existing) return res.status(400).json({ message: "El slug ya existe" });
 
     const company = await prisma.company.create({
       data,
     });
     await prisma.whatsappSession.create({
-      data: { companyId: company.id, name: "Conexão Principal", isDefault: true },
+      data: { companyId: company.id, name: "Conexión Principal", isDefault: true },
     });
     const companyWithSession = await prisma.company.findUnique({
       where: { id: company.id },
@@ -103,7 +103,7 @@ router.post("/", async (req, res) => {
     });
     res.status(201).json(companyWithSession ?? company);
   } catch (err: any) {
-    res.status(400).json({ message: err.message ?? "Erro ao criar empresa" });
+    res.status(400).json({ message: err.message ?? "Error al crear la empresa" });
   }
 });
 
@@ -117,7 +117,7 @@ router.post("/:id/deactivate", async (req, res) => {
     res.json(company);
   } catch (err: any) {
     if (err?.code === "P2025") return res.status(404).json({ message: "Empresa não encontrada" });
-    res.status(400).json({ message: err.message ?? "Erro ao desativar" });
+    res.status(400).json({ message: err.message ?? "Error al desactivar" });
   }
 });
 
@@ -131,7 +131,7 @@ router.post("/:id/activate", async (req, res) => {
     res.json(company);
   } catch (err: any) {
     if (err?.code === "P2025") return res.status(404).json({ message: "Empresa não encontrada" });
-    res.status(400).json({ message: err.message ?? "Erro ao reativar" });
+    res.status(400).json({ message: err.message ?? "Error al reactivar" });
   }
 });
 
@@ -152,7 +152,7 @@ router.put("/:id", async (req, res) => {
     });
     res.json(company);
   } catch (err: any) {
-    res.status(400).json({ message: err.message ?? "Erro ao atualizar" });
+    res.status(400).json({ message: err.message ?? "Error al actualizar" });
   }
 });
 
@@ -162,7 +162,7 @@ router.delete("/:id", async (req, res) => {
     res.json({ ok: true });
   } catch (err: any) {
     if (err?.code === "P2025") return res.status(404).json({ message: "Empresa não encontrada" });
-    res.status(400).json({ message: err.message ?? "Erro ao remover" });
+    res.status(400).json({ message: err.message ?? "Error al eliminar" });
   }
 });
 
