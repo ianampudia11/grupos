@@ -3,10 +3,12 @@ import axios from "axios";
 // Suporta tanto Vite (VITE_*) quanto o formato pedido (REACT_APP_BACKEND_URL)
 const envAny = import.meta.env as any;
 
-const API_BASE_URL =
-  envAny.VITE_API_BASE_URL ||
-  envAny.REACT_APP_BACKEND_URL ||
-  "http://localhost:8080/api";
+const isDev = import.meta.env?.DEV;
+
+// En prod, siempre usamos rutas relativas para evitar problemas de hardcoding en el build
+const API_BASE_URL = isDev
+  ? (envAny.VITE_API_BASE_URL || envAny.REACT_APP_BACKEND_URL || "http://localhost:8080/api")
+  : "/api";
 
 /** URL base do backend (sem /api) para assets estáticos */
 export function getBackendBaseUrl(): string {
@@ -54,7 +56,7 @@ api.interceptors.response.use(
           const h = c.headers as Record<string, unknown>;
           if ("Authorization" in h) h.Authorization = "[redacted]";
         }
-      } catch (_) {}
+      } catch (_) { }
     }
     return Promise.reject(err);
   }
