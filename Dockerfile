@@ -8,6 +8,7 @@ RUN chmod +x node_modules/.bin/* && npm run build
 
 # Etapa 2: Construcción del Backend
 FROM node:20-alpine AS backend-builder
+RUN apk add --no-cache openssl libc6-compat
 WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm install
@@ -17,6 +18,7 @@ RUN npm run build
 
 # Etapa 3: Imagen Final
 FROM node:20-alpine
+RUN apk add --no-cache openssl libc6-compat
 WORKDIR /app
 
 # Instalar dependencias de producción para el backend
