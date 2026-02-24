@@ -107,7 +107,7 @@ const pendingCreate = new Map<string, Promise<ClientState>>();
 
 const MAX_CONCURRENT_INITS = 1;
 const INIT_SLOT_RELEASE_DELAY_MS = 8000;
-/** Backoff progressivo estilo Ticketz: espera crescente antes de reconectar (5s, 15s, 30s, 60s, …). */
+
 function getBackoffDelayMs(attempt: number): number {
   const baseMs = 5000;
   const maxMs = 120000;
